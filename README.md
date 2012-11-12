@@ -1,20 +1,28 @@
 mapguide4j-rest
 ===============
 
-Java-based REST extension for MapGuide
+mapguide4j-rest is a Java-based REST extension for MapGuide using the Java version of the MapGuide Web Extensions API
 
-Mostly inspired by discussions on a RESTful web service for MapGuide: http://trac.osgeo.org/mapguide/wiki/Future/RESTfulWebServices
+mapguide4j-rest aims to provide a RESTful replacement to the existing mapagent http interface. All responses are the same format that you would expect if doing the equivalent request to the mapagent
+
+Mostly inspired by the original discussions on a RESTful web service for MapGuide: http://trac.osgeo.org/mapguide/wiki/Future/RESTfulWebServices
 
 Requirements
 ============
+
+ - Microsoft Windows (for now)
  - Java 6 SDK (bitness must match your MapGuide Server bitness)
  - Play! Framework 2.0.4
- - MapGuide Open Source 2.4 (with Tomcat option)
+ - MapGuide Open Source 2.4 (with Tomcat option, you don't need to actually have the Apache/Tomcat installed and running, we just need the MapGuideApi.jar and its dlls)
 
 Setup
 =====
 
-1. Copy the following MapGuide dlls into this directory:
+1. Install the Play! Framework (eg. C:\play)
+
+2. Clone this repository into a subdirectory in the Play framework (eg. C:\play\mapguide4j-rest)
+
+3. Copy the following MapGuide dlls from your MapGuide install into your clone (must use the correct bitness):
 
  - ACE.dll
  - GEOS.dll
@@ -31,9 +39,88 @@ Setup
  - MgWebSupport.dll
  - xerces-c_3_1mg.dll
 
-2. Copy MapGuideApi.jar into the lib directory
+4. Copy MapGuideApi.jar into the lib directory of your clone
 
-3. Start the play framework on this directory
+5. Start the play framework on the clone directory. You may need to set the PATH and JAVA_HOME environment variables to ensure you are using the correct Java SDK
 
-4. The mapguide4j-rest endpoint will be available under http://localhost:9000/mapguide/rest
+6. The mapguide4j-rest endpoint will be available under http://localhost:9000/mapguide/rest
 
+What's currently implemented
+============================
+
+Resource Service APIs
+---------------------
+
+Getting the resource content of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content
+
+Getting the resource header of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header
+
+List the resource data of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data
+    
+List the resources that reference Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references
+    
+Feature Service APIs
+--------------------
+
+List spatial contexts of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts
+
+List schema names of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas
+    
+Describe Feature Schema (SHP_Default) of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Default
+    
+List class names under the Feature Schema (SHP_Default) of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Default/classes
+    
+Describe Class Definition (SHP_Default:Parcels) of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Default/Parcels
+
+Coordinate System APIs
+----------------------
+
+List coordinate system categories
+
+    GET http://localhost:9000/mapguide/rest/coordsys/categories
+    
+List coordinate systems under category of Australia
+
+    GET http://localhost:9000/mapguide/rest/coordsys/category/Australia
+
+Get the EPSG code of the coordinate system (mentor code: LL84)
+
+    GET http://localhost:9000/mapguide/rest/coordsys/mentor/LL84/epsg
+    
+Get the WKT of the coordinate system (mentor code: LL84)
+
+    GET http://localhost:9000/mapguide/rest/coordsys/mentor/LL84/wkt
+    
+Get the mentor code of the coordinate system (EPSG:4326)
+
+    GET http://localhost:9000/mapguide/rest/coordsys/epsg/4326/mentor
+    
+Get the WKT of the coordinate system (EPSG:4326)
+
+    GET http://localhost:9000/mapguide/rest/coordsys/epsg/4326/wkt
+    
+Get the mentor code of the coordinate system wkt
+
+    GET http://localhost:9000/mapguide/rest/coordsys/tomentor/GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.01745329251994]]
+    
+Get the epsg code of the coordinate system wkt
+
+    GET http://localhost:9000/mapguide/rest/coordsys/toepsg/GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.01745329251994]]
