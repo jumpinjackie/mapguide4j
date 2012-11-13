@@ -3,20 +3,37 @@ package controllers;
 import actions.*;
 import play.*;
 import play.mvc.*;
-import java.lang.StringBuilder;
+
+import java.lang.String;
 
 import org.osgeo.mapguide.*;
 
 public abstract class MgAbstractController extends Controller {
 
-    protected static MgSiteConnection CreateAnonymousMapGuideConnection() throws MgException {
+    protected static boolean isValidResourceType(String resType) {
+        return resType == MgResourceType.Folder ||
+               resType == MgResourceType.FeatureSource ||
+               resType == MgResourceType.LayerDefinition ||
+               resType == MgResourceType.MapDefinition ||
+               resType == MgResourceType.WebLayout ||
+               resType == MgResourceType.ApplicationDefinition ||
+               resType == MgResourceType.SymbolDefinition ||
+               resType == MgResourceType.SymbolLibrary ||
+               resType == MgResourceType.PrintLayout ||
+               resType == MgResourceType.LoadProcedure ||
+               resType == MgResourceType.DrawingSource ||
+               resType == MgResourceType.Map ||
+               resType == MgResourceType.Selection;
+    }
+
+    protected static MgSiteConnection createAnonymousMapGuideConnection() throws MgException {
         MgUserInformation userInfo = new MgUserInformation("Anonymous", "");
         MgSiteConnection siteConn = new MgSiteConnection();
         siteConn.Open(userInfo);
         return siteConn;
     }
 
-    protected static MgSiteConnection CreateMapGuideConnection() throws MgException {
+    protected static MgSiteConnection createMapGuideConnection() throws MgException {
         String sessionId = session(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY);
         MgUserInformation userInfo = new MgUserInformation(sessionId);
         MgSiteConnection siteConn = new MgSiteConnection();
@@ -24,7 +41,7 @@ public abstract class MgAbstractController extends Controller {
         return siteConn;
     }
 
-    protected static MgResourceIdentifier ConstructResourceId(String repoType, String resourcePath, boolean appendSlashIfNeeded) throws MgException {
+    protected static MgResourceIdentifier constructResourceId(String repoType, String resourcePath, boolean appendSlashIfNeeded) throws MgException {
         String resIdStr = repoType + ":";
         if (repoType == MgRepositoryType.Session) {
             resIdStr += session(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY);
@@ -37,8 +54,8 @@ public abstract class MgAbstractController extends Controller {
         return new MgResourceIdentifier(resIdStr);
     }
 
-    protected static MgResourceIdentifier ConstructResourceId(String repoType, String resourcePath) throws MgException {
-        return ConstructResourceId(repoType, resourcePath, false);
+    protected static MgResourceIdentifier constructResourceId(String repoType, String resourcePath) throws MgException {
+        return constructResourceId(repoType, resourcePath, false);
     }
 
     protected static Result mgServerError(MgException mex) {
@@ -79,9 +96,14 @@ public abstract class MgAbstractController extends Controller {
 
     protected static Result mgStringCollectionXml(MgStringCollection strings) {
         try {
-            MgByteReader reader = strings.ToXml();
-            response().setContentType(reader.GetMimeType());
-            return ok(reader.ToString());
+            if (strings != null) {
+                MgByteReader reader = strings.ToXml();
+                response().setContentType(reader.GetMimeType());
+                return ok(reader.ToString());
+            } else {
+                response().setContentType("text/xml");
+                return ok("<StringCollection />");
+            }
         } catch (MgException ex) {
             return mgServerError(ex);
         }

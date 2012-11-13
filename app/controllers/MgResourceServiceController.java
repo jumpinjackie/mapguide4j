@@ -8,8 +8,8 @@ import org.osgeo.mapguide.*;
 public abstract class MgResourceServiceController extends MgAbstractAuthenticatedController {
     protected static Result getResourceContent(String repoType, String resourcePath) {
         try {
-            MgResourceIdentifier resId = ConstructResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = CreateMapGuideConnection();
+            MgResourceIdentifier resId = constructResourceId(repoType, resourcePath);
+            MgSiteConnection siteConn = createMapGuideConnection();
             MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
             MgByteReader resContent = resSvc.GetResourceContent(resId);
             response().setContentType(resContent.GetMimeType());
@@ -21,8 +21,8 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
     protected static Result getResourceHeader(String repoType, String resourcePath) {
         try {
-            MgResourceIdentifier resId = ConstructResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = CreateMapGuideConnection();
+            MgResourceIdentifier resId = constructResourceId(repoType, resourcePath);
+            MgSiteConnection siteConn = createMapGuideConnection();
             MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
             MgByteReader resHeader = resSvc.GetResourceHeader(resId);
             response().setContentType(resHeader.GetMimeType());
@@ -34,8 +34,8 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
     protected static Result enumerateResourceData(String repoType, String resourcePath) {
         try {
-            MgResourceIdentifier resId = ConstructResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = CreateMapGuideConnection();
+            MgResourceIdentifier resId = constructResourceId(repoType, resourcePath);
+            MgSiteConnection siteConn = createMapGuideConnection();
             MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
             MgByteReader resDataList = resSvc.EnumerateResourceData(resId);
             response().setContentType(resDataList.GetMimeType());
@@ -47,8 +47,8 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
     protected static Result getResourceData(String repoType, String resourcePath, String dataName) {
         try {
-            MgResourceIdentifier resId = ConstructResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = CreateMapGuideConnection();
+            MgResourceIdentifier resId = constructResourceId(repoType, resourcePath);
+            MgSiteConnection siteConn = createMapGuideConnection();
             MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
             MgByteReader resDataList = resSvc.EnumerateResourceData(resId);
             response().setContentType(resDataList.GetMimeType());
@@ -60,8 +60,8 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
     protected static Result enumerateResourceReferences(String repoType, String resourcePath) {
         try {
-            MgResourceIdentifier resId = ConstructResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = CreateMapGuideConnection();
+            MgResourceIdentifier resId = constructResourceId(repoType, resourcePath);
+            MgSiteConnection siteConn = createMapGuideConnection();
             MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
             MgByteReader resRefList = resSvc.EnumerateReferences(resId);
             response().setContentType(resRefList.GetMimeType());

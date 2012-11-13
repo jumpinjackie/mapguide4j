@@ -16,8 +16,6 @@ POST /mapguide/rest/operation/createSession                         controllers.
 POST /mapguide/rest/operation/copyResource                          controllers.MgOperationController.copyResource()
 
 # Library
-GET /mapguide/rest/library/*resourcePath/list?                                              controllers.MgLibraryResourceServiceController.enumerateResourcesDefault(resourcePath)
-#GET /mapguide/rest/library/*resourcePath/list?type=:resType&depth=:depth&children=:children controllers.MgLibraryResourceServiceController.enumerateResources(resourcePath, resType: String, depth: Long, children: Boolean)
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName/classes             controllers.MgLibraryFeatureServiceController.getClassNames(resourcePath, schemaName: String)
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName                     controllers.MgLibraryFeatureServiceController.getFeatureSchema(resourcePath, schemaName: String)
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName/:className          controllers.MgLibraryFeatureServiceController.getClassDefinition(resourcePath, schemaName: String, className: String)
@@ -26,11 +24,16 @@ DELETE /mapguide/rest/library/*resourcePath/data/$dataName<^[./]*$>             
 GET /mapguide/rest/library/*resourcePath/data                                   controllers.MgLibraryResourceServiceController.enumerateResourceData(resourcePath)
 GET /mapguide/rest/library/*resourcePath/header                                 controllers.MgLibraryResourceServiceController.getResourceHeader(resourcePath)
 GET /mapguide/rest/library/*resourcePath/schemas                                controllers.MgLibraryFeatureServiceController.getSchemaNames(resourcePath)
-GET /mapguide/rest/library/*resourcePath/datastores                             controllers.MgLibraryFeatureServiceController.enumerateDataStores(resourcePath)
 GET /mapguide/rest/library/*resourcePath/spatialcontexts                        controllers.MgLibraryFeatureServiceController.getSpatialContexts(resourcePath)
 GET /mapguide/rest/library/*resourcePath/references                             controllers.MgLibraryResourceServiceController.enumerateResourceReferences(resourcePath)
 GET /mapguide/rest/library/*resourcePath/content                                controllers.MgLibraryResourceServiceController.getResourceContent(resourcePath)
 DELETE /mapguide/rest/library/*resourcePath                                     controllers.MgLibraryResourceServiceController.deleteResource(resourcePath)
+GET /mapguide/rest/library/list                                                 controllers.MgLibraryResourceServiceController.enumerateResources(resourcePath = "")
+GET /mapguide/rest/library/*resourcePath/list                                   controllers.MgLibraryResourceServiceController.enumerateResources(resourcePath)
+GET /mapguide/rest/providers                                                    controllers.MgLibraryFeatureServiceController.getFeatureProviders()
+GET /mapguide/rest/providers/:fdoProviderName/capabilities                      controllers.MgLibraryFeatureServiceController.getProviderCapabilities(fdoProviderName: String)
+GET /mapguide/rest/providers/:fdoProviderName/datastores                        controllers.MgLibraryFeatureServiceController.enumerateDataStores(fdoProviderName: String)
+GET /mapguide/rest/providers/:fdoProviderName/connectvalues/:propName           controllers.MgLibraryFeatureServiceController.getConnectPropertyValues(fdoProviderName: String, propName: String)
 
 # FIXME: MgReadOnlyStream is not implemented correctly. We get an image back, but it's totally garbled
 GET /mapguide/rest/library/*resourcePath/basetileimage/:baseLayerGroupName/:scaleIndex/:tileCol,:tileRow    controllers.MgLibraryTileServiceController.getTile(resourcePath, baseLayerGroupName: String, scaleIndex: Long, tileCol: Long, tileRow: Long)
