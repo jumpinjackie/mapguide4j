@@ -95,6 +95,10 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
         }
     }
 
+    public static Result selectFeatures(String resourcePath, String schemaName, String className) {
+        return selectFeatures(MgRepositoryType.Library, resourcePath, schemaName, className);
+    }
+
     public static Result getSchemaNames(String resourcePath) {
         return getSchemaNames(MgRepositoryType.Library, resourcePath);
     }

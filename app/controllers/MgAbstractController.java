@@ -5,6 +5,7 @@ import play.*;
 import play.mvc.*;
 
 import java.lang.String;
+import java.lang.StringBuilder;
 
 import org.osgeo.mapguide.*;
 
@@ -24,6 +25,43 @@ public abstract class MgAbstractController extends Controller {
                resType == MgResourceType.DrawingSource ||
                resType == MgResourceType.Map ||
                resType == MgResourceType.Selection;
+    }
+
+    public static String escapeXmlCharacters(String str) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            switch(c) {
+                case '&' :
+                {
+                    sb.append("&amp;");
+                    break;
+                }
+                case '\'' :
+                {
+                    sb.append("&apos;");
+                    break;
+                }
+                case '>' :
+                {
+                    sb.append("&gt;");
+                    break;
+                }
+                case '<' :
+                {
+                    sb.append("&lt;");
+                    break;
+                }
+                case '"' :
+                {
+                    sb.append("&quot;");
+                    break;
+                }
+                default :
+                    sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     protected static MgSiteConnection createAnonymousMapGuideConnection() throws MgException {

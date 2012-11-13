@@ -11,8 +11,8 @@ import org.osgeo.mapguide.*;
 public class MgLibraryTileServiceController extends MgAbstractController {
     public static Result getTile(String resourcePath, String baseLayerGroupName, Long scaleIndex, Long tileCol, Long tileRow) {
         try {
-            MgResourceIdentifier mdfId = ConstructResourceId(MgRepositoryType.Library, resourcePath);
-            MgSiteConnection siteConn = CreateAnonymousMapGuideConnection();
+            MgResourceIdentifier mdfId = constructResourceId(MgRepositoryType.Library, resourcePath);
+            MgSiteConnection siteConn = createAnonymousMapGuideConnection();
             MgTileService tileSvc = (MgTileService)siteConn.CreateService(MgServiceType.TileService);
             MgByteReader image  = tileSvc.GetTile(mdfId, baseLayerGroupName, tileCol.intValue(), tileRow.intValue(), scaleIndex.intValue());
             response().setContentType(image.GetMimeType());

@@ -35,6 +35,9 @@ GET /mapguide/rest/providers/:fdoProviderName/capabilities                      
 GET /mapguide/rest/providers/:fdoProviderName/datastores                        controllers.MgLibraryFeatureServiceController.enumerateDataStores(fdoProviderName: String)
 GET /mapguide/rest/providers/:fdoProviderName/connectvalues/:propName           controllers.MgLibraryFeatureServiceController.getConnectPropertyValues(fdoProviderName: String, propName: String)
 
+# CRUD
+GET /mapguide/rest/library/*resourcePath/features/:schemaName/:className        controllers.MgLibraryFeatureServiceController.selectFeatures(resourcePath, schemaName: String, className: String)
+
 # Site
 GET /mapguide/rest/site/status                                                  controllers.MgSiteAdminController.getSiteStatus()
 GET /mapguide/rest/site/version                                                 controllers.MgSiteAdminController.getSiteVersion()
