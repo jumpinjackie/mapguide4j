@@ -92,15 +92,17 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             
             MgFeatureQueryOptions query = new MgFeatureQueryOptions();
             Map<String, String[]> queryParams = request().queryString();
+
+            //TODO: Support:
+            // - Computed Properties
+            // - Ordering
+            // - pagination
+
             if (queryParams.get("properties") != null) {
                 String[] names = queryParams.get("properties")[0].split(",");
                 for (String propName : names) {
                     query.AddFeatureProperty(propName);
                 }
-            }
-            if (queryParams.get("aliases") != null && queryParams.get("expressions") != null) {
-                String[] names = queryParams.get("aliases")[0].split(",");
-                String[] values = queryParams.get("expressions")[0].split(",");
             }
             String finalFilter = "";
             if (queryParams.get("filter") != null) {
@@ -124,8 +126,42 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
                     return badRequest(e.getMessage());
                 }
             }
+
+            MgCoordinateSystemTransform transform = null;
+            if (queryParams.get("transformto") != null) {
+                String csCode = queryParams.get("transformto")[0];
+                MgCoordinateSystemFactory csFactory = new MgCoordinateSystemFactory();
+                MgCoordinateSystem targetCs = csFactory.CreateFromCode(csCode);
+                MgClassDefinition clsDef = featSvc.GetClassDefinition(fsId, schemaName, className);
+                //Has a designated Geometry property, we'll use its spatial context
+                if (!clsDef.GetDefaultGeometryPropertyName().equals("")) {
+                    MgPropertyDefinitionCollection props = clsDef.GetProperties();
+                    int idx = props.IndexOf(clsDef.GetDefaultGeometryPropertyName());
+                    if (idx >= 0) {
+                        MgGeometricPropertyDefinition geomProp = (MgGeometricPropertyDefinition)props.GetItem(idx);
+                        String scName = geomProp.GetSpatialContextAssociation();
+                        MgSpatialContextReader scReader = featSvc.GetSpatialContexts(fsId, false);
+                        try {
+                            while(scReader.ReadNext()) {
+                                //Found the matching spatial context, create a MgCoordinateSystem from its wkt
+                                if (scReader.GetName().equals(scName)) {
+                                    MgCoordinateSystem sourceCs = csFactory.Create(scReader.GetCoordinateSystemWkt());
+                                    transform = csFactory.GetTransform(sourceCs, targetCs);
+                                    break;
+                                }
+                            }
+                        }
+                        finally {
+                            scReader.Close();
+                        }
+                    }
+                }
+            }
+
             MgFeatureReader reader = featSvc.SelectFeatures(fsId, schemaName + ":" + className, query);
             MgFeatureSetChunkedResult result = new MgFeatureSetChunkedResult(featSvc, reader, limit);
+            if (transform != null)
+                result.setTransform(transform);
             response().setContentType("text/xml");
             return ok(result);
         } catch (MgException ex) {

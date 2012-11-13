@@ -12,11 +12,17 @@ public class MgFeatureSetChunkedResult extends StringChunks {
     private MgFeatureService _featSvc;
     private int _limit;
 
+    private MgCoordinateSystemTransform _transform;
+
     public MgFeatureSetChunkedResult(MgFeatureService featSvc, MgFeatureReader reader, int maxFeatures) {
         super();
         _reader = reader;
         _featSvc = featSvc;
         _limit = maxFeatures;
+    }
+
+    public void setTransform(MgCoordinateSystemTransform transform) {
+        _transform = transform;
     }
 
     public void onReady(Chunks.Out<String> output) {
@@ -32,7 +38,7 @@ public class MgFeatureSetChunkedResult extends StringChunks {
             MgWktReaderWriter wktRw = new MgWktReaderWriter();
             StringBuilder xml = new StringBuilder("<FeatureSet>");
             String classXml = _featSvc.SchemaToXml(schemas);
-            //HACK: The method includes the xml prolog (the controller will have already put this in)
+            //HACK: The method includes the xml prolog (the play controller will have already put this in)
             //so strip it out
             xml.append(classXml.substring(classXml.indexOf("<xs:schema")));
             xml.append("<Features>");
@@ -73,10 +79,9 @@ public class MgFeatureSetChunkedResult extends StringChunks {
                                 {
                                     try {
                                         MgByteReader agf = _reader.GetGeometry(i);
-                                        MgGeometry geom = agfRw.Read(agf);
+                                        MgGeometry geom = (_transform != null) ? agfRw.Read(agf, _transform) : agfRw.Read(agf);
                                         xml.append(wktRw.Write(geom));
                                     } catch (MgException ex) {
-
                                     }
                                 }
                                 break;
