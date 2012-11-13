@@ -35,6 +35,14 @@ GET /mapguide/rest/providers/:fdoProviderName/capabilities                      
 GET /mapguide/rest/providers/:fdoProviderName/datastores                        controllers.MgLibraryFeatureServiceController.enumerateDataStores(fdoProviderName: String)
 GET /mapguide/rest/providers/:fdoProviderName/connectvalues/:propName           controllers.MgLibraryFeatureServiceController.getConnectPropertyValues(fdoProviderName: String, propName: String)
 
+# Site
+GET /mapguide/rest/site/status                                                  controllers.MgSiteAdminController.getSiteStatus()
+GET /mapguide/rest/site/version                                                 controllers.MgSiteAdminController.getSiteVersion()
+GET /mapguide/rest/site/groups                                                  controllers.MgSiteAdminController.getGroups()
+GET /mapguide/rest/site/user/:userName/groups                                   controllers.MgSiteAdminController.getGroupsForUser(userName: String)
+GET /mapguide/rest/site/user/:userName/roles                                   controllers.MgSiteAdminController.getRolesForUser(userName: String)
+GET /mapguide/rest/site/groups/:groupName/users                                 controllers.MgSiteAdminController.getUsersForGroup(groupName: String)
+
 # FIXME: MgReadOnlyStream is not implemented correctly. We get an image back, but it's totally garbled
 GET /mapguide/rest/library/*resourcePath/basetileimage/:baseLayerGroupName/:scaleIndex/:tileCol,:tileRow    controllers.MgLibraryTileServiceController.getTile(resourcePath, baseLayerGroupName: String, scaleIndex: Long, tileCol: Long, tileRow: Long)
 

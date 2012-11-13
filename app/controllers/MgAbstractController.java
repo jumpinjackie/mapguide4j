@@ -65,7 +65,7 @@ public abstract class MgAbstractController extends Controller {
             //TODO: There are possibly more MapGuide Exceptions that can map cleanly to HTTP status codes
             if (mex instanceof MgResourceNotFoundException || mex instanceof MgResourceDataNotFoundException) { //404
                 return notFound(data);
-            } else if (mex instanceof MgAuthenticationFailedException) { //401
+            } else if (mex instanceof MgAuthenticationFailedException || mex instanceof MgUnauthorizedAccessException) { //401
                 return unauthorized(data);
             }
             return internalServerError(data);
@@ -88,6 +88,16 @@ public abstract class MgAbstractController extends Controller {
         try {
             MgByteReader reader = batchProps.ToXml();
             response().setContentType(reader.GetMimeType());
+            return ok(reader.ToString());
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
+    }
+
+    protected static Result mgPropertyCollectionXml(MgPropertyCollection props) {
+        try {
+            MgByteReader reader = props.ToXml();
+            response().setContentType("text/xml"); //(reader.GetMimeType());
             return ok(reader.ToString());
         } catch (MgException ex) {
             return mgServerError(ex);

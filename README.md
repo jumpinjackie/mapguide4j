@@ -90,6 +90,22 @@ Describe Class Definition (SHP_Default:Parcels) of Library://Samples/Sheboygan/D
 
     GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Default/Parcels
 
+List registered FDO providers
+
+    GET http://localhost:9000/mapguide/rest/providers
+
+Describe the capabilities of the SDF provider
+
+    GET http://localhost:9000/mapguide/rest/providers/OSGeo.SDF/capabilities
+
+List the available data stores for the SQL Server provider based on partial connection parameters (specified in the query string)
+
+    GET http://localhost:9000/mapguide/rest/providers/OSGeo.SQLServerSpatial/datastores?Service=(local)\SQLEXPRESS&Username=myuser&Password=mypass
+
+Get the available connection values for the SDF connection property (ReadOnly)
+
+    GET http://localhost:9000/mapguide/rest/providers/OSGeo.SDF/connectvalues/ReadOnly
+
 Coordinate System APIs
 ----------------------
 
@@ -124,3 +140,33 @@ Get the mentor code of the coordinate system wkt
 Get the epsg code of the coordinate system wkt
 
     GET http://localhost:9000/mapguide/rest/coordsys/toepsg/GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.01745329251994]]
+
+
+Site APIs
+---------
+
+The following requests require a session id created from an Administrator account. Anonymous MapGuide session ids are denied access.
+
+Get current site status
+
+    GET http://localhost:9000/mapguide/rest/site/status
+
+Get current site version
+
+    GET http://localhost:9000/mapguide/rest/site/version
+
+List user groups
+
+    GET http://localhost:9000/mapguide/rest/site/groups
+
+List roles for WfsUser
+
+    GET http://localhost:9000/mapguide/rest/site/user/WfsUser/roles
+
+List groups for WfsUser
+
+    GET http://localhost:9000/mapguide/rest/site/user/WfsUser/groups
+
+List users under group "Everyone"
+
+    GET http://localhost:9000/mapguide/rest/site/groups/Everyone/users
