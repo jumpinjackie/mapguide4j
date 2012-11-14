@@ -11,6 +11,10 @@ GET /                                                               controllers.
 
 GET /mapguide/rest                                                  controllers.MgTestController.index()
 
+# mapagent compatibility shim
+GET /mapguide/mapagent/mapagent.fcgi                                controllers.MgMapAgentCompatibilityController.processGetRequest()
+POST /mapguide/mapagent/mapagent.fcgi                               controllers.MgMapAgentCompatibilityController.processPostRequest()
+
 # Operations
 POST /mapguide/rest/operation/createSession                         controllers.MgOperationController.createSession()
 POST /mapguide/rest/operation/copyResource                          controllers.MgOperationController.copyResource()
