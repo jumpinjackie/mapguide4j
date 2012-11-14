@@ -13,7 +13,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
     protected static Result getSchemaNames(String repoType, String resourcePath) {
         try {
-            MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
+            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
             MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
             MgStringCollection schemaNames = featSvc.GetSchemas(fsId);
@@ -26,7 +26,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
     protected static Result getSpatialContexts(String repoType, String resourcePath) {
         MgSpatialContextReader spatialContexts = null;
         try {
-            MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
+            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
             MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
             spatialContexts = featSvc.GetSpatialContexts(fsId, false);
@@ -46,7 +46,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
     protected static Result getClassNames(String repoType, String resourcePath, String schemaName) {
         try {
-            MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
+            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
             MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
             MgStringCollection classNames = featSvc.GetClasses(fsId, schemaName);
@@ -58,7 +58,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
     protected static Result getFeatureSchema(String repoType, String resourcePath, String schemaName) {
         try {
-            MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
+            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
             MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
             String schemaXml = featSvc.DescribeSchemaAsXml(fsId, schemaName, null);
@@ -71,7 +71,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
     protected static Result getClassDefinition(String repoType, String resourcePath, String schemaName, String className) {
         try {
-            MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
+            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
             MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
             MgStringCollection classNames = new MgStringCollection();
@@ -86,7 +86,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
     protected static Result selectFeatures(String repoType, String resourcePath, String schemaName, String className) {
         try {
-            MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
+            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
             MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
             

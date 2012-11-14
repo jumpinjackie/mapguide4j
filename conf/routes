@@ -11,13 +11,29 @@ GET /                                                               controllers.
 
 GET /mapguide/rest                                                  controllers.MgTestController.index()
 
-# mapagent compatibility shim
+# Existing web tier compatibility shims
 GET /mapguide/mapagent/mapagent.fcgi                                controllers.MgMapAgentCompatibilityController.processGetRequest()
 POST /mapguide/mapagent/mapagent.fcgi                               controllers.MgMapAgentCompatibilityController.processPostRequest()
 
-# Operations
-POST /mapguide/rest/operation/createSession                         controllers.MgOperationController.createSession()
-POST /mapguide/rest/operation/copyResource                          controllers.MgOperationController.copyResource()
+# Classic AJAX Viewer
+GET /mapguide/mapviewerajax/                                        controllers.MgClassicAjaxViewerController.index()
+GET /mapguide/mapviewerajax/mapframe.jsp                            controllers.MgClassicAjaxViewerController.mapframe()
+GET /mapguide/mapviewerajax/toolbar.jsp                             controllers.MgClassicAjaxViewerController.toolbar()
+GET /mapguide/mapviewerajax/formframe.jsp                           controllers.MgClassicAjaxViewerController.formframe()
+GET /mapguide/mapviewerajax/taskframe.jsp                           controllers.MgClassicAjaxViewerController.taskframe()
+GET /mapguide/mapviewerajax/taskbar.jsp                             controllers.MgClassicAjaxViewerController.taskbar()
+GET /mapguide/mapviewerajax/statusbar.jsp                           controllers.MgClassicAjaxViewerController.statusbar()
+GET /mapguide/mapviewerajax/legendctrl.jsp                          controllers.MgClassicAjaxViewerController.legendctrl()
+GET /mapguide/mapviewerajax/legendui.jsp                            controllers.MgClassicAjaxViewerController.legendui()
+GET /mapguide/mapviewerajax/legend.jsp                              controllers.MgClassicAjaxViewerController.legend()
+GET /mapguide/mapviewerajax/propertyctrl.jsp                        controllers.MgClassicAjaxViewerController.propertyctrl()
+GET /mapguide/mapviewerajax/tasklist.jsp                            controllers.MgClassicAjaxViewerController.tasklist()
+GET /mapguide/localized/*file                                       controllers.MgClassicAjaxViewerController.localizedasset(file)
+GET /mapguide/viewerfiles/*file                                     controllers.MgClassicAjaxViewerController.viewerasset(file)
+GET /mapguide/stdicons/*file                                        controllers.MgClassicAjaxViewerController.viewericon(file)
+
+#GET /mapguide/mapviewerjava/                                        controllers.MgClassicAjaxViewerController.index()
+
 
 # Library
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName/classes             controllers.MgLibraryFeatureServiceController.getClassNames(resourcePath, schemaName: String)
@@ -47,7 +63,7 @@ GET /mapguide/rest/site/status                                                  
 GET /mapguide/rest/site/version                                                 controllers.MgSiteAdminController.getSiteVersion()
 GET /mapguide/rest/site/groups                                                  controllers.MgSiteAdminController.getGroups()
 GET /mapguide/rest/site/user/:userName/groups                                   controllers.MgSiteAdminController.getGroupsForUser(userName: String)
-GET /mapguide/rest/site/user/:userName/roles                                   controllers.MgSiteAdminController.getRolesForUser(userName: String)
+GET /mapguide/rest/site/user/:userName/roles                                    controllers.MgSiteAdminController.getRolesForUser(userName: String)
 GET /mapguide/rest/site/groups/:groupName/users                                 controllers.MgSiteAdminController.getUsersForGroup(groupName: String)
 
 # FIXME: MgReadOnlyStream is not implemented correctly. We get an image back, but it's totally garbled

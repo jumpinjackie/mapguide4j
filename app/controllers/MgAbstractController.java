@@ -4,12 +4,22 @@ import actions.*;
 import play.*;
 import play.mvc.*;
 
+import java.io.*;
 import java.lang.String;
 import java.lang.StringBuilder;
 
 import org.osgeo.mapguide.*;
 
 public abstract class MgAbstractController extends Controller {
+
+    protected static Result javaException(Throwable e) {
+        //I need apache commons just for a class to get the full exception details to string? GTFO!
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        
+        return internalServerError(sw.toString());
+    }
 
     protected static boolean isValidResourceType(String resType) {
         return resType == MgResourceType.Folder ||
@@ -79,21 +89,18 @@ public abstract class MgAbstractController extends Controller {
         return siteConn;
     }
 
-    protected static MgResourceIdentifier constructResourceId(String repoType, String resourcePath, boolean appendSlashIfNeeded) throws MgException {
+    protected static MgResourceIdentifier constructLibraryResourceId(String repoType, String resourcePath, boolean appendSlashIfNeeded) throws MgException {
         String resIdStr = repoType + ":";
-        if (repoType == MgRepositoryType.Session) {
-            resIdStr += session(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY);
-        }
         resIdStr += "//" + resourcePath;
         if (appendSlashIfNeeded && resIdStr.charAt(resIdStr.length() - 1) != '/') {
             resIdStr += "/";
         }
-        Logger.debug("Construct resid (" + repoType + ", " + resourcePath + " => " + resIdStr);
+        //Logger.debug("Construct resid (" + repoType + ", " + resourcePath + " => " + resIdStr);
         return new MgResourceIdentifier(resIdStr);
     }
 
-    protected static MgResourceIdentifier constructResourceId(String repoType, String resourcePath) throws MgException {
-        return constructResourceId(repoType, resourcePath, false);
+    protected static MgResourceIdentifier constructLibraryResourceId(String repoType, String resourcePath) throws MgException {
+        return constructLibraryResourceId(repoType, resourcePath, false);
     }
 
     protected static Result mgServerError(MgException mex) {

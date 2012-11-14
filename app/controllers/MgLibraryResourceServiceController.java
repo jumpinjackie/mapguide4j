@@ -28,7 +28,7 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
                     return badRequest(e.getMessage());
                 }
             }
-            MgResourceIdentifier resId = constructResourceId(MgRepositoryType.Library, resourcePath, true);
+            MgResourceIdentifier resId = constructLibraryResourceId(MgRepositoryType.Library, resourcePath, true);
             MgSiteConnection siteConn = createMapGuideConnection();
             MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
             MgByteReader resContent = resSvc.EnumerateResources(resId, depth, resType, true);
@@ -40,30 +40,58 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
     }
 
     public static Result getResourceContent(String resourcePath) {
-        return getResourceContent(MgRepositoryType.Library, resourcePath);
+        try {
+            return getResourceContent(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
     }
 
     public static Result getResourceHeader(String resourcePath) {
-        return getResourceHeader(MgRepositoryType.Library, resourcePath);
+        try {
+            return getResourceHeader(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
     }
 
     public static Result enumerateResourceData(String resourcePath) {
-        return enumerateResourceData(MgRepositoryType.Library, resourcePath);
+        try {
+            return enumerateResourceData(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
     }
 
     public static Result getResourceData(String resourcePath, String dataName) {
-        return getResourceData(MgRepositoryType.Library, resourcePath, dataName);
+        try {
+            return getResourceData(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection(), dataName);
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
     }
 
     public static Result enumerateResourceReferences(String resourcePath) {
-        return enumerateResourceReferences(MgRepositoryType.Library, resourcePath);
+        try {
+            return enumerateResourceReferences(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
     }
 
     public static Result deleteResourceData(String resourcePath, String dataName) {
-        return deleteResourceData(MgRepositoryType.Library, resourcePath, dataName);
+        try {
+            return deleteResourceData(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection(), dataName);
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
     }
 
     public static Result deleteResource(String resourcePath) {
-        return deleteResource(MgRepositoryType.Library, resourcePath);
+        try {
+            return deleteResource(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
     }
 }

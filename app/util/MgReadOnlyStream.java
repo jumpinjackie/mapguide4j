@@ -8,11 +8,15 @@ public class MgReadOnlyStream extends InputStream {
 
     private MgByteReader _reader;
     private byte [] _buffer;
+    private int _internalBufferSize;
+    private int _internalBufferPosition;
     private boolean _eos;
 
     public MgReadOnlyStream(MgByteReader byteReader) {
         _reader = byteReader;
-        _buffer = new byte[1];
+        _buffer = new byte[2048];
+        _internalBufferPosition = -1;
+        _internalBufferSize = -1;
         _eos = false;
     }
 
@@ -20,18 +24,36 @@ public class MgReadOnlyStream extends InputStream {
         _reader = null;
     }
 
+    private int advanceInternalBuffer() throws MgException {
+        _internalBufferSize = _reader.Read(_buffer, _buffer.length);
+        _internalBufferPosition = -1;
+        return _internalBufferSize;
+    }
+
     @Override
     public int read() throws IOException {
-        int read = -1;
         if (_reader == null)
-            return read;
+            return -1;
 
         try {
-            if (_reader.Read(_buffer, 1) == 0) {
-                _eos = true;
-                return -1;
+            //Un-initialized internal buffer
+            if (_internalBufferSize == -1) {
+                //Bail if we get nothing from the MgByteReader
+                if (advanceInternalBuffer() <= 0)
+                    return -1;
             }
-            return _buffer[0];
+
+            //Advance our internal buffer position
+            _internalBufferPosition++;
+            //End of internal buffer?
+            if (_internalBufferPosition == _internalBufferSize) {
+                //Bail if we get nothing from the MgByteReader
+                if (advanceInternalBuffer() <= 0)
+                    return -1;
+                _internalBufferPosition++; //Re-position to start
+            }
+
+            return _buffer[_internalBufferPosition];
         } catch (MgException ex) {
             String msg = "";
             try {
