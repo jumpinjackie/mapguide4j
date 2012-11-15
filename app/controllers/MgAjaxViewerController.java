@@ -29,12 +29,16 @@ public abstract class MgAjaxViewerController extends MgAbstractAuthenticatedCont
         return 0;
     }
 
+    private static void setupLocalizationPath() {
+        //Path separator is not appended by java.io.File! Stupid!
+        String localizedPath = Play.application().getFile("internal/localized/").getPath() + File.separator;
+        Logger.debug("Setting localized files path to: " + localizedPath);
+        MgLocalizationUtil.SetLocalizedFilesPath(localizedPath);
+    }
+
     public static Result index() {
         try {
-            //Path separator is not appended by java.io.File! Stupid!
-            String localizedPath = Play.application().getFile("internal/localized/").getPath() + File.separator;
-            Logger.debug("Setting localized files path to: " + localizedPath);
-            MgLocalizationUtil.SetLocalizedFilesPath(localizedPath);
+            setupLocalizationPath();
             //fetch the parameters for this request
             String webLayoutDefinition = getRequestParameter("WEBLAYOUT", "");
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
@@ -953,6 +957,683 @@ public abstract class MgAjaxViewerController extends MgAbstractAuthenticatedCont
         }
         catch (Exception ex) {
             return javaException(ex);
+        }
+    }
+
+    public static Result measure() {
+        String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", ""));;
+        String mapName = MgAjaxViewerUtil.ValidateMapName(getRequestParameter("MAPNAME", ""));
+        String sessionId = getMgSessionId();
+        int target = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("TGT", "0"));
+        int popup = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("POPUP", "0"));
+        boolean clear = false;
+        double x1 = 0;
+        double y1 = 0;
+        double x2 = 0;
+        double y2 = 0;
+        double total = 0;
+        String srs = "";
+        String units = getRequestParameter("UNITS", "");
+        int segId = 1;
+        String error = "";
+        double distance = 0;
+        String legendName = "Measure";
+        String featureName = "Measure";
+        String dataSource = "Session:" + sessionId + "//Measure.FeatureSource";
+        String layerDef = "Session:" + sessionId + "//Measure.LayerDefinition";
+        try {
+            if (hasRequestParameter("CLEAR"))
+            {
+                clear = true;
+            }
+            else
+            {
+                clear = false;
+                x1 = MgAjaxViewerUtil.GetDoubleParameter(getRequestParameter("X1", "0"));
+                y1 = MgAjaxViewerUtil.GetDoubleParameter(getRequestParameter("Y1", "0"));
+                x2 = MgAjaxViewerUtil.GetDoubleParameter(getRequestParameter("X2", "0"));
+                y2 = MgAjaxViewerUtil.GetDoubleParameter(getRequestParameter("Y2", "0"));
+                total = MgAjaxViewerUtil.GetDoubleParameter(getRequestParameter("TOTAL", "0"));
+                segId = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("SEGID", "1"));
+            }
+
+            MgSiteConnection site = createMapGuideConnection();
+            MgFeatureService featureSrvc = (MgFeatureService)site.CreateService(MgServiceType.FeatureService);
+            MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+
+            MgResourceIdentifier dataSourceId = new MgResourceIdentifier(dataSource);
+            MgResourceIdentifier layerDefId = new MgResourceIdentifier(layerDef);
+
+            //load the map runtime state and locate the measure layer
+            //
+            MgMap map = new MgMap();
+            map.Open(resourceSrvc, mapName);
+            MgLayerCollection layers = map.GetLayers();
+            srs = MgAjaxViewerUtil.GetMapSrs(map);
+
+            MgLayer layer = MgAjaxViewerUtil.FindLayer(layers, layerDef);
+
+            if(clear)
+            {
+                total = 0;
+                if(layer != null)
+                    layers.Remove(layer);
+                if(MgAjaxViewerUtil.DataSourceExists(resourceSrvc, dataSourceId))
+                    MgAjaxViewerUtil.ClearDataSource(featureSrvc, dataSourceId, featureName);
+            }
+            else
+            {
+                MgCoordinateSystemFactory srsFactory = new MgCoordinateSystemFactory();
+                MgCoordinateSystem srsMap = srsFactory.Create(srs);
+
+                int srsType = srsMap.GetType();
+                if(srsType == MgCoordinateSystemType.Geographic)
+                    distance = srsMap.MeasureGreatCircleDistance(x1, y1, x2, y2);
+                else
+                    distance = srsMap.MeasureEuclideanDistance(x1, y1, x2, y2);
+
+                distance = srsMap.ConvertCoordinateSystemUnitsToMeters(distance);
+
+                if (units.equals("mi")) distance *= 0.000621371192;  //get miles
+                if (units.equals("km")) distance *= 0.001;           //get kilometers
+                if (units.equals("ft")) distance *= 3.2808399;       //get feet
+                if (units.equals("usft")) distance *= 3.2808333;       //get US survey feet
+
+                total += distance;
+
+                //create the line string geometry representing this segment
+                //
+                MgGeometryFactory geomFactory = new MgGeometryFactory();
+                MgCoordinateCollection coordinates = new MgCoordinateCollection();
+                coordinates.Add(geomFactory.CreateCoordinateXY(x1, y1));
+                coordinates.Add(geomFactory.CreateCoordinateXY(x2, y2));
+                MgLineString geom = geomFactory.CreateLineString(coordinates);
+
+                if(segId == 1)
+                {
+                    //first segment
+                    //
+                    if(!MgAjaxViewerUtil.DataSourceExists(resourceSrvc, dataSourceId))
+                    {
+                        //create feature source
+                        //
+                        MgClassDefinition classDef = new MgClassDefinition();
+
+                        classDef.SetName(featureName);
+                        classDef.SetDescription(MgLocalizationUtil.GetString("MEASUREFEATURECLASS", locale));
+                        classDef.SetDefaultGeometryPropertyName("GEOM");
+
+                        //Set KEY property
+                        MgDataPropertyDefinition prop = new MgDataPropertyDefinition("KEY");
+                        prop.SetDataType(MgPropertyType.Int32);
+                        prop.SetAutoGeneration(true);
+                        prop.SetReadOnly(true);
+                        classDef.GetIdentityProperties().Add(prop);
+                        classDef.GetProperties().Add(prop);
+
+                        //Set PARTIAL property. Hold the distance for this segment
+                        prop = new MgDataPropertyDefinition("PARTIAL");
+                        prop.SetDataType(MgPropertyType.Double);
+                        classDef.GetProperties().Add(prop);
+
+                        //Set TOTAL property. Hold the total distance up to this segment, including it
+                        prop = new MgDataPropertyDefinition("TOTAL");
+                        prop.SetDataType(MgPropertyType.Double);
+                        classDef.GetProperties().Add(prop);
+
+                        //Set geometry property
+                        MgGeometricPropertyDefinition geomProp = new MgGeometricPropertyDefinition("GEOM");
+                        //geomProp.SetGeometryTypes(MgFeatureGeometricType.mfgtSurface); //TODO use the constant when exposed
+                        geomProp.SetGeometryTypes(4);
+                        classDef.GetProperties().Add(geomProp);
+
+                        //Create the schema
+                        MgFeatureSchema schema = new MgFeatureSchema("MeasureSchema", MgLocalizationUtil.GetString("MEASURESCHEMADESCR", locale));
+                        schema.GetClasses().Add(classDef);
+
+                        //finally, creation of the feature source
+                        MgCreateSdfParams parameters = new MgCreateSdfParams("MapSrs", srs, schema);
+                        featureSrvc.CreateFeatureSource(dataSourceId, parameters);
+
+                        //build map tip
+                        String unitText = "";
+                        if (units.equals("mi")) unitText = "DISTANCEMILES";
+                        if (units.equals("km")) unitText = "DISTANCEKILOMETERS";
+                        if (units.equals("ft")) unitText = "DISTANCEFEET";
+                        if (units.equals("usft")) unitText = "DISTANCEUSFEET";
+                        if (units.equals("m")) unitText = "DISTANCEMETERS";
+                        unitText = MgLocalizationUtil.GetString(unitText, locale);
+
+                        String tip = "Concat(Concat(Concat('" + MgLocalizationUtil.GetString("MEASUREPARTIAL", locale) + ": ', PARTIAL), Concat(', " + MgLocalizationUtil.GetString("MEASURETOTAL", locale) + ": ', TOTAL)), ' (" + unitText + ")')";
+
+                        //Create the layer definition
+                        String layerTempl = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/linelayerdef.templ"));
+                        MgByteReader layerDefContent = MgAjaxViewerUtil.BuildLayerDefinitionContent(layerTempl, dataSource, featureName, tip);
+                        resourceSrvc.SetResource(layerDefId, layerDefContent, null);
+                    }
+                    else
+                    {
+                        //data source already exist. clear its content
+                        MgAjaxViewerUtil.ClearDataSource(featureSrvc, dataSourceId, featureName);
+                    }
+
+                    //Add the layer to the map, if it's not already in it
+                    if(layer == null)
+                    {
+                        legendName = MgLocalizationUtil.GetString("MEASURELAYER", locale);
+                        layer = new MgLayer(layerDefId, resourceSrvc);
+                        layer.SetDisplayInLegend(true);
+                        layer.SetLegendLabel(legendName);
+                        layers.Insert(0, layer);
+                    }
+                }
+                // create a feature representing this segment and insert it into the data source
+                //
+                MgPropertyCollection measureProps = new MgPropertyCollection();
+
+                MgDoubleProperty partialProp = new MgDoubleProperty("PARTIAL", distance);
+                measureProps.Add(partialProp);
+
+                MgDoubleProperty totalProp = new MgDoubleProperty("TOTAL", total);
+                measureProps.Add(totalProp);
+
+                MgAgfReaderWriter agf = new MgAgfReaderWriter();
+                MgByteReader geomReader = agf.Write(geom);
+                MgGeometryProperty geometryProp = new MgGeometryProperty("GEOM", geomReader);
+                measureProps.Add(geometryProp);
+
+                MgInsertFeatures cmd = new MgInsertFeatures(featureName, measureProps);
+                MgFeatureCommandCollection commands = new MgFeatureCommandCollection();
+                commands.Add(cmd);
+
+                //Insert the distance feature in the temporary data source
+                //
+                MgAjaxViewerUtil.ReleaseReader(featureSrvc.UpdateFeatures(dataSourceId, commands, false));
+            }
+
+            if(layer != null)
+                layer.ForceRefresh();
+            map.Save(resourceSrvc);
+
+            String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/measureui.templ"));
+
+            templ = MgLocalizationUtil.Localize(templ, locale, getClientOS());
+
+            String vpath = getViewerRoot();
+            String[] vals = {
+                    locale,
+                    String.valueOf(target),
+                    String.valueOf(popup),
+                    mapName,
+                    sessionId,
+                    String.valueOf(total),
+                    String.valueOf(distance),
+                    "1",
+                    units,
+                    vpath + "measure.jsp",
+                    vpath + "measure.jsp"
+            };
+            response().setContentType("text/html");
+            return ok(MgAjaxViewerUtil.Substitute(templ, vals));
+
+        }
+        catch(MgException exc)
+        {
+            return mgServerError(exc);
+        }
+        catch(Exception ne)
+        {
+            return javaException(ne);
+        }
+    }
+
+    public static Result measureui() {
+        try {
+            int target = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("TARGET", "0"));
+            String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
+            int popup = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("POPUP", "0"));
+            int cmdIndex = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("CMDINDEX", "-1"));
+            String mapName = MgAjaxViewerUtil.ValidateMapName(getRequestParameter("MAPNAME", ""));
+            String sessionId = getMgSessionId();
+            String units = getRequestParameter("UNITS", "");
+            double total = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("TOTAL", "0"));
+            String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/measureui.templ"));
+            setupLocalizationPath();
+            templ = MgLocalizationUtil.Localize(templ, locale, getClientOS());
+
+            String vpath = getViewerRoot();
+            String[] vals = {
+                    locale,
+                    String.valueOf(target),
+                    String.valueOf(popup),
+                    mapName,
+                    sessionId,
+                    String.valueOf(total),
+                    "0",
+                    "0",
+                    units,
+                    vpath + "measure.jsp",
+                    vpath + "measure.jsp"
+            };
+            response().setContentType("text/html");
+            return ok(MgAjaxViewerUtil.Substitute(templ, vals));
+        }
+        catch (Exception ex) {
+            return javaException(ex);
+        }
+    }
+
+    public static Result bufferui() {
+        try {
+            String mapName = MgAjaxViewerUtil.ValidateMapName(getRequestParameter("MAPNAME", ""));
+            String sessionId = getMgSessionId();
+            String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
+            int popup = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("POPUP", "0"));
+            int us = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("US", "0"));
+            
+            setupLocalizationPath();
+
+            String vpath = getViewerRoot();
+            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/bufferui.templ")), locale, getClientOS());
+            String[] vals = { String.valueOf(popup),
+                              vpath + "colorpicker.jsp",
+                              locale,
+                              vpath + "buffer.jsp",
+                              us == 1? "selected" : "",
+                              us == 1? "" : "selected",
+                              mapName,
+                              sessionId,
+                              String.valueOf(popup),
+                              locale
+                              };
+
+            response().setContentType("text/html");
+            return ok(MgAjaxViewerUtil.Substitute(templ, vals));
+        }
+        catch (Exception ex) {
+            return javaException(ex);
+        }
+    }
+
+    public static Result buffer() {
+
+        String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
+        String mapName = MgAjaxViewerUtil.ValidateMapName(getRequestParameter("MAPNAME", ""));
+        String sessionId = getMgSessionId();
+        String bufferName = getRequestParameter("BUFFER", "");
+        String layersParam = getRequestParameter("LAYERS", "");
+        int popup = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("POPUP", "0"));
+        String lcolor = MgAjaxViewerUtil.ValidateColorString(getRequestParameter("LCOLOR", ""));
+        String ffcolor = MgAjaxViewerUtil.ValidateColorString(getRequestParameter("FFCOLOR", ""));
+        String fbcolor = MgAjaxViewerUtil.ValidateColorString(getRequestParameter("FBCOLOR", ""));
+        int transparent = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("TRANSPARENT", ""));
+        double distance = MgAjaxViewerUtil.GetLocalizedDoubleParameter(getRequestParameter("DISTANCE", "0"), locale);
+        String units = getRequestParameter("UNITS", "");
+        String linestyle = getRequestParameter("LINESTYLE", "");
+        String fillstyle = getRequestParameter("FILLSTYLE", "");
+        double thickness = MgAjaxViewerUtil.GetDoubleParameter(getRequestParameter("THICKNESS", "0"));
+        int merge = 0;
+        double foretrans = MgAjaxViewerUtil.GetDoubleParameter(getRequestParameter("FORETRANS", "50"));
+        String selText = getRequestParameter("SELECTION", "");
+        String srs = "";
+        String featureName = "Buffer";
+        String dataSource = "Session:" + sessionId + "//" + bufferName + "_Buffer.FeatureSource";
+
+        if(foretrans < 0 || foretrans > 100)
+        {
+            foretrans = 50;
+        }
+        if (hasRequestParameter("MERGE"))
+             merge = 1;
+
+        setupLocalizationPath();
+        String layerDef = "Session:" + sessionId + "//" + bufferName + "_Buffer.LayerDefinition";
+        try
+        {
+            boolean newBuffer = false;
+
+            //connect to the site and get a feature service and a resource service instances
+            MgSiteConnection site = createMapGuideConnection();
+            MgFeatureService featureSrvc = (MgFeatureService)site.CreateService(MgServiceType.FeatureService);
+            MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+
+            MgResourceIdentifier dataSourceId = new MgResourceIdentifier(dataSource);
+            MgResourceIdentifier layerDefId = new MgResourceIdentifier(layerDef);
+
+            //load the map runtime state
+            //
+            MgMap map = new MgMap();
+            map.Open(resourceSrvc, mapName);
+
+            //locate the buffer layer in the map. It might or might not already exist
+            //
+            MgLayerCollection layers = map.GetLayers();
+            MgLayer layer = MgAjaxViewerUtil.FindLayer(layers, bufferName);
+
+            String[] layerNames = layersParam.split(",");
+
+            // convert distance to meters
+            if(units.equals("mi"))      //miles
+                distance *= 1609.35;
+            else if(units.equals("ki")) //kilometers
+                distance *= 1000;
+            else if(units.equals("fe")) //feet
+                distance *= 0.30480;
+
+            // Get the map SRS
+            //
+            MgCoordinateSystemFactory srsFactory = new MgCoordinateSystemFactory();
+            String srsDefMap = MgAjaxViewerUtil.GetMapSrs(map);
+            String mapSrsUnits = "";
+            MgCoordinateSystem srsMap = srsFactory.Create(srsDefMap);
+            boolean arbitraryMapSrs = (srsMap.GetType() == MgCoordinateSystemType.Arbitrary);
+            if(arbitraryMapSrs)
+                mapSrsUnits = srsMap.GetUnits();
+
+            //Create/Modify layer definition
+            String layerTempl = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/arealayerdef.templ"));
+            MgByteReader layerDefContent = MgAjaxViewerUtil.BuildAreaLayerDefinitionContent(layerTempl, dataSource, featureName, fillstyle, ffcolor, transparent, fbcolor, linestyle, thickness, foretrans, lcolor);
+            resourceSrvc.SetResource(layerDefId, layerDefContent, null);
+
+            if(layer == null)
+            {
+                newBuffer = true;
+                //Targetting a new layer. create a data source for it
+                //
+                MgClassDefinition classDef = new MgClassDefinition();
+
+                classDef.SetName(featureName);
+                classDef.SetDescription(MgLocalizationUtil.GetString("BUFFERCLASSDESCR", locale));
+                classDef.SetDefaultGeometryPropertyName("GEOM");
+
+                //Set KEY property
+                MgDataPropertyDefinition propKey = new MgDataPropertyDefinition("KEY");
+                propKey.SetDataType(MgPropertyType.Int32);
+                propKey.SetAutoGeneration(true);
+                propKey.SetReadOnly(true);
+                classDef.GetIdentityProperties().Add(propKey);
+                classDef.GetProperties().Add(propKey);
+
+                //Set ID property. Hold this segment ID
+                MgDataPropertyDefinition propID = new MgDataPropertyDefinition("ID");
+                propID.SetDataType(MgPropertyType.Int32);
+                classDef.GetProperties().Add(propID);
+
+                //Set geometry property
+                MgGeometricPropertyDefinition geomProp = new MgGeometricPropertyDefinition("GEOM");
+                //geomProp.SetGeometryTypes(MgFeatureGeometricType.mfgtSurface); //TODO use the constant when exposed
+                geomProp.SetGeometryTypes(4);
+                classDef.GetProperties().Add(geomProp);
+
+                //Create the schema
+                MgFeatureSchema schema = new MgFeatureSchema("BufferSchema", MgLocalizationUtil.GetString("BUFFERSCHEMADESCR", locale));
+                schema.GetClasses().Add(classDef);
+
+                //finally, creation of the feature source
+                MgCreateSdfParams sdfParams = new MgCreateSdfParams("LatLong", srsDefMap, schema);
+                featureSrvc.CreateFeatureSource(dataSourceId, sdfParams);
+
+                //Add layer to map
+                layer = new MgLayer(layerDefId, resourceSrvc);
+                layer.SetName(bufferName);
+                layer.SetLegendLabel(bufferName);
+                layer.SetDisplayInLegend(true);
+                layer.SetSelectable(true);
+                layers.Insert(0, layer);
+            }
+            else
+            {
+                //data source already exist. clear its content
+                //
+                MgAjaxViewerUtil.ClearDataSource(featureSrvc, dataSourceId, featureName);
+            }
+
+            MgSelection sel = new MgSelection(map, selText);
+            MgReadOnlyLayerCollection selLayers = sel.GetLayers();
+
+            MgAgfReaderWriter agfRW = new MgAgfReaderWriter();
+            MgGeometryCollection bufferGeometries = new MgGeometryCollection();
+            MgGeometry geomBuffer;
+
+            MgFeatureCommandCollection commands = new MgFeatureCommandCollection();
+            int featId = 0;
+
+            MgBatchPropertyCollection propCollection = new MgBatchPropertyCollection();
+
+            int excludedLayers = 0;
+            MgCoordinateSystem srsDs = null;
+            MgGeometryCollection inputGeometries = new MgGeometryCollection();
+
+            int bufferFeatures = 0;
+            for(int li =0; li < selLayers.GetCount(); li++)
+            {
+                MgLayer selLayer = (MgLayer) selLayers.GetItem(li);
+                boolean inputLayer = false;
+                String selLayerName = selLayer.GetName();
+                for(int il = 0; il < layerNames.length; il++)
+                {
+                    if(layerNames[il].equals(selLayerName))
+                    {
+                        inputLayer = true;
+                        break;
+                    }
+                }
+                if(inputLayer == false)
+                    continue;
+
+                // get the data source SRS
+                //
+                MgResourceIdentifier featSourceId = new MgResourceIdentifier(selLayer.GetFeatureSourceId());
+                MgSpatialContextReader ctxs = featureSrvc.GetSpatialContexts(featSourceId, false);
+                String srsDefDs = "";
+                if(ctxs != null && ctxs.ReadNext())
+                    srsDefDs = ctxs.GetCoordinateSystemWkt();
+
+                if(srsDefDs == null || srsDefDs.length() == 0)
+                {
+                    excludedLayers++;
+                    continue;
+                }
+
+                srsDs = srsFactory.Create(srsDefDs);
+                boolean arbitraryDsSrs = (srsDs.GetType() == MgCoordinateSystemType.Arbitrary);
+                String dsSrsUnits = "";
+
+                if(arbitraryDsSrs)
+                    dsSrsUnits = srsDs.GetUnits();
+
+                // exclude layer if:
+                //  the map is non-arbitrary and the layer is arbitrary or vice-versa
+                //     or
+                //  layer and map are both arbitrary but have different units
+                //
+                if((arbitraryDsSrs != arbitraryMapSrs) || (arbitraryDsSrs && !dsSrsUnits.equals(mapSrsUnits)))
+                {
+                    excludedLayers++;
+                    continue;
+                }
+
+                // calculate distance in the data source SRS units
+                //
+                double dist = srsDs.ConvertMetersToCoordinateSystemUnits(distance);
+
+                // calculate great circle unless data source srs is arbitrary
+                MgCoordinateSystemMeasure measure;
+                if(!arbitraryDsSrs)
+                     measure = srsDs.GetMeasure();
+                else
+                     measure = null;
+
+                // create a SRS transformer if necessary
+                MgCoordinateSystemTransform srsXform;
+                if(!srsDefDs.equals(srsDefMap))
+                    srsXform = srsFactory.GetTransform(srsDs, srsMap);
+                else
+                    srsXform = null;
+
+                String featureClassName = selLayer.GetFeatureClassName();
+                String filter = sel.GenerateFilter(selLayer, featureClassName);
+                if(filter == null || filter.length() == 0)
+                    continue;
+
+                MgFeatureQueryOptions query = new MgFeatureQueryOptions();
+                query.SetFilter(filter);
+
+                MgResourceIdentifier featureSource = new MgResourceIdentifier(selLayer.GetFeatureSourceId());
+
+                MgFeatureReader features = featureSrvc.SelectFeatures(featureSource, featureClassName, query);
+
+                if(features.ReadNext())
+                {
+                    MgClassDefinition classDef = features.GetClassDefinition();
+                    String geomPropName = classDef.GetDefaultGeometryPropertyName();
+
+                    do
+                    {
+                        MgByteReader geomReader = features.GetGeometry(geomPropName);
+                        MgGeometry geom = agfRW.Read(geomReader);
+
+                        if(merge == 0)
+                        {
+                            geomBuffer = geom.Buffer(dist, measure);
+                            if (geomBuffer != null)
+                            {
+                                if(srsXform != null)
+                                    geomBuffer = (MgGeometry)geomBuffer.Transform(srsXform);
+                                MgAjaxViewerUtil.AddFeatureToCollection(propCollection, agfRW, featId++, geomBuffer);
+                                bufferFeatures++;
+                            }
+                        }
+                        else
+                        {
+                            if(srsXform != null)
+                                geom = (MgGeometry)geom.Transform(srsXform);
+                            inputGeometries.Add(geom);
+                        }
+                    }
+                    while(features.ReadNext());
+
+                    features.Close();
+                }
+            }
+
+            if(merge == 1)
+            {
+                if(inputGeometries.GetCount() > 0)
+                {
+                    double dist = srsMap.ConvertMetersToCoordinateSystemUnits(distance);
+                    MgCoordinateSystemMeasure measure;
+                    if(!arbitraryMapSrs)
+                        measure = srsMap.GetMeasure();
+                    else
+                        measure = null;
+
+                    MgGeometryFactory geomFactory = new MgGeometryFactory();
+                    geomBuffer = geomFactory.CreateMultiGeometry(inputGeometries).Buffer(dist, measure);
+                    if (geomBuffer != null)
+                    {
+                        MgAjaxViewerUtil.AddFeatureToCollection(propCollection, agfRW, featId, geomBuffer);
+                        bufferFeatures = 1;
+                    }
+                }
+            }
+
+            if(propCollection.GetCount() > 0)
+            {
+                commands.Add(new MgInsertFeatures(featureName, propCollection));
+
+                //Insert the features in the temporary data source
+                //
+                MgAjaxViewerUtil.ReleaseReader(featureSrvc.UpdateFeatures(dataSourceId, commands, false), commands);
+            }
+
+            // Save the new map state
+            //
+            layer.ForceRefresh();
+            map.Save(resourceSrvc);
+
+            //build report message
+            String title = MgLocalizationUtil.GetString("BUFFERREPORTTITLE", locale);
+            String createdUpdatedFmt = newBuffer ? MgLocalizationUtil.GetString("BUFFERREPORTCREATED", locale) : MgLocalizationUtil.GetString("BUFFERREPORTUPDATED", locale);
+            String createdUpdatedStr = MgAjaxViewerUtil.Substitute(createdUpdatedFmt, new String[] { bufferName } );
+            String featuresFmt = bufferFeatures > 1 ? MgLocalizationUtil.GetString("BUFFERREPORTFEATURESPLURAL", locale) : MgLocalizationUtil.GetString("BUFFERREPORTFEATURESSINGULAR", locale);
+            String featuresStr = MgAjaxViewerUtil.Substitute(featuresFmt, new String[] { String.valueOf(bufferFeatures) } );
+            String msg = createdUpdatedStr + "<p><p>"  + featuresStr;
+
+            if(excludedLayers > 0) {
+                String warningFmt = excludedLayers > 1 ? MgLocalizationUtil.GetString("BUFFERREPORTWARNINGPLURAL", locale) : MgLocalizationUtil.GetString("BUFFERREPORTWARNINGSINGULAR", locale);
+                String warningStr = MgAjaxViewerUtil.Substitute(warningFmt, new String[] { String.valueOf(excludedLayers) } );
+                msg = msg + "<p><p>" + warningStr;
+            }
+
+            // return the report page
+            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/bufferreport.templ")), locale, getClientOS());
+            String[] vals = {
+                        String.valueOf(popup),
+                        title,
+                        msg};
+            response().setContentType("text/html");
+            return ok(MgAjaxViewerUtil.Substitute(templ, vals));
+        }
+        catch(MgException exc)
+        {
+            //OnError(MgLocalizationUtil.GetString("BUFFERREPORTERRORTITLE", locale), exc.GetDetails(), outStream, request);
+            return mgServerError(exc);
+        }
+        catch(Exception ne)
+        {
+            //OnError(MgLocalizationUtil.GetString("BUFFERREPORTERRORTITLE", locale), ne.getMessage(), outStream, request);
+            return javaException(ne);
+        }
+    }
+
+    public static Result gettingstarted() {
+        String cmdListPage = "WS1a9193826455f5ff9110c71085341391d-2e28.htm";
+        String sessionId = getMgSessionId();
+        String webLayout = MgAjaxViewerUtil.ValidateResourceId(getRequestParameter("WEBLAYOUT", ""));
+        String pageName = getRequestParameter("PAGE", "");
+        String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
+        boolean dwf = getRequestParameter("DWF", "0").equals("1");
+        try {
+            if(pageName.equals("")) {
+                //no page name specified, assume main getting started page (the command list)
+                pageName = cmdListPage;
+            }
+            //load the original page
+            String orgHtml = "";
+            try {
+                orgHtml = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/localized/help/" + locale + "/" + pageName));
+            } catch(Exception e) {
+                orgHtml = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/localized/help/en/" + pageName));
+                locale = MgAjaxViewerUtil.GetDefaultLocale();
+            }
+            String mgWebRoot = getViewerRoot() + "../";
+            String fixedupHtml = MgAjaxViewerUtil.FixupPageReferences(orgHtml, webLayout, dwf, mgWebRoot, locale);
+            response().setContentType("text/html");
+            if(pageName.equals(cmdListPage)) {
+                //filter out unused commands
+                //
+                MgSiteConnection site = createMapGuideConnection();
+                MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+                MgResourceIdentifier wli = new MgResourceIdentifier(webLayout);
+                byte[] hb = fixedupHtml.getBytes("UTF-8");
+                MgByteSource src = new MgByteSource(hb, hb.length);
+                MgWebLayout wl = new MgWebLayout(resourceSrvc, wli);
+                MgByteReader pagestream = wl.ProcessGettingStartedPage(src.GetReader(), dwf);
+                if (pagestream == null)
+                    return ok(fixedupHtml);
+                else
+                    return ok(pagestream.ToString());
+            }
+            else
+                return ok(fixedupHtml);
+        }
+        catch(MgException mge) {
+            return mgServerError(mge);
+        }
+        catch(Exception e) {
+            String errorMsg = MgAjaxViewerUtil.EscapeForHtml(e.getMessage());
+            return internalServerError(errorMsg);
         }
     }
 

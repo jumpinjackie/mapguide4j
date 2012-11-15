@@ -805,4 +805,183 @@ public class MgAjaxViewerUtil {
         sb.append("}");
         return sb.toString();
     }
+
+    public static String FixupPageReferences(String html, String webLayout, boolean dwf, String vpath, String locale) throws UnsupportedEncodingException {
+        String htmlPrefix = new StringBuffer().append("gettingstarted.jsp?WEBLAYOUT=").append(URLEncoder.encode(webLayout, "UTF-8")).append("&DWF=").append(dwf?"1":"0").append("&LOCALE=").append(locale).append("&PAGE=").toString();
+        String imgSrcPrefix = new StringBuffer().append(vpath).append("localized/help/").append(locale).append("/").toString();
+        StringBuffer res = new StringBuffer();
+        int index = 0;
+        boolean found;
+        do
+        {
+            found = false;
+            int i = html.indexOf("href=\"", index);
+            int j = html.indexOf("src=\"", index);
+            if(i != -1 || j != -1) {
+                found = true;
+                boolean htmlRef = false;
+                if(i != -1) {
+                    if(j != -1) {
+                        if(i < j) {
+                            htmlRef = html.substring(i - 3, i - 1).equals("<a");
+                            i += 6;
+                        }
+                        else
+                            i = j + 5;
+                    }
+                    else {
+                        htmlRef = html.substring(i - 3, i - 1).equals("<a");
+                        i += 6;
+                    }
+                }
+                else
+                    i = j + 5;
+                res.append(html.substring(index, i));
+                if(htmlRef) {
+                    if(FixupRequired(html, i))
+                        res.append(htmlPrefix);
+                }
+                else {
+                    if(FixupRequired(html, i))
+                        res.append(imgSrcPrefix);
+                }
+                index = i;
+            }
+        } while(found);
+        res.append(html.substring(index));
+        return res.toString();
+    }
+
+    public static boolean FixupRequired(String html, int refIndex) {
+        return !html.substring(refIndex, refIndex + 7).equals("http://") &&
+               !html.substring(refIndex, refIndex + 11).equals("javascript:");
+    }
+
+    public static String GetMapSrs(MgMap map) throws MgException
+    {
+        String srs = map.GetMapSRS();
+        if(!srs.equals(""))
+            return srs;
+
+        //SRS is currently optional. Waiting for this to change, set the default SRS to ArbitrayXY meters
+        //
+        return "LOCALCS[\"Non-Earth (Meter)\",LOCAL_DATUM[\"Local Datum\",0],UNIT[\"Meter\", 1],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH]]";
+    }
+
+    public static MgLayer FindLayer(MgLayerCollection layers, String layerDef) throws MgException
+    {
+        MgLayer layer = null;
+        int i;
+        for(i = 0; i < layers.GetCount(); i++)
+        {
+            MgLayer layer1 = (MgLayer) layers.GetItem(i);
+            if(layer1.GetLayerDefinition().ToString().equals(layerDef))
+            {
+                layer = layer1;
+                break;
+            }
+        }
+        return layer;
+    }
+
+    public static boolean DataSourceExists(MgResourceService resourceSrvc, MgResourceIdentifier resId) throws MgException
+    {
+        return resourceSrvc.ResourceExists(resId);
+    }
+
+    public static MgByteReader BuildLayerDefinitionContent(String layerTempl, String dataSource, String featureName, String tip) throws MgException, Exception
+    {
+        String[] vals = {
+                    dataSource,
+                    featureName,
+                    "GEOM",
+                    tip,
+                    "1",
+                    "ff0000" };
+        layerTempl = Substitute(layerTempl, vals);
+        byte[] bytes = layerTempl.getBytes("UTF-8");
+
+        MgByteSource src = new MgByteSource(bytes, bytes.length);
+        return src.GetReader();
+    }
+
+    public static MgByteReader BuildAreaLayerDefinitionContent(
+        String layerTempl, String dataSource, String featureName, String fillstyle, String ffcolor, 
+        int transparent, String fbcolor, String linestyle, double thickness, double foretrans, String lcolor) throws MgException, Exception
+    {
+        String xtrans = String.format("%02x", new Object[]{new Integer((int)(255 * foretrans / 100))});
+        String[] vals = {
+                    dataSource,
+                    featureName,
+                    "GEOM",
+                    fillstyle,
+                    xtrans + ffcolor,
+                    (0 != transparent? ("ff" + fbcolor): ("00" + fbcolor)),
+                    linestyle,
+                    String.valueOf(thickness),
+                    lcolor };
+        layerTempl = Substitute(layerTempl, vals);
+        byte[] bytes = layerTempl.getBytes("UTF-8");
+
+        MgByteSource src = new MgByteSource(bytes, bytes.length);
+        return src.GetReader();
+    }
+
+    public static void ClearDataSource(MgFeatureService featureSrvc, MgResourceIdentifier dataSourceId, String featureName)  throws MgException
+    {
+        MgDeleteFeatures deleteCmd = new MgDeleteFeatures(featureName, "KEY >= 0");
+        MgFeatureCommandCollection commands = new MgFeatureCommandCollection();
+        commands.Add(deleteCmd);
+        featureSrvc.UpdateFeatures(dataSourceId, commands, false);
+    }
+
+    public static void ReleaseReader(MgPropertyCollection res) throws MgException
+    {
+        if(res == null)
+            return;
+        MgProperty prop = res.GetItem(0);
+        if(prop == null)
+            return;
+        if (prop instanceof MgStringProperty)
+            throw new RuntimeException(((MgStringProperty)prop).GetValue());
+        MgFeatureProperty resProp = (MgFeatureProperty)prop;
+        MgFeatureReader reader = (MgFeatureReader)resProp.GetValue();
+        if(reader == null)
+            return;
+        reader.Close();
+    }
+
+    public static void ReleaseReader(MgPropertyCollection res, MgFeatureCommandCollection commands) throws MgException
+    {
+        if(res == null)
+            return;
+
+        for(int i = 0; i < res.GetCount(); i++)
+        {
+            MgFeatureCommand cmd = commands.GetItem(i);
+            if(cmd instanceof MgInsertFeatures)
+            {
+                MgFeatureProperty resProp = (MgFeatureProperty)res.GetItem(i);
+                if(resProp != null)
+                {
+                    MgFeatureReader reader = (MgFeatureReader)resProp.GetValue();
+                    if(reader == null)
+                        return;
+                    reader.Close();
+                }
+            }
+        }
+    }
+
+
+    public static void AddFeatureToCollection(MgBatchPropertyCollection propCollection, MgAgfReaderWriter agfRW, int featureId, MgGeometry featureGeom) throws MgException
+    {
+        MgPropertyCollection bufferProps = new MgPropertyCollection();
+        MgInt32Property idProp = new MgInt32Property("ID", featureId);
+        bufferProps.Add(idProp);
+        MgByteReader geomReader = agfRW.Write(featureGeom);
+        MgGeometryProperty geomProp = new MgGeometryProperty("GEOM", geomReader);
+        bufferProps.Add(geomProp);
+        propCollection.Add(bufferProps);
+    }
 }
