@@ -18,6 +18,7 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
     public Result call(Http.Context ctx) throws Throwable {
         Logger.debug(ctx.request().method() + ": " + ctx.request().uri());
         Logger.debug("Checking MapGuide Session");
+        //TODO: Don't use the play session to store the MapGuide session id
         if (ctx.session().get(MAPGUIDE_SESSION_ID_KEY) == null)
         {
             Logger.debug("No MapGuide Session ID found. Checking username/password");

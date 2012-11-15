@@ -2,9 +2,9 @@ package model;
 
 import java.util.ArrayList;
 
-public class ClassicAjaxViewerTreeItem
+public class TreeItem
 {
-    public ClassicAjaxViewerTreeItem(String name, boolean isGroup, Object rtObject, String layerData)
+    public TreeItem(String name, boolean isGroup, Object rtObject, String layerData)
     {
         this.name = name;
         this.isGroup = isGroup;
@@ -17,7 +17,7 @@ public class ClassicAjaxViewerTreeItem
         this.parent = null;
     }
 
-    public void Attach(ClassicAjaxViewerTreeItem child)
+    public void Attach(TreeItem child)
     {
         if(this.children == null)
             this.children = new ArrayList();
@@ -30,6 +30,6 @@ public class ClassicAjaxViewerTreeItem
     public Object rtObject;
     public ArrayList children;
     public String parentName;
-    public ClassicAjaxViewerTreeItem parent;
+    public TreeItem parent;
     public String layerData;
 }

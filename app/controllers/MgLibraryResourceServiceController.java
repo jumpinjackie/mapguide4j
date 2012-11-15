@@ -1,5 +1,7 @@
 package controllers;
 
+import util.*;
+
 import java.lang.Integer;
 import java.lang.NumberFormatException;
 import java.lang.String;
@@ -14,20 +16,9 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
 
     public static Result enumerateResources(String resourcePath) {
         try {
-            Map<String, String[]> queryParams = request().queryString();
-            int depth = -1;
-            String resType = "";
-            if (queryParams.get("type") != null && queryParams.get("type").length > 0) {
-                resType = queryParams.get("type")[0];
-            }
-            if (queryParams.get("depth") != null && queryParams.get("depth").length > 0) {
-                try {
-                    depth = Integer.parseInt(queryParams.get("depth")[0]);
-                }
-                catch (NumberFormatException e) {
-                    return badRequest(e.getMessage());
-                }
-            }
+            int depth = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("depth", "-1"));
+            String resType = getRequestParameter("type", "");
+            Logger.debug("Type: " + resType + ", depth: " + depth);
             MgResourceIdentifier resId = constructLibraryResourceId(MgRepositoryType.Library, resourcePath, true);
             MgSiteConnection siteConn = createMapGuideConnection();
             MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);

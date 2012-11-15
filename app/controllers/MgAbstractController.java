@@ -22,7 +22,68 @@ public abstract class MgAbstractController extends Controller {
         return internalServerError(sw.toString());
     }
 
-    protected static Map<String, String[]> requestParameters() {
+    /**
+     * Method: getRequestParameter
+     * 
+     * Convenience method to get a parameter by name. This method tries to get the named parameter:
+     *  1. As-is
+     *  2. As upper-case
+     *  3. As lower-case
+     * 
+     * In that particular order, if none could be found after these attempts, the defaultValue is returned
+     * instead, otherwise the matching parameter value is returned
+     * 
+     * Parameters:
+     * 
+     *   String name         - [String/The parameter name]
+     *   String defaultValue - [String/The default value]
+     * 
+     * Returns:
+     * 
+     *   String - the matching parameter value or the default value if no matches can be found
+     */
+    protected static String getRequestParameter(String name, String defaultValue) {
+        Map<String, String[]> params = requestParameters();
+        if (params == null)
+            return defaultValue;
+
+        if (params.get(name) != null)
+            return params.get(name)[0];
+        else if (params.get(name.toUpperCase()) != null)
+            return params.get(name.toUpperCase())[0];
+        else if (params.get(name.toLowerCase()) != null) 
+            return params.get(name.toLowerCase())[0];
+        else
+            return defaultValue;
+    }
+
+    /**
+     * Method: hasRequestParameter
+     * 
+     * Convenience method to check whether a named parameter exists. This method tries to get the named parameter:
+     *  1. As-is
+     *  2. As upper-case
+     *  3. As lower-case
+     *  
+     * Use in conjunction with getRequestParameter for case-insensitive parameter testing and retrieval
+     * 
+     * Parameters:
+     * 
+     *   String name - [String/The parameter name]
+     * 
+     * Returns:
+     * 
+     *   boolean - true if the parameter exists, false otherwise
+     */
+    protected static boolean hasRequestParameter(String name) {
+        Map<String, String[]> params = requestParameters();
+        if (params == null)
+            return false;
+        
+        return (params.get(name) != null) || (params.get(name.toUpperCase()) != null) || (params.get(name.toLowerCase()) != null);
+    }
+
+    private static Map<String, String[]> requestParameters() {
         if (request().method() == "GET") {
             return request().queryString();
         } else if (request().method() == "POST") {

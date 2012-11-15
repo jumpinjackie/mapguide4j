@@ -1,9 +1,9 @@
-# mapguide4j-rest Routes
-# This file defines all application routes in mapguide4j-rest (Higher priority routes first)
+# mapguide4j Routes
+# This file defines all application routes in mapguide4j (Higher priority routes first)
 # ~~~~
 
-# NOTE: Most of the routes defined here are modeled on the proposed representations
-# from (http://trac.osgeo.org/mapguide/wiki/Future/RESTfulWebServices)
+# NOTE: With the exception of compatibility routes, most of the routes defined here are modeled 
+# on the proposed representations from (http://trac.osgeo.org/mapguide/wiki/Future/RESTfulWebServices)
 # with some small tweaks to work around the potential ambiguity in route matching
 
 # Home page
@@ -14,26 +14,27 @@ GET /mapguide/rest                                                  controllers.
 # Existing web tier compatibility shims
 GET /mapguide/mapagent/mapagent.fcgi                                controllers.MgMapAgentCompatibilityController.processGetRequest()
 POST /mapguide/mapagent/mapagent.fcgi                               controllers.MgMapAgentCompatibilityController.processPostRequest()
+GET /mapguide/mapagent/*file                                        controllers.MgMapAgentCompatibilityController.agentasset(file)
 
-# Classic AJAX Viewer
-GET /mapguide/mapviewerajax/                                        controllers.MgClassicAjaxViewerController.index()
-GET /mapguide/mapviewerajax/mapframe.jsp                            controllers.MgClassicAjaxViewerController.mapframe()
-GET /mapguide/mapviewerajax/toolbar.jsp                             controllers.MgClassicAjaxViewerController.toolbar()
-GET /mapguide/mapviewerajax/formframe.jsp                           controllers.MgClassicAjaxViewerController.formframe()
-GET /mapguide/mapviewerajax/taskframe.jsp                           controllers.MgClassicAjaxViewerController.taskframe()
-GET /mapguide/mapviewerajax/taskbar.jsp                             controllers.MgClassicAjaxViewerController.taskbar()
-GET /mapguide/mapviewerajax/statusbar.jsp                           controllers.MgClassicAjaxViewerController.statusbar()
-GET /mapguide/mapviewerajax/legendctrl.jsp                          controllers.MgClassicAjaxViewerController.legendctrl()
-GET /mapguide/mapviewerajax/legendui.jsp                            controllers.MgClassicAjaxViewerController.legendui()
-GET /mapguide/mapviewerajax/legend.jsp                              controllers.MgClassicAjaxViewerController.legend()
-GET /mapguide/mapviewerajax/propertyctrl.jsp                        controllers.MgClassicAjaxViewerController.propertyctrl()
-GET /mapguide/mapviewerajax/tasklist.jsp                            controllers.MgClassicAjaxViewerController.tasklist()
-GET /mapguide/localized/*file                                       controllers.MgClassicAjaxViewerController.localizedasset(file)
-GET /mapguide/viewerfiles/*file                                     controllers.MgClassicAjaxViewerController.viewerasset(file)
-GET /mapguide/stdicons/*file                                        controllers.MgClassicAjaxViewerController.viewericon(file)
+# Classic AJAX Viewer compatibility
+GET /mapguide/mapviewerajax/                                        controllers.MgAjaxViewerController.index()
+GET /mapguide/mapviewerajax/mapframe.jsp                            controllers.MgAjaxViewerController.mapframe()
+GET /mapguide/mapviewerajax/toolbar.jsp                             controllers.MgAjaxViewerController.toolbar()
+GET /mapguide/mapviewerajax/formframe.jsp                           controllers.MgAjaxViewerController.formframe()
+GET /mapguide/mapviewerajax/taskframe.jsp                           controllers.MgAjaxViewerController.taskframe()
+GET /mapguide/mapviewerajax/taskbar.jsp                             controllers.MgAjaxViewerController.taskbar()
+GET /mapguide/mapviewerajax/statusbar.jsp                           controllers.MgAjaxViewerController.statusbar()
+GET /mapguide/mapviewerajax/legendctrl.jsp                          controllers.MgAjaxViewerController.legendctrl()
+GET /mapguide/mapviewerajax/legendui.jsp                            controllers.MgAjaxViewerController.legendui()
+GET /mapguide/mapviewerajax/legend.jsp                              controllers.MgAjaxViewerController.legend()
+GET /mapguide/mapviewerajax/propertyctrl.jsp                        controllers.MgAjaxViewerController.propertyctrl()
+GET /mapguide/mapviewerajax/tasklist.jsp                            controllers.MgAjaxViewerController.tasklist()
+POST /mapguide/mapviewerajax/getselectedfeatures.jsp                controllers.MgAjaxViewerController.getselectedfeatures()
+GET /mapguide/localized/*file                                       controllers.MgAjaxViewerController.localizedasset(file)
+GET /mapguide/viewerfiles/*file                                     controllers.MgAjaxViewerController.viewerasset(file)
+GET /mapguide/stdicons/*file                                        controllers.MgAjaxViewerController.viewericon(file)
 
-#GET /mapguide/mapviewerjava/                                        controllers.MgClassicAjaxViewerController.index()
-
+#GET /mapguide/mapviewerjava/                                        controllers.MgAjaxViewerController.index()
 
 # Library
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName/classes             controllers.MgLibraryFeatureServiceController.getClassNames(resourcePath, schemaName: String)
@@ -47,6 +48,7 @@ GET /mapguide/rest/library/*resourcePath/schemas                                
 GET /mapguide/rest/library/*resourcePath/spatialcontexts                        controllers.MgLibraryFeatureServiceController.getSpatialContexts(resourcePath)
 GET /mapguide/rest/library/*resourcePath/references                             controllers.MgLibraryResourceServiceController.enumerateResourceReferences(resourcePath)
 GET /mapguide/rest/library/*resourcePath/content                                controllers.MgLibraryResourceServiceController.getResourceContent(resourcePath)
+GET /mapguide/rest/library/*resourcePath.LayerDefinition/legendicon/:scale/:geomType/:themeCat  controllers.MgViewerController.getLegendImage(resourcePath, scale: String, geomType: Long, themeCat: Long)
 DELETE /mapguide/rest/library/*resourcePath                                     controllers.MgLibraryResourceServiceController.deleteResource(resourcePath)
 GET /mapguide/rest/library/list                                                 controllers.MgLibraryResourceServiceController.enumerateResources(resourcePath = "")
 GET /mapguide/rest/library/*resourcePath/list                                   controllers.MgLibraryResourceServiceController.enumerateResources(resourcePath)
@@ -61,19 +63,24 @@ GET /mapguide/rest/library/*resourcePath/features/:schemaName/:className        
 # Site
 GET /mapguide/rest/site/status                                                  controllers.MgSiteAdminController.getSiteStatus()
 GET /mapguide/rest/site/version                                                 controllers.MgSiteAdminController.getSiteVersion()
-GET /mapguide/rest/site/groups                                                  controllers.MgSiteAdminController.getGroups()
-GET /mapguide/rest/site/user/:userName/groups                                   controllers.MgSiteAdminController.getGroupsForUser(userName: String)
-GET /mapguide/rest/site/user/:userName/roles                                    controllers.MgSiteAdminController.getRolesForUser(userName: String)
-GET /mapguide/rest/site/groups/:groupName/users                                 controllers.MgSiteAdminController.getUsersForGroup(groupName: String)
+GET /mapguide/rest/site/groups                                                  controllers.MgSiteController.getGroups()
+GET /mapguide/rest/site/user/:userName/groups                                   controllers.MgSiteController.getGroupsForUser(userName: String)
+GET /mapguide/rest/site/user/:userName/roles                                    controllers.MgSiteController.getRolesForUser(userName: String)
+GET /mapguide/rest/site/groups/:groupName/users                                 controllers.MgSiteController.getUsersForGroup(groupName: String)
 
 # FIXME: MgReadOnlyStream is not implemented correctly. We get an image back, but it's totally garbled
 GET /mapguide/rest/library/*resourcePath/basetileimage/:baseLayerGroupName/:scaleIndex/:tileCol,:tileRow    controllers.MgLibraryTileServiceController.getTile(resourcePath, baseLayerGroupName: String, scaleIndex: Long, tileCol: Long, tileRow: Long)
 
 # Session
-GET /mapguide/rest/session/$sessionId<([a-zA-Z0-9-]+)>/*resourcePath                             controllers.MgSessionResourceServiceController.getResourceContent(sessionId: String, resourcePath)
-GET /mapguide/rest/session/$sessionId<([a-zA-Z0-9-]+)>/*resourcePath/header                      controllers.MgSessionResourceServiceController.getResourceHeader(sessionId: String, resourcePath)
-GET /mapguide/rest/session/$sessionId<([a-zA-Z0-9-]+)>/*resourcePath/data                        controllers.MgSessionResourceServiceController.enumerateResourceData(sessionId: String, resourcePath)
-GET /mapguide/rest/session/$sessionId<([a-zA-Z0-9-]+)>/*resourcePath/data/$dataName<^[./]*$>     controllers.MgSessionResourceServiceController.getResourceData(sessionId: String, resourcePath, dataName: String)
+POST /mapguide/rest/session                                                     controllers.MgSiteController.createSession()
+GET /mapguide/rest/session/:sessionId/*resourcePath/header                      controllers.MgSessionResourceServiceController.getResourceHeader(sessionId: String, resourcePath)
+GET /mapguide/rest/session/:sessionId/*resourcePath/data/:dataName              controllers.MgSessionResourceServiceController.getResourceData(sessionId: String, resourcePath, dataName: String)
+GET /mapguide/rest/session/:sessionId/*resourcePath/data                        controllers.MgSessionResourceServiceController.enumerateResourceData(sessionId: String, resourcePath)
+GET /mapguide/rest/session/:sessionId/*resourcePath/content                     controllers.MgSessionResourceServiceController.getResourceContent(sessionId: String, resourcePath)
+# NOTE: We're making a safe assumption that runtime map blobs are always stored in the session repository root, which is almost always the case
+GET /mapguide/rest/session/:sessionId/:mapName.Map/layers                       controllers.MgViewerController.getMapLayers(sessionId: String, mapName: String)
+GET /mapguide/rest/session/:sessionId/:mapName.Map/groups                       controllers.MgViewerController.getMapLayerGroups(sessionId: String, mapName: String)
+GET /mapguide/rest/session/:sessionId/:mapName.Map/overlayimage                 controllers.MgViewerController.getDynamicMapOverlayImage(sessionId: String, mapName: String)
 
 # Coordinate System
 GET /mapguide/rest/coordsys/categories                              controllers.MgCoordinateSystemController.enumerateCategories()

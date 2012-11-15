@@ -12,47 +12,40 @@ import org.osgeo.mapguide.*;
 public class MgViewerController extends MgAbstractAuthenticatedController {
     public static Result getDynamicMapOverlayImage(String sessionId, String mapName) {
         try {
-            Map<String, String[]> queryParams = requestParameters();
-            if (queryParams == null)
-                return badRequest("Unknown or unsupported HTTP method");
-
             MgSiteConnection siteConn = createMapGuideConnection();
             //NOTE: Not a published API
             MgHtmlController controller = new MgHtmlController(siteConn);
             MgPropertyCollection mapViewCmds = new MgPropertyCollection();
 
             int behavior = 0;
-            String selectionColor = "";
-            String format = "";
-            if (queryParams.get("BEHAVIOR") != null) {
-                behavior = MgClassicAjaxViewerUtil.GetIntParameter(queryParams.get("BEHAVIOR")[0]);
+            String selectionColor = getRequestParameter("SELECTIONCOLOR", "");
+            String format = getRequestParameter("FORMAT", "");
+            if (hasRequestParameter("BEHAVIOR")) {
+                behavior = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("BEHAVIOR", "0"));
             }
-            if (queryParams.get("SETDISPLAYDPI") != null) {
-                MgStringProperty cmd = new MgStringProperty("SETDISPLAYDPI", queryParams.get("SETDISPLAYDPI")[0]);
+            if (hasRequestParameter("SETDISPLAYDPI")) {
+                MgStringProperty cmd = new MgStringProperty("SETDISPLAYDPI", getRequestParameter("SETDISPLAYDPI", ""));
                 mapViewCmds.Add(cmd);
             }
-            if (queryParams.get("SETDISPLAYWIDTH") != null) {
-                MgStringProperty cmd = new MgStringProperty("SETDISPLAYWIDTH", queryParams.get("SETDISPLAYWIDTH")[0]);
+            if (hasRequestParameter("SETDISPLAYWIDTH")) {
+                MgStringProperty cmd = new MgStringProperty("SETDISPLAYWIDTH", getRequestParameter("SETDISPLAYWIDTH", ""));
                 mapViewCmds.Add(cmd);
             }
-            if (queryParams.get("SETDISPLAYHEIGHT") != null) {
-                MgStringProperty cmd = new MgStringProperty("SETDISPLAYHEIGHT", queryParams.get("SETDISPLAYHEIGHT")[0]);
+            if (hasRequestParameter("SETDISPLAYHEIGHT")) {
+                MgStringProperty cmd = new MgStringProperty("SETDISPLAYHEIGHT", getRequestParameter("SETDISPLAYHEIGHT", ""));
                 mapViewCmds.Add(cmd);
             }
-            if (queryParams.get("SETVIEWSCALE") != null) {
-                MgStringProperty cmd = new MgStringProperty("SETVIEWSCALE", queryParams.get("SETVIEWSCALE")[0]);
+            if (hasRequestParameter("SETVIEWSCALE")) {
+                MgStringProperty cmd = new MgStringProperty("SETVIEWSCALE", getRequestParameter("SETVIEWSCALE", ""));
                 mapViewCmds.Add(cmd);
             }
-            if (queryParams.get("SETVIEWCENTERX") != null) {
-                MgStringProperty cmd = new MgStringProperty("SETVIEWCENTERX", queryParams.get("SETVIEWCENTERX")[0]);
+            if (hasRequestParameter("SETVIEWCENTERX")) {
+                MgStringProperty cmd = new MgStringProperty("SETVIEWCENTERX", getRequestParameter("SETVIEWCENTERX", ""));
                 mapViewCmds.Add(cmd);
             }
-            if (queryParams.get("SETVIEWCENTERY") != null) {
-                MgStringProperty cmd = new MgStringProperty("SETVIEWCENTERY", queryParams.get("SETVIEWCENTERY")[0]);
+            if (hasRequestParameter("SETVIEWCENTERY")) {
+                MgStringProperty cmd = new MgStringProperty("SETVIEWCENTERY", getRequestParameter("SETVIEWCENTERY", ""));
                 mapViewCmds.Add(cmd);
-            }
-            if (queryParams.get("FORMAT") != null) {
-                format = queryParams.get("FORMAT")[0];
             }
 
             MgColor selColor = null;
@@ -63,7 +56,7 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
             MgByteReader image = controller.GetDynamicMapOverlayImage(mapName, renderOpts, mapViewCmds);
 
             response().setContentType(image.GetMimeType());
-            return ok(MgClassicAjaxViewerUtil.ByteReaderToStream(image));
+            return ok(MgAjaxViewerUtil.ByteReaderToStream(image));
         } catch (MgException ex) { //TODO: Rasterize the error message as the standard response won't be visible most of the time
             return mgServerError(ex);
         }
@@ -73,28 +66,20 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
             
-            Map<String, String[]> queryParams = requestParameters();
-            if (queryParams == null)
-                return badRequest("Unknown or unsupported HTTP method");
-            
             MgStringCollection layerNames = null;
             MgGeometry selectionGeometry = null;
             int selectionVariant = 0;
             MgWktReaderWriter wktRw = new MgWktReaderWriter();
-            boolean persist = false;
+            boolean persist = (getRequestParameter("PERSIST", "0").equals("1"));
             int maxFeatures = -1;
-            String featureFilter = "";
+            String featureFilter = getRequestParameter("FEATUREFILTER", "");
             // 1=Visible
             // 2=Selectable
             // 4=HasTooltips
-            int layerAttributeFilter = 3; //Visible and selectable
+            int layerAttributeFilter = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("LAYERATTRIBUTEFILTER", "3")); //Visible and selectable
 
-            if (queryParams.get("FEATUREFILTER") != null) {
-                featureFilter = queryParams.get("FEATUREFILTER")[0];
-            }
-
-            if (queryParams.get("SELECTIONVARIANT") != null) {
-                String variant = queryParams.get("SELECTIONVARIANT")[0];
+            if (hasRequestParameter("SELECTIONVARIANT")) {
+                String variant = getRequestParameter("SELECTIONVARIANT", "");
                 if (variant.equals("TOUCHES")) {
                     selectionVariant = MgFeatureSpatialOperations.Touches;
                 } else if (variant.equals("INTERSECTS")) {
@@ -108,10 +93,10 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
                 }
             }
 
-            if (queryParams.get("GEOMETRY") == null)
+            if (!hasRequestParameter("GEOMETRY"))
                 return badRequest("Missing required parameter: GEOMETRY");
-            if (queryParams.get("LAYERNAMES") != null) {
-                String[] names = queryParams.get("LAYERNAMES")[0].split(",");
+            if (hasRequestParameter("LAYERNAMES")) {
+                String[] names = getRequestParameter("LAYERNAMES", "").split(",");
                 if (names.length > 0) {
                     layerNames = new MgStringCollection();
                     for (String s : names) {
@@ -120,21 +105,27 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
                 }
             }
 
-            selectionGeometry = wktRw.Read(queryParams.get("GEOMETRY")[0]);
-            if (queryParams.get("PERSIST") != null) {
-                persist = (queryParams.get("PERSIST")[0].equals("1"));
-            }
-            if (queryParams.get("LAYERATTRIBUTEFILTER") != null) {
-                layerAttributeFilter = MgClassicAjaxViewerUtil.GetIntParameter(queryParams.get("LAYERATTRIBUTEFILTER")[0]);
-            }
+            selectionGeometry = wktRw.Read(getRequestParameter("GEOMETRY", ""));
 
             //NOTE: Not a published API
             MgHtmlController controller = new MgHtmlController(siteConn);
             MgByteReader description = controller.QueryMapFeatures(mapName, layerNames, selectionGeometry, selectionVariant, featureFilter, maxFeatures, persist, layerAttributeFilter);
             response().setContentType(description.GetMimeType());
-            return ok(MgClassicAjaxViewerUtil.ByteReaderToStream(description));
+            return ok(MgAjaxViewerUtil.ByteReaderToStream(description));
         } catch (MgException ex) { //TODO: Rasterize the error message as the standard response won't be visible most of the time
             return mgServerError(ex);
         }
+    }
+
+    public static Result getMapLayers(String sessionId, String mapName) {
+        return TODO;
+    }
+
+    public static Result getMapLayerGroups(String sessionId, String mapName) {
+        return TODO;
+    }
+
+    public static Result getLegendImage(String resourcePath, String scale, Long geomType, Long themeCat) {
+        return TODO;
     }
 }

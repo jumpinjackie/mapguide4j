@@ -16,7 +16,7 @@ import org.w3c.dom.*;
 
 //port of common.jsp with servlet-isms removed and/or replaced
 
-public class MgClassicAjaxViewerUtil {
+public class MgAjaxViewerUtil {
     public static String LoadTemplate(String filename) throws FileNotFoundException, IOException
     {
         File theFile = new File(filename);
@@ -183,7 +183,7 @@ public class MgClassicAjaxViewerUtil {
     {
         if(strval.equals(""))
             return 0;
-        if(Pattern.matches("^[0-9]*$", strval))
+        if(Pattern.matches("^-{0,1}\\d+$", strval))
             return Integer.parseInt(strval);
         else
             return 0;
@@ -298,7 +298,7 @@ public class MgClassicAjaxViewerUtil {
         for(int i = 0; i < groups.GetCount(); i++)
         {
             MgLayerGroup rtGroup = (MgLayerGroup)groups.GetItem(i);
-            ClassicAjaxViewerTreeItem node = new ClassicAjaxViewerTreeItem(rtGroup.GetName(), true, rtGroup, "null");
+            TreeItem node = new TreeItem(rtGroup.GetName(), true, rtGroup, "null");
             knownGroups.put(node.name, node);
             MgLayerGroup parentGroup = rtGroup.GetGroup();
             if(parentGroup == null)
@@ -308,7 +308,7 @@ public class MgClassicAjaxViewerUtil {
             else
             {
                 String parentName = parentGroup.GetName();
-                ClassicAjaxViewerTreeItem parentNode = (ClassicAjaxViewerTreeItem)knownGroups.get(parentName);
+                TreeItem parentNode = (TreeItem)knownGroups.get(parentName);
                 if(parentNode != null)
                     parentNode.Attach(node);
                 else
@@ -322,8 +322,8 @@ public class MgClassicAjaxViewerUtil {
         {
             for(int i = 0; i < unresolved.size(); i++)
             {
-                ClassicAjaxViewerTreeItem node = (ClassicAjaxViewerTreeItem)unresolved.get(i);
-                ClassicAjaxViewerTreeItem parentNode = (ClassicAjaxViewerTreeItem)knownGroups.get(node.parentName);
+                TreeItem node = (TreeItem)unresolved.get(i);
+                TreeItem parentNode = (TreeItem)knownGroups.get(node.parentName);
                 if(parentNode != null)
                     parentNode.Attach(node);
                 else
@@ -346,13 +346,13 @@ public class MgClassicAjaxViewerUtil {
         for(int i = 0; i < layers.GetCount(); i++)
         {
             MgLayer rtLayer = (MgLayer) layers.GetItem(i);
-            ClassicAjaxViewerTreeItem node = new ClassicAjaxViewerTreeItem(rtLayer.GetName(), false, rtLayer, (String)layersData.GetItem(i));
+            TreeItem node = new TreeItem(rtLayer.GetName(), false, rtLayer, (String)layersData.GetItem(i));
             MgLayerGroup parentGroup = rtLayer.GetGroup();
             if(parentGroup == null)
                 tree.add(node);
             else
             {
-                ClassicAjaxViewerTreeItem parentNode = (ClassicAjaxViewerTreeItem)knownGroups.get(parentGroup.GetName());
+                TreeItem parentNode = (TreeItem)knownGroups.get(parentGroup.GetName());
                 if(parentNode != null)
                     parentNode.Attach(node);
                 else
@@ -375,7 +375,7 @@ public class MgClassicAjaxViewerUtil {
         return layerMap;
     }
 
-    public static void BuildClientSideTree(ArrayList tree, ClassicAjaxViewerTreeItem parent, String parentName, boolean fulldata, String container, MgResourceService resSrvc, HashMap layerMap, BoxedInteger intermediateVar, StringBuilder output) throws MgException
+    public static void BuildClientSideTree(ArrayList tree, TreeItem parent, String parentName, boolean fulldata, String container, MgResourceService resSrvc, HashMap layerMap, BoxedInteger intermediateVar, StringBuilder output) throws MgException
     {
         // 2 passes: pass 1 adds layers to the tree, pass 2 adds groups
         //
@@ -384,7 +384,7 @@ public class MgClassicAjaxViewerUtil {
         {
             for(int i = 0; i < tree.size(); i++)
             {
-                ClassicAjaxViewerTreeItem node = (ClassicAjaxViewerTreeItem)tree.get(i);
+                TreeItem node = (TreeItem)tree.get(i);
                 if(node.isGroup)
                 {
                     if(pass == 1)
@@ -602,5 +602,207 @@ public class MgClassicAjaxViewerUtil {
             stream = new ByteArrayInputStream(bos.toByteArray());
         }
         return stream;
+    }
+
+    public static String getTextValue(Element el, String tagName)
+    {
+        String textVal = null;
+        NodeList nl = el.getElementsByTagName(tagName);
+        if (nl != null && nl.getLength() > 0)
+        {
+            Element e = (Element)nl.item(0);
+            textVal = e.getFirstChild().getNodeValue();
+        }
+        return textVal;
+    }
+
+    public static HashMap<String, String> GetLayerPropertyMappings(MgResourceService resSvc, MgLayerBase layer) throws Exception
+    {
+        HashMap<String, String> mappings = new HashMap<String, String>();
+
+        MgByteReader content = resSvc.GetResourceContent(layer.GetLayerDefinition());
+        ByteArrayInputStream contentReader = new ByteArrayInputStream(content.ToString().getBytes("UTF-8"));
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(contentReader);
+
+        doc.getDocumentElement().normalize();
+        NodeList propNodes = doc.getElementsByTagName("PropertyMapping");
+
+        for (int i = 0; i < propNodes.getLength(); i++)
+        {
+            Element propEl = (Element)propNodes.item(i);
+            String name = getTextValue(propEl, "Name");
+            String value = getTextValue(propEl, "Value");
+
+            if (name != null && value != null)
+                mappings.put(name, value);
+        }
+
+        return mappings;
+    }
+
+    public static String GetPropertyValueFromFeatureReader(MgFeatureReader reader, MgAgfReaderWriter agfRw, int propType, String propName, String locale) throws Exception
+    {
+        String value = "";
+        switch(propType)
+        {
+            case MgPropertyType.Boolean:
+                value = String.format(locale, "%s", reader.GetBoolean(propName));
+                break;
+            case MgPropertyType.Byte:
+                value = String.format(locale, "%d", reader.GetByte(propName));
+                break;
+            case MgPropertyType.DateTime:
+                value = GetDateTimeString(reader.GetDateTime(propName)); // yyyy-mm-dd is enforced regardless of locale
+                break;
+            case MgPropertyType.Single:
+                value = String.format(locale, "%f", reader.GetSingle(propName));
+                break;
+            case MgPropertyType.Double:
+                value = String.format(locale, "%f", reader.GetDouble(propName));
+                break;
+            case MgPropertyType.Int16:
+                value = String.format(locale, "%d", reader.GetInt16(propName));
+                break;
+            case MgPropertyType.Int32:
+                value = String.format(locale, "%d", reader.GetInt32(propName));
+                break;
+            case MgPropertyType.Int64:
+                value = String.format(locale, "%d", reader.GetInt64(propName));
+                break;
+            case MgPropertyType.String:
+                value = JsonEscape(reader.GetString(propName)); // string content is arbitrary
+                value = value.replaceAll("\\s+", " ").trim();
+                break;
+            default: //NOT PRESENTABLE IN PROPERTY GRID
+                value = "";
+                break;
+        }
+        return value;
+    }
+
+    public static String GetDateTimeString(MgDateTime value) throws MgException
+    {
+        return value.GetYear() + "-" + value.GetMonth() + "-" + value.GetDay();
+    }
+
+    public static String JsonEscape(String str)
+    {
+        return EscapeForHtml(str).replace("\\", "\\\\");
+    }
+
+    public static String JsonifyError(Exception ex, String localeCode)
+    {
+        if (ex == null)
+            return "";
+        /*
+        {
+            "Error" : {
+                "Message" : <exception-message>,
+                "StackTrace" : <exception-stack-trace>
+            }
+        }
+        */
+
+        StringBuffer sb = new StringBuffer();
+        //Use exception message or type name if no message found
+        String msg = ex.getMessage();
+        if (msg == null || msg.length() == 0)
+        {
+            msg = MgLocalizer.GetString("SERVERERROR", localeCode);
+        }
+        //Begin response
+        sb.append("{\"Error\":{");
+        //Exception message
+        sb.append("\"Message\":\"" + JsonEscape(msg) + "\",");
+        StringBuffer strace = new StringBuffer();
+        StackTraceElement[] st = ex.getStackTrace();
+        for (int i = 0; i < st.length; i++)
+        {
+            strace.append(st[i].getClassName() + "." + st[i].getMethodName() + "(" + st[i].getLineNumber() + ")\\n");
+        }
+        sb.append("\"StackTrace\":\"" + JsonEscape(strace.toString()) + "\"");
+        //End response
+        sb.append("}}");
+        return sb.toString();
+    }
+
+    public static String GetJson(SelectionSet set)
+    {
+        /*
+        A sample of the JSON output this method will produce:
+
+
+        {
+            "Layer1" : [
+                {
+                    'values' { "name" : "name1" , "value" : "value1" },
+                    'zoom' : { x: num1, y: num2 }
+                } ,
+                ..,
+                ..,
+                ..,
+            ],
+            "Layer2" : [
+                {
+                    'values' { "name" : "name2" , "value" : "value2" },
+                    'zoom' : { x: num1, y: num2 }
+                } ,
+                ..,
+                ..,
+                ..,
+            ]
+        }
+        */
+
+        if (set == null)
+            return "";
+
+        StringBuffer sb = new StringBuffer();
+        //Begin selection set
+        sb.append("{");
+        String[] layers = set.getLayers();
+        for (int i = 0; i < layers.length; i++)
+        {
+            //Begin layer
+            sb.append("\"" + layers[i] + "\" : [");
+            Feature[] features = set.getFeatures(layers[i]);
+            for (int j = 0; j < features.length; j++)
+            {
+                Feature feat = features[j];
+                //begin feature
+                //begin feature properties
+                sb.append("{\"values\" : [");
+                FeatureProperty[] properties = feat.getProperties();
+                for(int k = 0; k < properties.length; k++)
+                {
+                    FeatureProperty fp = properties[k];
+                    sb.append("{\"name\" : \"" + fp.Name + "\", \"value\" : \"" + fp.Value + "\" }");
+                    if (k != properties.length - 1)
+                        sb.append(",");
+                }
+                //end feature properties
+                //begin zoom
+                sb.append("], \"zoom\" : ");
+                if (feat.Zoom == null)
+                    sb.append("null");
+                else
+                    sb.append(String.format(Locale.ROOT, "{\"minx\" : %f, \"miny\" : %f, \"maxx\" : %f, \"maxy\" : %f }", feat.Zoom.MinX, feat.Zoom.MinY, feat.Zoom.MaxX, feat.Zoom.MaxY));
+                //end zoom
+                //end feature
+                sb.append("}");
+                if (j != features.length - 1)
+                    sb.append(",");
+            }
+            //End Layer
+            sb.append("]");
+            if (i != layers.length - 1)
+                sb.append(",");
+        }
+        //End selection set
+        sb.append("}");
+        return sb.toString();
     }
 }

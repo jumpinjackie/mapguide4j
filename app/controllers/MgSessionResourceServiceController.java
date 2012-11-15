@@ -10,6 +10,7 @@ import org.osgeo.mapguide.*;
 public class MgSessionResourceServiceController extends MgAbstractController {
     public static Result getResourceContent(String sessionId, String resourcePath) {
         try {
+            Logger.debug("Session: " + sessionId + ", path: " + resourcePath);
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
@@ -26,6 +27,7 @@ public class MgSessionResourceServiceController extends MgAbstractController {
 
     public static Result getResourceHeader(String sessionId, String resourcePath) {
         try {
+            Logger.debug("Session: " + sessionId + ", path: " + resourcePath);
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
@@ -42,6 +44,7 @@ public class MgSessionResourceServiceController extends MgAbstractController {
 
     public static Result enumerateResourceData(String sessionId, String resourcePath) {
         try {
+            Logger.debug("Session: " + sessionId + ", path: " + resourcePath);
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
@@ -58,6 +61,7 @@ public class MgSessionResourceServiceController extends MgAbstractController {
 
     public static Result getResourceData(String sessionId, String resourcePath, String dataName) {
         try {
+            Logger.debug("Session: " + sessionId + ", path: " + resourcePath);
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();

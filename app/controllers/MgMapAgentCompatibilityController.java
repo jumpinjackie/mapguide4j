@@ -3,15 +3,16 @@ package controllers;
 import actions.*;
 import play.*;
 import play.mvc.*;
-import java.lang.StringBuilder;
 
+import java.io.File;
+import java.lang.StringBuilder;
 import java.util.Map;
 
 import org.osgeo.mapguide.*;
 
-@MgCheckSession
-public abstract class MgMapAgentCompatibilityController extends MgAbstractAuthenticatedController {
+public abstract class MgMapAgentCompatibilityController extends MgAbstractController {
 
+    @MgCheckSession
     public static Result processGetRequest() {
         try {
             Map<String, String[]> queryParams = request().queryString();
@@ -47,7 +48,9 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractAuthen
         if (!op.equals("")) {
             //TODO: There's surely a better way? C# has spoiled me with its elegance because I can't figure
             //out the proper and equivalent way in Java!
-            if (op.equals("GETDYNAMICMAPOVERLAYIMAGE")) {
+            if (op.equals("CREATESESSION")) {
+                return TODO;
+            } else if (op.equals("GETDYNAMICMAPOVERLAYIMAGE")) {
                 if (queryParams.get("MAPNAME") == null)
                     return badRequest("Missing MAPNAME parameter");
                 String mapName = queryParams.get("MAPNAME")[0];
@@ -77,6 +80,7 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractAuthen
         }
     }
 
+    @MgCheckSession
     public static Result processPostRequest() {
         try {
             Map<String, String[]> formData = request().body().asFormUrlEncoded();
@@ -84,5 +88,13 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractAuthen
         } catch (MgException ex) {
             return mgServerError(ex);
         }
+    }
+
+    public static Result agentasset(String file) {
+        File f = Play.application().getFile("internal/MapAgentForms/" + file);
+        if (!f.exists())
+            return notFound();
+        else
+            return ok(f);
     }
 }
