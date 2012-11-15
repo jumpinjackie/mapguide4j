@@ -5,6 +5,8 @@ import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import java.util.*;
+
 import org.osgeo.mapguide.*;
 
 public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
@@ -18,8 +20,23 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
     public Result call(Http.Context ctx) throws Throwable {
         Logger.debug(ctx.request().method() + ": " + ctx.request().uri());
         Logger.debug("Checking MapGuide Session");
+
+        String sessionId = null;
+        if (ctx.request().method().equals("GET")) {
+            Map<String, String[]> params = ctx.request().queryString();
+            if (params.get("SESSION") != null)
+                sessionId = params.get("SESSION")[0];
+        }
+        else if (ctx.request().method().equals("POST")) {
+            Map<String, String[]> params = ctx.request().body().asFormUrlEncoded();
+            if (params != null && params.get("SESSION") != null)
+                sessionId = params.get("SESSION")[0];  
+        }
+        if (sessionId == null)
+            sessionId = ctx.session().get(MAPGUIDE_SESSION_ID_KEY);
+
         //TODO: Don't use the play session to store the MapGuide session id
-        if (ctx.session().get(MAPGUIDE_SESSION_ID_KEY) == null)
+        if (sessionId == null)
         {
             Logger.debug("No MapGuide Session ID found. Checking username/password");
 
@@ -50,7 +67,7 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
                 MgUserInformation userInfo = new MgUserInformation(username, password);
                 MgSite site = new MgSite();
                 site.Open(userInfo);
-                String sessionId = site.CreateSession();
+                sessionId = site.CreateSession();
                 ctx.session().put(MAPGUIDE_SESSION_ID_KEY, sessionId);
                 Logger.debug("MapGuide Session ID stashed");
             } catch (MgException ex) {
@@ -59,7 +76,7 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
         } else {
             Logger.debug("MapGuide Session ID already stashed. Checking it");
             try {
-                MgUserInformation userInfo = new MgUserInformation(ctx.session().get(MAPGUIDE_SESSION_ID_KEY));
+                MgUserInformation userInfo = new MgUserInformation(sessionId);
                 MgSite site = new MgSite();
                 site.Open(userInfo);
             } catch (MgException ex) {

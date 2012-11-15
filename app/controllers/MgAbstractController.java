@@ -22,6 +22,19 @@ public abstract class MgAbstractController extends Controller {
         return internalServerError(sw.toString());
     }
 
+    protected static String getMgSessionId() {
+        //For any authenticated controller, the session id will be in one of 3 places:
+        //The query string (GET)
+        //The form body (POST)
+        //The play session (caused by @MgCheckSession)
+        
+        String sessionId = getRequestParameter("SESSION", null);
+        if (sessionId == null)
+            sessionId = session().get(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY);
+
+        return sessionId;
+    }
+
     /**
      * Method: getRequestParameter
      * 
@@ -154,7 +167,7 @@ public abstract class MgAbstractController extends Controller {
     }
 
     protected static MgSiteConnection createMapGuideConnection() throws MgException {
-        String sessionId = session(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY);
+        String sessionId = getMgSessionId();
         MgUserInformation userInfo = new MgUserInformation(sessionId);
         MgSiteConnection siteConn = new MgSiteConnection();
         siteConn.Open(userInfo);

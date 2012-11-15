@@ -10,7 +10,6 @@ import org.osgeo.mapguide.*;
 public class MgSessionResourceServiceController extends MgAbstractController {
     public static Result getResourceContent(String sessionId, String resourcePath) {
         try {
-            Logger.debug("Session: " + sessionId + ", path: " + resourcePath);
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();

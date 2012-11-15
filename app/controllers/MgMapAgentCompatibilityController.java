@@ -1,6 +1,7 @@
 package controllers;
 
 import actions.*;
+import util.*;
 import play.*;
 import play.mvc.*;
 
@@ -14,78 +15,161 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractContro
 
     @MgCheckSession
     public static Result processGetRequest() {
+        String uri =  controllers.routes.MgMapAgentCompatibilityController.processGetRequest().absoluteURL(request());
         try {
-            Map<String, String[]> queryParams = request().queryString();
-            return processRequest("GET", queryParams);
-        } catch (MgException ex) {
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+            populateGetRequest(param);
+            MgHttpResponse response = request.Execute();
+            MgHttpResult result = response.GetResult();
+
+            if (result.GetStatusCode() == 200) {
+                MgDisposable resultObj = result.GetResultObject();
+                if (resultObj != null) {
+                    response().setContentType(result.GetResultContentType());
+                    if (resultObj instanceof MgByteReader) {
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)resultObj));
+                    } else if (resultObj instanceof MgFeatureReader) {
+                        MgByteReader br = ((MgFeatureReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgStringCollection) {
+                        return mgStringCollectionXml((MgStringCollection)resultObj);
+                    } else if (resultObj instanceof MgSqlDataReader) {
+                        MgByteReader br = ((MgSqlDataReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgDataReader) {
+                        MgByteReader br = ((MgDataReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgSpatialContextReader) {
+                        MgByteReader br = ((MgSpatialContextReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgLongTransactionReader) {
+                        MgByteReader br = ((MgLongTransactionReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgHttpPrimitiveValue) {
+                        return ok(((MgHttpPrimitiveValue)resultObj).ToString());
+                    } else {
+                        return badRequest("Not sure how to output: " + resultObj.toString());
+                    }
+                } else {
+                    return ok();
+                }
+            } else {
+                String statusMessage = result.GetHttpStatusMessage();
+                if (statusMessage.equals("MgAuthenticationFailedException") || statusMessage.equals("MgUnauthorizedAccessException"))
+                {
+                    return unauthorized();
+                }
+                else
+                {
+                    String errHtml = String.format("\r\n" +
+                        "<html>\n<head>\n" +
+                        "<title>%s</title>\n" +
+                        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n" +
+                        "</head>\n" +
+                        "<body>\n<h2>%s</h2>\n%s\n</body>\n</html>\n",
+                        statusMessage,
+                        result.GetErrorMessage(),
+                        result.GetDetailedErrorMessage());
+                    response().setContentType("text/html");
+                    return internalServerError(errHtml);
+                }
+            }
+        }
+        catch (MgException ex) {
             return mgServerError(ex);
         }
     }
-    
-    private static Result processRequest(String method, Map<String, String[]> queryParams) throws MgException {
-        String op = "";
-        String version = "1.0.0";
-        String locale = "en";
-        MgResourceIdentifier resourceId = null;
-        String sessionId = "";
 
-        if (queryParams.get("OPERATION") != null) {
-            op = queryParams.get("OPERATION")[0];
-        }
-        if (queryParams.get("VERSION") != null) {
-            version = queryParams.get("VERSION")[0];
-        }
-        if (queryParams.get("LOCALE") != null) {
-            locale = queryParams.get("LOCALE")[0];
-        }
-        if (queryParams.get("SESSION") != null) {
-            sessionId = queryParams.get("SESSION")[0];
-        }
-        if (queryParams.get("RESOURCEID") != null) {
-            resourceId = new MgResourceIdentifier(queryParams.get("RESOURCEID")[0]);
-        }
-
-        if (!op.equals("")) {
-            //TODO: There's surely a better way? C# has spoiled me with its elegance because I can't figure
-            //out the proper and equivalent way in Java!
-            if (op.equals("CREATESESSION")) {
-                return TODO;
-            } else if (op.equals("GETDYNAMICMAPOVERLAYIMAGE")) {
-                if (queryParams.get("MAPNAME") == null)
-                    return badRequest("Missing MAPNAME parameter");
-                String mapName = queryParams.get("MAPNAME")[0];
-                return MgViewerController.getDynamicMapOverlayImage(sessionId, mapName);
-            } else if (op.equals("QUERYMAPFEATURES")) {
-                if (queryParams.get("MAPNAME") == null)
-                    return badRequest("Missing MAPNAME parameter");
-                String mapName = queryParams.get("MAPNAME")[0];
-                return MgViewerController.queryMapFeatures(sessionId, mapName);
-            } else if (op.equals("ENUMERATERESOURCES")) {
-                if (resourceId != null && resourceId.GetRepositoryType() == MgRepositoryType.Library) {
-                    return TODO;
-                } else {
-                    return badRequest();
-                }
-            } else if (op.equals("GETRESOURCECONTENT")) {
-                return TODO;
-            } else if (op.equals("GETRESOURCEHEADER")) {
-                return TODO;
-            } else if (op.equals("ENUMERATERESOURCEREFERENCES")) {
-                return TODO;
-            } else {
-                return TODO;
+    private static void populateGetRequest(MgHttpRequestParam param) throws MgException {
+        Map<String, String[]> query = request().queryString();
+        if (query != null) {
+            for (String name : query.keySet()) {
+                param.AddParameter(name, query.get(name)[0]);
             }
-        } else {
-            return badRequest();
+        }
+        if (session().get(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY) != null && !param.ContainsParameter("SESSION")) {
+            param.AddParameter("SESSION", session().get(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY));
+        }
+    }
+
+     private static void populatePostRequest(MgHttpRequestParam param) throws MgException {
+        Map<String, String[]> query = request().body().asFormUrlEncoded();
+        if (query != null) {
+            for (String name : query.keySet()) {
+                param.AddParameter(name, query.get(name)[0]);
+            }
+        }
+        if (session().get(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY) != null && !param.ContainsParameter("SESSION")) {
+            param.AddParameter("SESSION", session().get(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY));
         }
     }
 
     @MgCheckSession
     public static Result processPostRequest() {
+        String uri =  controllers.routes.MgMapAgentCompatibilityController.processGetRequest().absoluteURL(request());
+
         try {
-            Map<String, String[]> formData = request().body().asFormUrlEncoded();
-            return processRequest("POST", formData);
-        } catch (MgException ex) {
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+            populatePostRequest(param);
+            MgHttpResponse response = request.Execute();
+            MgHttpResult result = response.GetResult();
+
+            if (result.GetStatusCode() == 200) {
+                MgDisposable resultObj = result.GetResultObject();
+                if (resultObj != null) {
+                    response().setContentType(result.GetResultContentType());
+                    if (resultObj instanceof MgByteReader) {
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)resultObj));
+                    } else if (resultObj instanceof MgFeatureReader) {
+                        MgByteReader br = ((MgFeatureReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgStringCollection) {
+                        return mgStringCollectionXml((MgStringCollection)resultObj);
+                    } else if (resultObj instanceof MgSqlDataReader) {
+                        MgByteReader br = ((MgSqlDataReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgDataReader) {
+                        MgByteReader br = ((MgDataReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgSpatialContextReader) {
+                        MgByteReader br = ((MgSpatialContextReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgLongTransactionReader) {
+                        MgByteReader br = ((MgLongTransactionReader)resultObj).ToXml();
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
+                    } else if (resultObj instanceof MgHttpPrimitiveValue) {
+                        return ok(((MgHttpPrimitiveValue)resultObj).ToString());
+                    } else {
+                        return badRequest("Not sure how to output: " + resultObj.toString());
+                    }
+                } else {
+                    return ok();
+                }
+            } else {
+                String statusMessage = result.GetHttpStatusMessage();
+                if (statusMessage.equals("MgAuthenticationFailedException") || statusMessage.equals("MgUnauthorizedAccessException"))
+                {
+                    return unauthorized();
+                }
+                else
+                {
+                    String errHtml = String.format("\r\n" +
+                        "<html>\n<head>\n" +
+                        "<title>%s</title>\n" +
+                        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n" +
+                        "</head>\n" +
+                        "<body>\n<h2>%s</h2>\n%s\n</body>\n</html>\n",
+                        statusMessage,
+                        result.GetErrorMessage(),
+                        result.GetDetailedErrorMessage());
+                    response().setContentType("text/html");
+                    return internalServerError(errHtml);
+                }
+            }
+        }
+        catch (MgException ex) {
             return mgServerError(ex);
         }
     }
