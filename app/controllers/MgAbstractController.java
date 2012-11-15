@@ -5,6 +5,7 @@ import play.*;
 import play.mvc.*;
 
 import java.io.*;
+import java.util.Map;
 import java.lang.String;
 import java.lang.StringBuilder;
 
@@ -19,6 +20,16 @@ public abstract class MgAbstractController extends Controller {
         e.printStackTrace(pw);
         
         return internalServerError(sw.toString());
+    }
+
+    protected static Map<String, String[]> requestParameters() {
+        if (request().method() == "GET") {
+            return request().queryString();
+        } else if (request().method() == "POST") {
+            return request().body().asFormUrlEncoded();
+        } else {
+            return null;
+        }
     }
 
     protected static boolean isValidResourceType(String resType) {
