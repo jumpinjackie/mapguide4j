@@ -6,12 +6,21 @@ import play.mvc.*;
 
 import org.osgeo.mapguide.*;
 
+@MgCheckSession
 public class MgSiteController extends MgAbstractController {
+    
     public static Result createSession() {
-        return TODO;
+        try {
+            MgSiteConnection siteConn = createMapGuideConnection();
+            MgSite site = siteConn.GetSite();
+            return ok(site.CreateSession());
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
+        }
     }
 
-    @MgCheckSession
     public static Result getGroups() {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
@@ -25,10 +34,11 @@ public class MgSiteController extends MgAbstractController {
             }
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
-    @MgCheckSession
     public static Result getGroupsForUser(String userName) {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
@@ -42,10 +52,11 @@ public class MgSiteController extends MgAbstractController {
             }
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
-    @MgCheckSession
     public static Result getRolesForUser(String userName) {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
@@ -58,10 +69,11 @@ public class MgSiteController extends MgAbstractController {
             }
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
-    @MgCheckSession
     public static Result getUsersForGroup(String groupName) {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
@@ -75,6 +87,8 @@ public class MgSiteController extends MgAbstractController {
             }
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 }

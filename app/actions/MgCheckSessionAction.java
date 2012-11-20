@@ -13,11 +13,20 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
 
     public static final String MAPGUIDE_SESSION_ID_KEY = "mapguide.sessionid";
 
-    private static final String AUTHORIZATION = "authorization";
-    private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
-    private static final String REALM = "Basic realm=\"Your Realm Here\"";
+    public static final String AUTHORIZATION = "authorization";
+    public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
+    public static final String REALM = "Basic realm=\"mapguide4j\"";
 
     public Result call(Http.Context ctx) throws Throwable {
+
+        //NOTE: We're currently following the same rules as the mapagent
+        //
+        //We expect either a SESSION or credentials in the authentication header
+        //Otherwise throw back a 401 with WWW-Authenticate
+        //
+        //The mgServerError() method will also throw back a 401 with WWW-Authenticate if the
+        //matching exceptions are caught during processing
+
         Logger.debug(ctx.request().method() + ": " + ctx.request().uri());
         Logger.debug("Checking MapGuide Session");
 
@@ -32,10 +41,7 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
             if (params != null && params.get("SESSION") != null)
                 sessionId = params.get("SESSION")[0];  
         }
-        if (sessionId == null)
-            sessionId = ctx.session().get(MAPGUIDE_SESSION_ID_KEY);
 
-        //TODO: Don't use the play session to store the MapGuide session id
         if (sessionId == null)
         {
             Logger.debug("No MapGuide Session ID found. Checking username/password");
@@ -44,7 +50,7 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
             if (authHeader == null) {
                 Logger.debug("No HTTP authentication header found");
                 ctx.response().setHeader(WWW_AUTHENTICATE, REALM);
-                return unauthorized();
+                return unauthorized("You must enter a valid login ID and password to access this site");
             }
 
             String auth = authHeader.substring(6);
@@ -56,33 +62,6 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
             //Logger.debug("Decoded array: " + credString.length);
             if (credString == null || (credString.length != 1 && credString.length != 2)) {
                 return unauthorized("malformed credentials supplied");
-            }
-
-            String username = credString[0];
-            String password = "";
-            if (credString.length == 2)
-                password = credString[1];
-
-            try {
-                MgUserInformation userInfo = new MgUserInformation(username, password);
-                MgSite site = new MgSite();
-                site.Open(userInfo);
-                sessionId = site.CreateSession();
-                ctx.session().put(MAPGUIDE_SESSION_ID_KEY, sessionId);
-                Logger.debug("MapGuide Session ID stashed");
-            } catch (MgException ex) {
-                return unauthorized(ex.GetExceptionMessage());
-            }
-        } else {
-            Logger.debug("MapGuide Session ID already stashed. Checking it");
-            try {
-                MgUserInformation userInfo = new MgUserInformation(sessionId);
-                MgSite site = new MgSite();
-                site.Open(userInfo);
-            } catch (MgException ex) {
-                ctx.session().remove(MAPGUIDE_SESSION_ID_KEY);
-                Logger.debug("Removed expired MapGuide Session ID");
-                return unauthorized(ex.GetExceptionMessage());
             }
         }
         return delegate.call(ctx);

@@ -27,7 +27,21 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
             return ok(resContent.ToString());
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
+    }
+
+    public static Result setResourceContent(String resourcePath) {
+        return TODO;
+    }
+
+    public static Result setResourceHeader(String resourcePath) {
+        return TODO;
+    }
+
+    public static Result setResourceData(String resourcePath, String dataName) {
+        return TODO;
     }
 
     public static Result getResourceContent(String resourcePath) {
@@ -35,6 +49,8 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
             return getResourceContent(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -43,6 +59,8 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
             return getResourceHeader(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -51,6 +69,8 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
             return enumerateResourceData(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -59,6 +79,8 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
             return getResourceData(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection(), dataName);
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -67,6 +89,8 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
             return enumerateResourceReferences(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -75,6 +99,8 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
             return deleteResourceData(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection(), dataName);
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -83,6 +109,8 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
             return deleteResource(constructLibraryResourceId(MgRepositoryType.Library, resourcePath), createMapGuideConnection());
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 }

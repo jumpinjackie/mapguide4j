@@ -1,5 +1,7 @@
 package controllers;
 
+import util.*;
+
 import play.*;
 import play.mvc.*;
 
@@ -29,9 +31,9 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
     protected static Result getResourceData(MgResourceIdentifier resId, MgSiteConnection siteConn, String dataName) throws MgException {
         MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
-        MgByteReader resDataList = resSvc.GetResourceData(resId, dataName);
-        response().setContentType(resDataList.GetMimeType());
-        return ok(resDataList.ToString());
+        MgByteReader resData = resSvc.GetResourceData(resId, dataName);
+        response().setHeader("Content-Disposition", "attachment; filename=" + dataName);
+        return ok(MgAjaxViewerUtil.ByteReaderToStream(resData));
     }
 
     protected static Result enumerateResourceReferences(MgResourceIdentifier resId, MgSiteConnection siteConn) throws MgException {

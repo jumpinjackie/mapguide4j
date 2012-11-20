@@ -15,7 +15,7 @@ import java.text.*;
 
 import org.osgeo.mapguide.*;
 
-public abstract class MgAjaxViewerController extends MgAbstractAuthenticatedController {
+public abstract class MgAjaxViewerController extends MgAbstractController {
 
     private static String getViewerRoot() {
         return controllers.routes.MgAjaxViewerController.index().url();
@@ -42,17 +42,49 @@ public abstract class MgAjaxViewerController extends MgAbstractAuthenticatedCont
             //fetch the parameters for this request
             String webLayoutDefinition = getRequestParameter("WEBLAYOUT", "");
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
+            String sessionId = MgAjaxViewerUtil.ValidateSessionId(getRequestParameter("SESSION", ""));
+            String username = getRequestParameter("USERNAME", "");
+            String password = getRequestParameter("PASSWORD", "");
 
             Hashtable cmds = new Hashtable();
             BoxedInteger curFlyout = new BoxedInteger(0);
+            boolean createSession = true;
 
             //Open a connection with the server
             //
-            MgSiteConnection site = createMapGuideConnection();
-            String sessionId = getMgSessionId();
-            if (sessionId == null) {
-                MgSite siteObj = site.GetSite();
-                sessionId = siteObj.GetCurrentSession();
+            MgUserInformation cred = new MgUserInformation();
+            if(sessionId != null && !sessionId.equals(""))
+            {
+                Logger.debug("Set MG session id");
+                cred.SetMgSessionId(sessionId);
+                createSession = false;
+            }
+            else if(username != null && !username.equals(""))
+            {
+                Logger.debug("Set MG credentials");
+                cred.SetMgUsernamePassword(username, password);
+            }
+            else
+            {
+                if (!TrySetMgCredentials(cred)) 
+                {
+                    Logger.debug("Send WWW-Authenticate");
+                    response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+                    return unauthorized("You must enter a valid login ID and password to access this site");
+                }
+            }
+
+            MgSiteConnection site = new MgSiteConnection();
+            cred.SetLocale(locale);
+            //cred.SetClientIp(GetClientIp(request));
+            cred.SetClientAgent(MgAjaxViewerUtil.GetClientAgent());
+
+            site.Open(cred);
+
+            if (createSession)
+            {
+                MgSite site1 = site.GetSite();
+                sessionId = site1.CreateSession();
             }
             //Get a MgWebLayout object initialized with the specified web layout definition
             //
@@ -502,15 +534,21 @@ public abstract class MgAjaxViewerController extends MgAbstractAuthenticatedCont
         }
         catch(MgUserNotFoundException e)
         {
-            return unauthorized(e.getMessage());
+            Logger.debug("401 - MgUserNotFoundException");
+            response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+            return unauthorized("You must enter a valid login ID and password to access this site");
         }
         catch(MgUnauthorizedAccessException e)
         {
-            return unauthorized(e.getMessage());
+            Logger.debug("401 - MgUnauthorizedAccessException");
+            response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+            return unauthorized("You must enter a valid login ID and password to access this site");
         }
         catch(MgAuthenticationFailedException e)
         {
-            return unauthorized(e.getMessage());
+            Logger.debug("401 - MgAuthenticationFailedException");
+            response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+            return unauthorized("You must enter a valid login ID and password to access this site");
         }
         catch(MgException e)
         {

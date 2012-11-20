@@ -6,10 +6,13 @@ import play.mvc.*;
 
 import java.io.*;
 import java.util.Map;
+import java.util.List;
 import java.lang.String;
 import java.lang.StringBuilder;
 
 import org.osgeo.mapguide.*;
+import org.w3c.dom.*;
+import org.w3c.dom.ls.*;
 
 public abstract class MgAbstractController extends Controller {
 
@@ -26,13 +29,30 @@ public abstract class MgAbstractController extends Controller {
         //For any authenticated controller, the session id will be in one of 3 places:
         //The query string (GET)
         //The form body (POST)
-        //The play session (caused by @MgCheckSession)
         
         String sessionId = getRequestParameter("SESSION", null);
-        if (sessionId == null)
-            sessionId = session().get(MgCheckSessionAction.MAPGUIDE_SESSION_ID_KEY);
-
+        
         return sessionId;
+    }
+
+    protected static String getRequestBodyAsXmlUtf8() {
+        Document document = request().body().asXml();
+        if (document != null) {
+            DOMImplementation impl = document.getImplementation();
+            DOMImplementationLS implLS = (DOMImplementationLS) impl.getFeature("LS", "3.0");
+            LSSerializer lsSerializer = implLS.createLSSerializer();
+            lsSerializer.getDomConfig().setParameter("format-pretty-print", true);
+             
+            LSOutput lsOutput = implLS.createLSOutput();
+            lsOutput.setEncoding("UTF-8");
+            Writer stringWriter = new StringWriter();
+            lsOutput.setCharacterStream(stringWriter);
+            lsSerializer.write(document, lsOutput);
+             
+            String result = stringWriter.toString();
+            return result;
+        }
+        return null;
     }
 
     /**
@@ -159,6 +179,27 @@ public abstract class MgAbstractController extends Controller {
         return sb.toString();
     }
 
+    protected static boolean TrySetMgCredentials(MgUserInformation cred) throws MgException, UnsupportedEncodingException {
+        String authHeader = request().getHeader(MgCheckSessionAction.AUTHORIZATION);
+        if (authHeader != null) {
+            String auth = authHeader.substring(6);
+            byte[] decodedAuth = javax.xml.bind.DatatypeConverter.parseBase64Binary(auth);
+            String decodedStr = new String(decodedAuth, "UTF-8");
+            String[] credString = decodedStr.split(":");
+            if (credString.length == 1 || credString.length == 2) {
+                String username = credString[0];
+                String password = "";
+                if (credString.length == 2)
+                    password = credString[1];
+
+                cred.SetMgUsernamePassword(username, password);
+                Logger.debug("MG Credentials set from auth header");
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected static MgSiteConnection createAnonymousMapGuideConnection() throws MgException {
         MgUserInformation userInfo = new MgUserInformation("Anonymous", "");
         MgSiteConnection siteConn = new MgSiteConnection();
@@ -166,9 +207,13 @@ public abstract class MgAbstractController extends Controller {
         return siteConn;
     }
 
-    protected static MgSiteConnection createMapGuideConnection() throws MgException {
+    protected static MgSiteConnection createMapGuideConnection() throws MgException, UnsupportedEncodingException {
         String sessionId = getMgSessionId();
-        MgUserInformation userInfo = new MgUserInformation(sessionId);
+        MgUserInformation userInfo = new MgUserInformation();
+        if (sessionId != null && !sessionId.equals("")) {
+            userInfo.SetMgSessionId(sessionId);
+        }
+        TrySetMgCredentials(userInfo);
         MgSiteConnection siteConn = new MgSiteConnection();
         siteConn.Open(userInfo);
         return siteConn;
@@ -195,8 +240,9 @@ public abstract class MgAbstractController extends Controller {
             //TODO: There are possibly more MapGuide Exceptions that can map cleanly to HTTP status codes
             if (mex instanceof MgResourceNotFoundException || mex instanceof MgResourceDataNotFoundException) { //404
                 return notFound(data);
-            } else if (mex instanceof MgAuthenticationFailedException || mex instanceof MgUnauthorizedAccessException) { //401
-                return unauthorized(data);
+            } else if (mex instanceof MgAuthenticationFailedException || mex instanceof MgUnauthorizedAccessException || mex instanceof MgUserNotFoundException) { //401
+                response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+                return unauthorized("You must enter a valid login ID and password to access this site");
             }
             return internalServerError(data);
         } catch (MgException ex) { //This is a SWIG-ism: http://trac.osgeo.org/mapguide/ticket/9
