@@ -1,15 +1,90 @@
-@(title: String)(content: Html)
 
 <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Welcome to mapguide4j</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<html>
-    <head>
-        <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-        <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
-    </head>
-    <body>
-        @content
-    </body>
+    <!-- CSS -->
+    <link href="@routes.Assets.at("bootstrap/css/bootstrap.css")" rel="stylesheet">
+    <style type="text/css">
+
+      /* Sticky footer styles
+      -------------------------------------------------- */
+
+      html,
+      body {
+        height: 100%;
+        /* The html and body elements cannot have any padding or margin. */
+      }
+
+      /* Lastly, apply responsive CSS fixes as necessary */
+      @@media (max-width: 767px) {
+        #footer {
+          margin-left: -60px;
+          margin-right: -60px;
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
+
+    </style>
+    <link href="@routes.Assets.at("bootstrap/css/bootstrap-responsive.css")" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+
+    <!-- Begin page content -->
+      <div class="container">
+        <!-- Main hero unit for a primary marketing message or call to action -->
+          <div class="hero-unit">
+            <h1>Welcome to mapguide4j</h1>
+            <br/>
+            <p>mapguide4j is a Java-based suite of web services and applications for MapGuide using the Java version of the MapGuide Web Extensions API</p>
+            <p><a class="btn btn-primary btn-large" href="https://github.com/jumpinjackie/mapguide4j">mapguide4j on GitHub &raquo;</a></p>
+            <br/>
+            <p>Here's some Web Applications you can try below</p>
+          </div>
+        <div class="well">
+            <!-- Example row of columns -->
+            <div class="row-fluid">
+                <div class="span3">
+                    <h2>AJAX Viewer</h2>
+                    <p>Launch the classic MapGuide AJAX Viewer using the Sheboygan Web Layout (requires the Sheboygan Dataset)</p>
+                    <p><a class="btn" href="/mapguide/mapviewerajax/?WEBLAYOUT=Library://Samples/Sheboygan/Layouts/SheboyganJsp.WebLayout&USERNAME=Anonymous">Run &raquo;</a></p>
+                </div>
+                <div class="span3">
+                    <h2>MapAgent</h2>
+                    <p>Launch the web-based interactive test harness for the mapagent</p>
+                    <p><a class="btn" href="/mapguide/mapagent/index.html">Run &raquo;</a></p>
+                </div>
+                <div class="span3">
+                    <h2>REST API</h2>
+                    <p>Launch the QUnit-based test runner to test the mapguide4j REST API (requires the Sheboygan Dataset)</p>
+                    <p><a class="btn" href="/mapguide/rest/test">Run &raquo;</a></p>
+                </div>
+                <div class="span3">
+                    <h2>Modern Viewer</h2>
+                    <p>Launch the new Modern HTML5 Viewer (requires the Sheboygan Dataset)</p>
+                    <p><a class="btn disabled">Run &raquo;</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("bootstrap/js/bootstrap.js")" type="text/javascript"></script>
+  </body>
 </html>
