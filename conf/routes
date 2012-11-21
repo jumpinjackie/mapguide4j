@@ -2,14 +2,14 @@
 # This file defines all application routes in mapguide4j (Higher priority routes first)
 # ~~~~
 
-# NOTE: With the exception of compatibility routes, most of the routes defined here are modeled 
+# NOTE: With the exception of compatibility routes, most of the routes defined here are modeled
 # on the proposed representations from (http://trac.osgeo.org/mapguide/wiki/Future/RESTfulWebServices)
 # with some small tweaks to work around the potential ambiguity in route matching
 
 # Home page
 GET /                                                               controllers.Application.index()
 
-GET /mapguide/rest                                                  controllers.MgTestController.index()
+GET /mapguide/rest/test                                             controllers.MgTestController.index()
 
 # Existing web tier compatibility shims
 GET /mapguide/mapagent/mapagent.fcgi                                controllers.MgMapAgentCompatibilityController.processGetRequest()
@@ -43,8 +43,8 @@ GET /mapguide/stdicons/*file                                        controllers.
 
 # Library
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName/classes             controllers.MgLibraryFeatureServiceController.getClassNames(resourcePath, schemaName: String)
+GET /mapguide/rest/library/*resourcePath/schema/:schemaName/class/:className    controllers.MgLibraryFeatureServiceController.getClassDefinition(resourcePath, schemaName: String, className: String)
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName                     controllers.MgLibraryFeatureServiceController.getFeatureSchema(resourcePath, schemaName: String)
-GET /mapguide/rest/library/*resourcePath/schema/:schemaName/:className          controllers.MgLibraryFeatureServiceController.getClassDefinition(resourcePath, schemaName: String, className: String)
 GET /mapguide/rest/library/*resourcePath/data/:dataName                         controllers.MgLibraryResourceServiceController.getResourceData(resourcePath, dataName: String)
 DELETE /mapguide/rest/library/*resourcePath/data/:dataName                      controllers.MgLibraryResourceServiceController.deleteResourceData(resourcePath, dataName: String)
 GET /mapguide/rest/library/*resourcePath/data                                   controllers.MgLibraryResourceServiceController.enumerateResourceData(resourcePath)

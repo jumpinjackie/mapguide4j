@@ -3,7 +3,7 @@ mapguide4j
 
 mapguide4j is a Java-based suite of web services and applications for MapGuide using the Java version of the MapGuide Web Extensions API
 
-mapguide4j is built on top of the [Play! Framework](http://www.playframework.org) and has no dependencies to IIS or Apache. 
+mapguide4j is built on top of the [Play! Framework](http://www.playframework.org) and has no dependencies to IIS or Apache.
 
 mapguide4j aims to become a fully capable replacement alternative for the existing default Web Tier that comes with MapGuide (and is bound to either Apache or IIS), providing the following applications and services:
 
@@ -11,7 +11,7 @@ mapguide4j aims to become a fully capable replacement alternative for the existi
  - A REST-ful http interface modeled on original discussions on a [RESTful web service for MapGuide](http://trac.osgeo.org/mapguide/wiki/Future/RESTfulWebServices)
  - The AJAX viewer ported over to run on top of Play!
  - (Eventually): A mobile/tablet friendly map viewer leveraging OpenLayers and modern HTML5 technologies.
- - (Eventually): Conversion into Play! module(s) allowing for componentization and reuse across other Play! 
+ - (Eventually): Conversion into Play! module(s) allowing for componentization and reuse across other Play!
  applications
  - (Eventually): A better/improved Feature Source Inspector
  - (Hopefully): Support for other OGC standards (WFS-T, WMTS, etc) and improvements on what's offered out of the box by MapGuide.
@@ -67,7 +67,7 @@ Setup
  - REST endpoint: http://localhost:9000/mapguide/rest
  - AJAX Viewer: http://localhost:9000/mapguide/mapviewerajax
 
-Example URLs for REST 
+Example URLs for REST
 =====================
 
 Resource Service APIs
@@ -84,11 +84,11 @@ Getting the resource header of Library://Samples/Sheboygan/Data/Parcels.FeatureS
 List the resource data of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
 
     GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data
-    
+
 List the resources that reference Library://Samples/Sheboygan/Data/Parcels.FeatureSource
 
     GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references
-    
+
 Feature Service APIs
 --------------------
 
@@ -99,18 +99,18 @@ List spatial contexts of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
 List schema names of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
 
     GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas
-    
-Describe Feature Schema (SHP_Default) of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
 
-    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Default
-    
-List class names under the Feature Schema (SHP_Default) of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+Describe Feature Schema (SHP_Schema) of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
 
-    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Default/classes
-    
-Describe Class Definition (SHP_Default:Parcels) of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema
 
-    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Default/Parcels
+List class names under the Feature Schema (SHP_Schema) of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes
+
+Describe Class Definition (SHP_Schema:Parcels) of Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/Parcels
 
 List registered FDO providers
 
@@ -131,21 +131,21 @@ Get the available connection values for the SDF connection property (ReadOnly)
 Feature Service APIs - CRUD
 ---------------------------
 
-Return first 1000 features from (SHP_Default:Parcels) in Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+Return first 1000 features from (SHP_Schema:Parcels) in Library://Samples/Sheboygan/Data/Parcels.FeatureSource
 
-    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Default/Parcels?maxfeatures=1000
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels?maxfeatures=1000
 
-Return parcels whose owner starts with "SCHMITT"
+Return parcels whose owner starts with "SCHMITT" (note the %25 to escape the % wildcard)
 
-    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Default/Parcels?filter=RNAME LIKE 'SCHMITT%'
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels?filter=RNAME LIKE 'SCHMITT%25'
 
-Return first 1000 features with restricted list of properties from (SHP_Default:Parcels) in Library://Samples/Sheboygan/Data/Parcels.FeatureSource
+Return first 1000 features with restricted list of properties from (SHP_Schema:Parcels) in Library://Samples/Sheboygan/Data/Parcels.FeatureSource
 
-    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Default/Parcels?properties=Autogenerated_SDF_ID,RNAME,SHPGEOM&maxfeatures=1000
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels?properties=Autogenerated_SDF_ID,RNAME,SHPGEOM&maxfeatures=1000
 
-Return first 1000 features from (SHP_Default:Parcels) in Library://Samples/Sheboygan/Data/Parcels.FeatureSource transformed to WGS84.PseudoMercator (the Google/Bing/OSM coordinate syste,)
+Return first 1000 features from (SHP_Schema:Parcels) in Library://Samples/Sheboygan/Data/Parcels.FeatureSource transformed to WGS84.PseudoMercator (the Google/Bing/OSM coordinate syste,)
 
-    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Default/Parcels?maxfeatures=1000&transformto=WGS84.PseudoMercator
+    GET http://localhost:9000/mapguide/rest/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels?maxfeatures=1000&transformto=WGS84.PseudoMercator
 
 Coordinate System APIs
 ----------------------
@@ -153,7 +153,7 @@ Coordinate System APIs
 List coordinate system categories
 
     GET http://localhost:9000/mapguide/rest/coordsys/categories
-    
+
 List coordinate systems under category of Australia
 
     GET http://localhost:9000/mapguide/rest/coordsys/category/Australia
@@ -161,23 +161,23 @@ List coordinate systems under category of Australia
 Get the EPSG code of the coordinate system (mentor code: LL84)
 
     GET http://localhost:9000/mapguide/rest/coordsys/mentor/LL84/epsg
-    
+
 Get the WKT of the coordinate system (mentor code: LL84)
 
     GET http://localhost:9000/mapguide/rest/coordsys/mentor/LL84/wkt
-    
+
 Get the mentor code of the coordinate system (EPSG:4326)
 
     GET http://localhost:9000/mapguide/rest/coordsys/epsg/4326/mentor
-    
+
 Get the WKT of the coordinate system (EPSG:4326)
 
     GET http://localhost:9000/mapguide/rest/coordsys/epsg/4326/wkt
-    
+
 Get the mentor code of the coordinate system wkt
 
     GET http://localhost:9000/mapguide/rest/coordsys/tomentor/GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.01745329251994]]
-    
+
 Get the epsg code of the coordinate system wkt
 
     GET http://localhost:9000/mapguide/rest/coordsys/toepsg/GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.01745329251994]]

@@ -3,8 +3,10 @@ package controllers;
 import play.*;
 import play.mvc.*;
 
+import views.html.*;
+
 public class MgTestController extends Controller {
     public static Result index() {
-        return TODO;
+        return ok(test.render());
     }
 }

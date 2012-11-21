@@ -8,7 +8,7 @@ import org.osgeo.mapguide.*;
 
 @MgCheckSession
 public class MgSiteController extends MgAbstractController {
-    
+
     public static Result createSession() {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
@@ -25,13 +25,9 @@ public class MgSiteController extends MgAbstractController {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
             MgSite site = siteConn.GetSite();
-            if (site.GetUserForSession().equals("Anonymous")) {
-                return unauthorized("MapGuide Anonymous user account access denied");
-            } else {
-                MgByteReader content = site.EnumerateGroups();
-                response().setContentType(content.GetMimeType());
-                return ok(content.ToString());
-            }
+            MgByteReader content = site.EnumerateGroups();
+            response().setContentType(content.GetMimeType());
+            return ok(content.ToString());
         } catch (MgException ex) {
             return mgServerError(ex);
         } catch (Exception ex) {
@@ -43,13 +39,9 @@ public class MgSiteController extends MgAbstractController {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
             MgSite site = siteConn.GetSite();
-            if (site.GetUserForSession().equals("Anonymous")) {
-                return unauthorized("MapGuide Anonymous user account access denied");
-            } else {
-                MgByteReader content = site.EnumerateGroups(userName);
-                response().setContentType(content.GetMimeType());
-                return ok(content.ToString());
-            }
+            MgByteReader content = site.EnumerateGroups(userName);
+            response().setContentType(content.GetMimeType());
+            return ok(content.ToString());
         } catch (MgException ex) {
             return mgServerError(ex);
         } catch (Exception ex) {
@@ -61,12 +53,8 @@ public class MgSiteController extends MgAbstractController {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
             MgSite site = siteConn.GetSite();
-            if (site.GetUserForSession().equals("Anonymous")) {
-                return unauthorized("MapGuide Anonymous user account access denied");
-            } else {
-                MgStringCollection content = site.EnumerateRoles(userName);
-                return mgStringCollectionXml(content);
-            }
+            MgStringCollection content = site.EnumerateRoles(userName);
+            return mgStringCollectionXml(content);
         } catch (MgException ex) {
             return mgServerError(ex);
         } catch (Exception ex) {
@@ -78,13 +66,9 @@ public class MgSiteController extends MgAbstractController {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
             MgSite site = siteConn.GetSite();
-            if (site.GetUserForSession().equals("Anonymous")) {
-                return unauthorized("MapGuide Anonymous user account access denied");
-            } else {
-                MgByteReader content = site.EnumerateUsers(groupName);
-                response().setContentType(content.GetMimeType());
-                return ok(content.ToString());
-            }
+            MgByteReader content = site.EnumerateUsers(groupName);
+            response().setContentType(content.GetMimeType());
+            return ok(content.ToString());
         } catch (MgException ex) {
             return mgServerError(ex);
         } catch (Exception ex) {

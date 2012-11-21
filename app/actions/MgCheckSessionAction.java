@@ -39,7 +39,7 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
         else if (ctx.request().method().equals("POST")) {
             Map<String, String[]> params = ctx.request().body().asFormUrlEncoded();
             if (params != null && params.get("SESSION") != null)
-                sessionId = params.get("SESSION")[0];  
+                sessionId = params.get("SESSION")[0];
         }
 
         if (sessionId == null)
@@ -49,7 +49,10 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
             String authHeader = ctx.request().getHeader(AUTHORIZATION);
             if (authHeader == null) {
                 Logger.debug("No HTTP authentication header found");
-                ctx.response().setHeader(WWW_AUTHENTICATE, REALM);
+                //HACK: We don't want to trip the qunit test runner with interactive dialogs
+                String fromTestHarness = ctx.request().getHeader("x-mapguide4j-test-harness");
+                if (fromTestHarness == null || !fromTestHarness.toUpperCase().equals("TRUE"))
+                    ctx.response().setHeader(WWW_AUTHENTICATE, REALM);
                 return unauthorized("You must enter a valid login ID and password to access this site");
             }
 
@@ -61,7 +64,10 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
             String[] credString = decodedStr.split(":");
             //Logger.debug("Decoded array: " + credString.length);
             if (credString == null || (credString.length != 1 && credString.length != 2)) {
-                return unauthorized("malformed credentials supplied");
+                String fromTestHarness = ctx.request().getHeader("x-mapguide4j-test-harness");
+                if (fromTestHarness == null || !fromTestHarness.toUpperCase().equals("TRUE"))
+                    ctx.response().setHeader(WWW_AUTHENTICATE, REALM);
+                return unauthorized("You must enter a valid login ID and password to access this site");
             }
         }
         return delegate.call(ctx);

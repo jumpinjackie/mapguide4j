@@ -10,20 +10,16 @@ public abstract class MgSiteAdminController extends MgAbstractAuthenticatedContr
     public static Result getSiteStatus() {
         MgServerAdmin admin = null;
         try {
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgSite site = siteConn.GetSite();
-            if (site.GetUserForSession().equals("Anonymous")) {
-                return unauthorized("MapGuide Anonymous user account access denied");
-            } else {
-                MgUserInformation userInfo = new MgUserInformation(site.GetCurrentSession());
-                admin = new MgServerAdmin();
-                admin.Open(userInfo);
+            MgUserInformation userInfo = getMgCredentials();
+            admin = new MgServerAdmin();
+            admin.Open(userInfo);
 
-                MgPropertyCollection status = admin.GetSiteStatus();
-                return mgPropertyCollectionXml(status);
-            }
+            MgPropertyCollection status = admin.GetSiteStatus();
+            return mgPropertyCollectionXml(status);
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         } finally {
             if (admin != null) {
                 try {
@@ -37,18 +33,14 @@ public abstract class MgSiteAdminController extends MgAbstractAuthenticatedContr
     public static Result getSiteVersion() {
         MgServerAdmin admin = null;
         try {
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgSite site = siteConn.GetSite();
-            if (site.GetUserForSession().equals("Anonymous")) {
-                return unauthorized("MapGuide Anonymous user account access denied");
-            } else {
-                MgUserInformation userInfo = new MgUserInformation(site.GetCurrentSession());
-                admin = new MgServerAdmin();
-                admin.Open(userInfo);
-                return ok(admin.GetSiteVersion());
-            }
+            MgUserInformation userInfo = getMgCredentials();
+            admin = new MgServerAdmin();
+            admin.Open(userInfo);
+            return ok(admin.GetSiteVersion());
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         } finally {
             if (admin != null) {
                 try {

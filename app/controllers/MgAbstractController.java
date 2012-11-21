@@ -21,7 +21,7 @@ public abstract class MgAbstractController extends Controller {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
-        
+
         return internalServerError(sw.toString());
     }
 
@@ -29,9 +29,9 @@ public abstract class MgAbstractController extends Controller {
         //For any authenticated controller, the session id will be in one of 3 places:
         //The query string (GET)
         //The form body (POST)
-        
+
         String sessionId = getRequestParameter("SESSION", null);
-        
+
         return sessionId;
     }
 
@@ -42,13 +42,13 @@ public abstract class MgAbstractController extends Controller {
             DOMImplementationLS implLS = (DOMImplementationLS) impl.getFeature("LS", "3.0");
             LSSerializer lsSerializer = implLS.createLSSerializer();
             lsSerializer.getDomConfig().setParameter("format-pretty-print", true);
-             
+
             LSOutput lsOutput = implLS.createLSOutput();
             lsOutput.setEncoding("UTF-8");
             Writer stringWriter = new StringWriter();
             lsOutput.setCharacterStream(stringWriter);
             lsSerializer.write(document, lsOutput);
-             
+
             String result = stringWriter.toString();
             return result;
         }
@@ -57,22 +57,22 @@ public abstract class MgAbstractController extends Controller {
 
     /**
      * Method: getRequestParameter
-     * 
+     *
      * Convenience method to get a parameter by name. This method tries to get the named parameter:
      *  1. As-is
      *  2. As upper-case
      *  3. As lower-case
-     * 
+     *
      * In that particular order, if none could be found after these attempts, the defaultValue is returned
      * instead, otherwise the matching parameter value is returned
-     * 
+     *
      * Parameters:
-     * 
+     *
      *   String name         - [String/The parameter name]
      *   String defaultValue - [String/The default value]
-     * 
+     *
      * Returns:
-     * 
+     *
      *   String - the matching parameter value or the default value if no matches can be found
      */
     protected static String getRequestParameter(String name, String defaultValue) {
@@ -84,7 +84,7 @@ public abstract class MgAbstractController extends Controller {
             return params.get(name)[0];
         else if (params.get(name.toUpperCase()) != null)
             return params.get(name.toUpperCase())[0];
-        else if (params.get(name.toLowerCase()) != null) 
+        else if (params.get(name.toLowerCase()) != null)
             return params.get(name.toLowerCase())[0];
         else
             return defaultValue;
@@ -92,27 +92,27 @@ public abstract class MgAbstractController extends Controller {
 
     /**
      * Method: hasRequestParameter
-     * 
+     *
      * Convenience method to check whether a named parameter exists. This method tries to get the named parameter:
      *  1. As-is
      *  2. As upper-case
      *  3. As lower-case
-     *  
+     *
      * Use in conjunction with getRequestParameter for case-insensitive parameter testing and retrieval
-     * 
+     *
      * Parameters:
-     * 
+     *
      *   String name - [String/The parameter name]
-     * 
+     *
      * Returns:
-     * 
+     *
      *   boolean - true if the parameter exists, false otherwise
      */
     protected static boolean hasRequestParameter(String name) {
         Map<String, String[]> params = requestParameters();
         if (params == null)
             return false;
-        
+
         return (params.get(name) != null) || (params.get(name.toUpperCase()) != null) || (params.get(name.toLowerCase()) != null);
     }
 
@@ -179,6 +179,25 @@ public abstract class MgAbstractController extends Controller {
         return sb.toString();
     }
 
+    protected static boolean isAnonymous() throws UnsupportedEncodingException {
+        String authHeader = request().getHeader(MgCheckSessionAction.AUTHORIZATION);
+        if (authHeader != null) {
+            String auth = authHeader.substring(6);
+            byte[] decodedAuth = javax.xml.bind.DatatypeConverter.parseBase64Binary(auth);
+            String decodedStr = new String(decodedAuth, "UTF-8");
+            String[] credString = decodedStr.split(":");
+            if (credString.length == 1 || credString.length == 2) {
+                String username = credString[0];
+                String password = "";
+                if (credString.length == 2)
+                    password = credString[1];
+                Logger.debug("Username: " + username);
+                return username.equals("Anonymous");
+            }
+        }
+        return false;
+    }
+
     protected static boolean TrySetMgCredentials(MgUserInformation cred) throws MgException, UnsupportedEncodingException {
         String authHeader = request().getHeader(MgCheckSessionAction.AUTHORIZATION);
         if (authHeader != null) {
@@ -207,13 +226,18 @@ public abstract class MgAbstractController extends Controller {
         return siteConn;
     }
 
-    protected static MgSiteConnection createMapGuideConnection() throws MgException, UnsupportedEncodingException {
+    protected static MgUserInformation getMgCredentials() throws MgException, UnsupportedEncodingException {
         String sessionId = getMgSessionId();
         MgUserInformation userInfo = new MgUserInformation();
         if (sessionId != null && !sessionId.equals("")) {
             userInfo.SetMgSessionId(sessionId);
         }
         TrySetMgCredentials(userInfo);
+        return userInfo;
+    }
+
+    protected static MgSiteConnection createMapGuideConnection() throws MgException, UnsupportedEncodingException {
+        MgUserInformation userInfo = getMgCredentials();
         MgSiteConnection siteConn = new MgSiteConnection();
         siteConn.Open(userInfo);
         return siteConn;
@@ -233,6 +257,13 @@ public abstract class MgAbstractController extends Controller {
         return constructLibraryResourceId(repoType, resourcePath, false);
     }
 
+    protected static Result mgUnauthorized(String msg, boolean bSetHeader) {
+        String fromTestHarness = request().getHeader("x-mapguide4j-test-harness");
+        if (bSetHeader && (fromTestHarness == null || !fromTestHarness.toUpperCase().equals("TRUE")))
+            response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+        return unauthorized(msg);
+    }
+
     protected static Result mgServerError(MgException mex) {
         try {
             java.lang.Thread.currentThread().dumpStack();
@@ -241,7 +272,10 @@ public abstract class MgAbstractController extends Controller {
             if (mex instanceof MgResourceNotFoundException || mex instanceof MgResourceDataNotFoundException) { //404
                 return notFound(data);
             } else if (mex instanceof MgAuthenticationFailedException || mex instanceof MgUnauthorizedAccessException || mex instanceof MgUserNotFoundException) { //401
-                response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+                //HACK: We don't want to trip the qunit test runner with interactive dialogs
+                String fromTestHarness = request().getHeader("x-mapguide4j-test-harness");
+                if (fromTestHarness == null || !fromTestHarness.toUpperCase().equals("TRUE"))
+                    response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
                 return unauthorized("You must enter a valid login ID and password to access this site");
             }
             return internalServerError(data);
