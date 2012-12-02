@@ -12,51 +12,43 @@ import org.osgeo.mapguide.*;
 public class MgViewerController extends MgAbstractAuthenticatedController {
     public static Result getDynamicMapOverlayImage(String sessionId, String mapName) {
         try {
-            MgSiteConnection siteConn = createMapGuideConnection();
-            //NOTE: Not a published API
-            MgHtmlController controller = new MgHtmlController(siteConn);
-            MgPropertyCollection mapViewCmds = new MgPropertyCollection();
+            //We don't need MgHtmlController as previously thought. Just set up the required
+            //parameter dictionary for MgHttpRequest
+            String uri =  controllers.routes.MgViewerController.getDynamicMapOverlayImage(sessionId, mapName).absoluteURL(request());
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
 
-            int behavior = 0;
-            String selectionColor = getRequestParameter("SELECTIONCOLOR", "");
-            String format = getRequestParameter("FORMAT", "");
+            param.AddParameter("OPERATION", "GETDYNAMICMAPOVERLAYIMAGE");
+            param.AddParameter("VERSION", "2.1.0");
+            param.AddParameter("SESSION", sessionId);
+            param.AddParameter("MAPNAME", mapName);
+            param.AddParameter("FORMAT", getRequestParameter("FORMAT", ""));
+
+            if (hasRequestParameter("SELECTIONCOLOR")) {
+                param.AddParameter("SELECTIONCOLOR", getRequestParameter("SELECTIONCOLOR", ""));
+            }
             if (hasRequestParameter("BEHAVIOR")) {
-                behavior = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("BEHAVIOR", "0"));
+                param.AddParameter("BEHAVIOR", getRequestParameter("BEHAVIOR", "0"));
             }
             if (hasRequestParameter("SETDISPLAYDPI")) {
-                MgStringProperty cmd = new MgStringProperty("SETDISPLAYDPI", getRequestParameter("SETDISPLAYDPI", ""));
-                mapViewCmds.Add(cmd);
+                param.AddParameter("SETDISPLAYDPI", getRequestParameter("SETDISPLAYDPI", ""));
             }
             if (hasRequestParameter("SETDISPLAYWIDTH")) {
-                MgStringProperty cmd = new MgStringProperty("SETDISPLAYWIDTH", getRequestParameter("SETDISPLAYWIDTH", ""));
-                mapViewCmds.Add(cmd);
+                param.AddParameter("SETDISPLAYWIDTH", getRequestParameter("SETDISPLAYWIDTH", ""));
             }
             if (hasRequestParameter("SETDISPLAYHEIGHT")) {
-                MgStringProperty cmd = new MgStringProperty("SETDISPLAYHEIGHT", getRequestParameter("SETDISPLAYHEIGHT", ""));
-                mapViewCmds.Add(cmd);
+                param.AddParameter("SETDISPLAYHEIGHT", getRequestParameter("SETDISPLAYHEIGHT", ""));
             }
             if (hasRequestParameter("SETVIEWSCALE")) {
-                MgStringProperty cmd = new MgStringProperty("SETVIEWSCALE", getRequestParameter("SETVIEWSCALE", ""));
-                mapViewCmds.Add(cmd);
+                param.AddParameter("SETVIEWSCALE", getRequestParameter("SETVIEWSCALE", ""));
             }
             if (hasRequestParameter("SETVIEWCENTERX")) {
-                MgStringProperty cmd = new MgStringProperty("SETVIEWCENTERX", getRequestParameter("SETVIEWCENTERX", ""));
-                mapViewCmds.Add(cmd);
+                param.AddParameter("SETVIEWCENTERX", getRequestParameter("SETVIEWCENTERX", ""));
             }
             if (hasRequestParameter("SETVIEWCENTERY")) {
-                MgStringProperty cmd = new MgStringProperty("SETVIEWCENTERY", getRequestParameter("SETVIEWCENTERY", ""));
-                mapViewCmds.Add(cmd);
+                param.AddParameter("SETVIEWCENTERY", getRequestParameter("SETVIEWCENTERY", ""));
             }
-
-            MgColor selColor = null;
-            if (!selectionColor.equals("")) {
-                selColor = new MgColor(selectionColor);
-            }
-            MgRenderingOptions renderOpts = new MgRenderingOptions(format, behavior, selColor);
-            MgByteReader image = controller.GetDynamicMapOverlayImage(mapName, renderOpts, mapViewCmds);
-
-            response().setContentType(image.GetMimeType());
-            return ok(MgAjaxViewerUtil.ByteReaderToStream(image));
+            return executeRequestInternal(request);
         } catch (MgException ex) { //TODO: Rasterize the error message as the standard response won't be visible most of the time
             return mgServerError(ex);
         }
@@ -65,7 +57,7 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
     public static Result queryMapFeatures(String sessionId, String mapName) {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
-            
+
             MgStringCollection layerNames = null;
             MgGeometry selectionGeometry = null;
             int selectionVariant = 0;
@@ -114,6 +106,8 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
             return ok(MgAjaxViewerUtil.ByteReaderToStream(description));
         } catch (MgException ex) { //TODO: Rasterize the error message as the standard response won't be visible most of the time
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
