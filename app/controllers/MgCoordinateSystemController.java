@@ -24,15 +24,25 @@ public class MgCoordinateSystemController extends MgAbstractAuthenticatedControl
             param.AddParameter("OPERATION", "CS.ENUMERATECATEGORIES");
             param.AddParameter("VERSION", "1.0.0");
 
-            if (fmt.equals("xml") || fmt.equals("html"))
+            if (fmt.equals("xml")) {
                 param.AddParameter("FORMAT", MgMimeType.Xml);
-            else if (fmt.equals("json"))
+            }
+            else if (fmt.equals("json")) {
                 param.AddParameter("FORMAT", MgMimeType.Json);
+            }
+            else if (fmt.equals("html")) {
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.AddParameter("XSLSTYLESHEET", "CoordinateSystemCategoryList.xsl");
+            }
 
+            TryFillMgCredentials(param);
             return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
+        }
+        catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -54,15 +64,25 @@ public class MgCoordinateSystemController extends MgAbstractAuthenticatedControl
             param.AddParameter("VERSION", "1.0.0");
             param.AddParameter("CSCATEGORY", category);
 
-            if (fmt.equals("xml") || fmt.equals("html"))
+            if (fmt.equals("xml")) {
                 param.AddParameter("FORMAT", MgMimeType.Xml);
-            else if (fmt.equals("json"))
+            }
+            else if (fmt.equals("json")) {
                 param.AddParameter("FORMAT", MgMimeType.Json);
+            }
+            else if (fmt.equals("html")) {
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.AddParameter("XSLSTYLESHEET", "CoordinateSystemList.xsl");
+            }
 
+            TryFillMgCredentials(param);
             return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
+        }
+        catch (Exception ex) {
+            return javaException(ex);
         }
     }
 

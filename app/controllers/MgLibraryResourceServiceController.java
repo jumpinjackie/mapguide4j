@@ -30,14 +30,28 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
 
             param.AddParameter("OPERATION", "ENUMERATERESOURCES");
             param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("DEPTH", getRequestParameter("depth", "-1"));
             param.AddParameter("TYPE", getRequestParameter("type", ""));
             param.AddParameter("COMPUTECHILDREN", "1");
 
-            if (fmt.equals("xml") || fmt.equals("html"))
+            String strDepth = getRequestParameter("depth", "");
+            if (fmt.equals("xml")) {
                 param.AddParameter("FORMAT", MgMimeType.Xml);
-            else if (fmt.equals("json"))
+            }
+            else if (fmt.equals("json")) {
                 param.AddParameter("FORMAT", MgMimeType.Json);
+            }
+            else if (fmt.equals("html")) {
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.AddParameter("XSLSTYLESHEET", "ResourceList.xsl");
+
+                //No depth specified, then set to 1. As for html we want a single level view
+                if (strDepth.equals(""))
+                    strDepth = "1";
+            }
+
+            if (strDepth.equals(""))
+                strDepth = "-1";
+            param.AddParameter("DEPTH", strDepth);
 
             param.AddParameter("RESOURCEID", constructResourceIdString(MgRepositoryType.Library, resourcePath, true));
 

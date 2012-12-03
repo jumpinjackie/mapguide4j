@@ -60,6 +60,7 @@ function api_test(url, type, data, callback) {
         async: false,
         beforeSend: function(xhr) {
             xhr.setRequestHeader("x-mapguide4j-test-harness", true);
+            xhr.setRequestHeader("Authorization", "Basic "); //Hmm, this is being set if we don't set it ourselves for some reason. So might as well plug and invalid one in to trigger 401
         },
         complete: function(result) {
             if(result.status == 0) {
@@ -785,13 +786,14 @@ test("SDF Provider Capabilities", function() {
     api_test_admin(rest_root_url + "/providers/OSGeo.SDF/capabilities.json", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
-
+    /*
     api_test_anon(rest_root_url + "/providers/OSGeo.SDF/capabilities.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/providers/OSGeo.SDF/capabilities.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
+    */
 });
 //List Data Stores test case excluded as that requires a SQL Server feature source set up. Can always manually verify
 test("SDF Provider - Connection Property Values for ReadOnly", function() {
@@ -826,13 +828,14 @@ test("SDF Provider - Connection Property Values for ReadOnly", function() {
     api_test_admin(rest_root_url + "/providers/OSGeo.SDF/connectvalues.json/ReadOnly", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
-
+    /*
     api_test_anon(rest_root_url + "/providers/OSGeo.SDF/connectvalues.html/ReadOnly", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/providers/OSGeo.SDF/connectvalues.html/ReadOnly", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
+    */
 });
 test("Select 100 Parcels", function() {
     api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "maxfeatures=100", "Foo", "Bar", function(status, result) {
@@ -1017,7 +1020,7 @@ test("Enum categories", function() {
     api_test(rest_root_url + "/coordsys/categories", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
-
+/*
     api_test_anon(rest_root_url + "/coordsys/categories.sadgdsfd", "GET", null, function(status, result) {
         ok(status == 400, "(" + status + ") - Expected bad representation response");
     });
@@ -1052,6 +1055,7 @@ test("Enum categories", function() {
     api_test_admin(rest_root_url + "/coordsys/categories.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
+*/
 });
 test("Enum categories - Australia", function() {
     api_test(rest_root_url + "/coordsys/category/Australia", "GET", null, function(status, result) {

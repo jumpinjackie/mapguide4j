@@ -10,8 +10,7 @@ import org.osgeo.mapguide.*;
 public abstract class MgResourceServiceController extends MgAbstractAuthenticatedController {
     protected static Result getResourceContent(String resId, String format) throws MgException {
         String fmt = format.toLowerCase();
-        if (!fmt.equals("html") &&
-            !fmt.equals("xml") &&
+        if (!fmt.equals("xml") &&
             !fmt.equals("json"))
         {
             return badRequest("Unsupported representation: " + format);
@@ -23,10 +22,12 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
         param.AddParameter("OPERATION", "GETRESOURCECONTENT");
         param.AddParameter("VERSION", "1.0.0");
-        if (fmt.equals("xml") || fmt.equals("html"))
+        if (fmt.equals("xml")) {
             param.AddParameter("FORMAT", MgMimeType.Xml);
-        else if (fmt.equals("json"))
+        }
+        else if (fmt.equals("json")) {
             param.AddParameter("FORMAT", MgMimeType.Json);
+        }
 
         param.AddParameter("RESOURCEID", resId);
 
@@ -49,10 +50,16 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
         param.AddParameter("OPERATION", "GETRESOURCEHEADER");
         param.AddParameter("VERSION", "1.0.0");
-        if (fmt.equals("xml") || fmt.equals("html"))
+        if (fmt.equals("xml")) {
             param.AddParameter("FORMAT", MgMimeType.Xml);
-        else if (fmt.equals("json"))
+        }
+        else if (fmt.equals("json")) {
             param.AddParameter("FORMAT", MgMimeType.Json);
+        }
+        else if (fmt.equals("html")) {
+            param.AddParameter("FORMAT", MgMimeType.Xml);
+            param.AddParameter("XSLSTYLESHEET", "ResourceHeader.xsl");
+        }
 
         param.AddParameter("RESOURCEID", resId);
 
@@ -75,10 +82,16 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
         param.AddParameter("OPERATION", "ENUMERATERESOURCEDATA");
         param.AddParameter("VERSION", "1.0.0");
-        if (fmt.equals("xml") || fmt.equals("html"))
+        if (fmt.equals("xml")) {
             param.AddParameter("FORMAT", MgMimeType.Xml);
-        else if (fmt.equals("json"))
+        }
+        else if (fmt.equals("json")) {
             param.AddParameter("FORMAT", MgMimeType.Json);
+        }
+        else if (fmt.equals("html")) {
+            param.AddParameter("FORMAT", MgMimeType.Xml);
+            param.AddParameter("XSLSTYLESHEET", "ResourceDataList.xsl");
+        }
 
         param.AddParameter("RESOURCEID", resId);
 
@@ -115,10 +128,17 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
         param.AddParameter("OPERATION", "ENUMERATERESOURCEREFERENCES");
         param.AddParameter("VERSION", "1.0.0");
-        if (fmt.equals("xml") || fmt.equals("html"))
+
+        if (fmt.equals("xml")) {
             param.AddParameter("FORMAT", MgMimeType.Xml);
-        else if (fmt.equals("json"))
+        }
+        else if (fmt.equals("json")) {
             param.AddParameter("FORMAT", MgMimeType.Json);
+        }
+        else if (fmt.equals("html")) {
+            param.AddParameter("FORMAT", MgMimeType.Xml);
+            param.AddParameter("XSLSTYLESHEET", "ResourceReferenceList.xsl");
+        }
 
         param.AddParameter("RESOURCEID", resId);
 

@@ -28,22 +28,31 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
             param.AddParameter("OPERATION", "GETFEATUREPROVIDERS");
             param.AddParameter("VERSION", "1.0.0");
 
-            if (fmt.equals("xml") || fmt.equals("html"))
+            if (fmt.equals("xml")) {
                 param.AddParameter("FORMAT", MgMimeType.Xml);
-            else if (fmt.equals("json"))
+            }
+            else if (fmt.equals("json")) {
                 param.AddParameter("FORMAT", MgMimeType.Json);
+            }
+            else if (fmt.equals("html")) {
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.AddParameter("XSLSTYLESHEET", "FdoProviderList.xsl");
+            }
 
             return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
         }
+        catch (Exception ex) {
+            return javaException(ex);
+        }
     }
 
     public static Result getProviderCapabilities(String fdoProviderName, String format) {
         try {
             String fmt = format.toLowerCase();
-            if (!fmt.equals("html") &&
+            if (//!fmt.equals("html") &&
                 !fmt.equals("xml") &&
                 !fmt.equals("json"))
             {
@@ -71,22 +80,31 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
             if (partialConnString.length() > 0)
                 param.AddParameter("CONNECTIONSTRING", partialConnString);
 
-            if (fmt.equals("xml") || fmt.equals("html"))
+            if (fmt.equals("xml")) {
                 param.AddParameter("FORMAT", MgMimeType.Xml);
-            else if (fmt.equals("json"))
+            }
+            else if (fmt.equals("json")) {
                 param.AddParameter("FORMAT", MgMimeType.Json);
+            }
+            //else if (fmt.equals("html")) {
+            //    param.AddParameter("FORMAT", MgMimeType.Xml);
+            //    param.AddParameter("XSLSTYLESHEET", "FdoProviderCapabilities.xsl");
+            //}
 
             return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
         }
+        catch (Exception ex) {
+            return javaException(ex);
+        }
     }
 
     public static Result enumerateDataStores(String fdoProviderName, String format) {
         try {
             String fmt = format.toLowerCase();
-            if (!fmt.equals("html") &&
+            if (//!fmt.equals("html") &&
                 !fmt.equals("xml") &&
                 !fmt.equals("json"))
             {
@@ -115,22 +133,31 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
             if (partialConnString.length() > 0)
                 param.AddParameter("CONNECTIONSTRING", partialConnString);
 
-            if (fmt.equals("xml") || fmt.equals("html"))
+            if (fmt.equals("xml")) {
                 param.AddParameter("FORMAT", MgMimeType.Xml);
-            else if (fmt.equals("json"))
+            }
+            else if (fmt.equals("json")) {
                 param.AddParameter("FORMAT", MgMimeType.Json);
+            }/*
+            else if (fmt.equals("html")) {
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.AddParameter("XSLSTYLESHEET", "FdoDataStoreList.xsl");
+            }*/
 
             return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
         }
+        catch (Exception ex) {
+            return javaException(ex);
+        }
     }
 
     public static Result getConnectPropertyValues(String fdoProviderName, String propName, String format) {
         try {
             String fmt = format.toLowerCase();
-            if (!fmt.equals("html") &&
+            if (//!fmt.equals("html") &&
                 !fmt.equals("xml") &&
                 !fmt.equals("json"))
             {
@@ -159,15 +186,24 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
             if (partialConnString.length() > 0)
                 param.AddParameter("CONNECTIONSTRING", partialConnString);
 
-            if (fmt.equals("xml") || fmt.equals("html"))
+            if (fmt.equals("xml")) {
                 param.AddParameter("FORMAT", MgMimeType.Xml);
-            else if (fmt.equals("json"))
+            }
+            else if (fmt.equals("json")) {
                 param.AddParameter("FORMAT", MgMimeType.Json);
+            }/*
+            else if (fmt.equals("html")) {
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.AddParameter("XSLSTYLESHEET", "StringCollection.xsl");
+            }*/
 
             return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
+        }
+        catch (Exception ex) {
+            return javaException(ex);
         }
     }
 

@@ -32,14 +32,22 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             param.AddParameter("VERSION", "1.0.0");
             param.AddParameter("RESOURCEID", fsId);
 
-            if (fmt.equals("xml") || fmt.equals("html"))
+            if (fmt.equals("xml")) {
                 param.AddParameter("FORMAT", MgMimeType.Xml);
-            else if (fmt.equals("json"))
+            }
+            else if (fmt.equals("json")) {
                 param.AddParameter("FORMAT", MgMimeType.Json);
+            }
+            else if (fmt.equals("html")) {
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.AddParameter("XSLSTYLESHEET", "FeatureSchemaNameList.xsl");
+            }
 
             return executeRequestInternal(request);
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -72,6 +80,8 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             return executeRequestInternal(request);
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -104,6 +114,8 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             return executeRequestInternal(request);
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -128,14 +140,22 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             param.AddParameter("RESOURCEID", fsId);
             param.AddParameter("SCHEMA", schemaName);
 
-            if (fmt.equals("xml") || fmt.equals("html"))
+            if (fmt.equals("xml")) {
                 param.AddParameter("FORMAT", MgMimeType.Xml);
-            else if (fmt.equals("json"))
+            }
+            else if (fmt.equals("json")) {
                 param.AddParameter("FORMAT", MgMimeType.Json);
+            }
+            else if (fmt.equals("html")) {
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.AddParameter("XSLSTYLESHEET", "FeatureSchema.xsl");
+            }
 
             return executeRequestInternal(request);
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 
@@ -169,6 +189,8 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             return executeRequestInternal(request);
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
         }
     }
 

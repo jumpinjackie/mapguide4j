@@ -8,9 +8,15 @@ import play.mvc.*;
 
 import java.io.*;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import java.lang.String;
 import java.lang.StringBuilder;
+
+import org.xml.sax.SAXException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerConfigurationException;
 
 import org.osgeo.mapguide.*;
 import org.w3c.dom.*;
@@ -419,7 +425,23 @@ public abstract class MgAbstractController extends Controller {
         }
     }
 
+    protected static Map<String, String> collectXslParameters(MgHttpRequestParam param) throws MgException {
+        MgStringCollection pNames = param.GetParameterNames();
+        if (pNames == null || pNames.GetCount() == 0)
+            return null;
+        Map<String, String> retVal = new HashMap<String, String>();
+        for (int i = 0; i < pNames.GetCount(); i++) {
+            String name = pNames.GetItem(i);
+            if (name.startsWith("XSLPARAM.")) {
+                String value = param.GetParameterValue(name);
+                retVal.put(name.substring("XSLPARAM.".length()), value);
+            }
+        }
+        return retVal;
+    }
+
     protected static Result executeRequestInternal(MgHttpRequest request) throws MgException {
+        MgHttpRequestParam param = request.GetRequestParam();
         MgHttpResponse response = request.Execute();
         MgHttpResult result = response.GetResult();
 
@@ -428,7 +450,13 @@ public abstract class MgAbstractController extends Controller {
             if (resultObj != null) {
                 response().setContentType(result.GetResultContentType());
                 if (resultObj instanceof MgByteReader) {
-                    return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)resultObj));
+                    //The XSLSTYLESHEET is a mapguide4j "hint" to transform the result to HTML using the given XSL stylesheet
+                    if (result.GetResultContentType().equals(MgMimeType.Xml) && param.ContainsParameter("XSLSTYLESHEET")) {
+                        response().setContentType("text/html");
+                        return ok(MgXslUtil.TransformByteReader((MgByteReader)resultObj, param.GetParameterValue("XSLSTYLESHEET"), collectXslParameters(param)));
+                    } else {
+                        return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)resultObj));
+                    }
                 } else if (resultObj instanceof MgFeatureReader) {
                     MgByteReader br = ((MgFeatureReader)resultObj).ToXml();
                     return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));

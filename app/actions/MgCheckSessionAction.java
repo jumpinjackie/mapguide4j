@@ -56,6 +56,14 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
                 return unauthorized("You must enter a valid login ID and password to access this site");
             }
 
+            if (authHeader.length() <= 6) {
+                //HACK: We don't want to trip the qunit test runner with interactive dialogs
+                String fromTestHarness = ctx.request().getHeader("x-mapguide4j-test-harness");
+                if (fromTestHarness == null || !fromTestHarness.toUpperCase().equals("TRUE"))
+                    ctx.response().setHeader(WWW_AUTHENTICATE, REALM);
+                return unauthorized("You must enter a valid login ID and password to access this site");
+            }
+
             String auth = authHeader.substring(6);
             //Logger.debug("Authentication header: " + auth);
             byte[] decodedAuth = javax.xml.bind.DatatypeConverter.parseBase64Binary(auth);
