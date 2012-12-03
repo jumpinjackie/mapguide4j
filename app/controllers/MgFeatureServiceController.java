@@ -5,91 +5,187 @@ import util.*;
 import play.*;
 import play.mvc.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.osgeo.mapguide.*;
 
 public abstract class MgFeatureServiceController extends MgAbstractAuthenticatedController {
 
-    protected static Result getSchemaNames(String repoType, String resourcePath) {
+    protected static Result getSchemaNames(String repoType, String resourcePath, String format) {
         try {
-            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            MgStringCollection schemaNames = featSvc.GetSchemas(fsId);
-            return mgStringCollectionXml(schemaNames);
-        } catch (MgException ex) {
-            return mgServerError(ex);
-        }
-    }
-
-    protected static Result getSpatialContexts(String repoType, String resourcePath) {
-        MgSpatialContextReader spatialContexts = null;
-        try {
-            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            spatialContexts = featSvc.GetSpatialContexts(fsId, false);
-            return mgSpatialContextReaderXml(spatialContexts);
-        } catch (MgException ex) {
-            return mgServerError(ex);
-        } finally {
-            try {
-                if (spatialContexts != null) {
-                    spatialContexts.Close();
-                }
-            } catch (MgException ex) {
-                return mgServerError(ex);
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
             }
-        }
-    }
 
-    protected static Result getClassNames(String repoType, String resourcePath, String schemaName) {
-        try {
-            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            MgStringCollection classNames = featSvc.GetClasses(fsId, schemaName);
-            return mgStringCollectionXml(classNames);
+            String fsId = constructResourceIdString(repoType, resourcePath, false);
+
+            String uri =  "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "GETSCHEMAS");
+            param.AddParameter("VERSION", "1.0.0");
+            param.AddParameter("RESOURCEID", fsId);
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
         } catch (MgException ex) {
             return mgServerError(ex);
         }
     }
 
-    protected static Result getFeatureSchema(String repoType, String resourcePath, String schemaName) {
+    protected static Result getSpatialContexts(String repoType, String resourcePath, String format) {
         try {
-            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            String schemaXml = featSvc.DescribeSchemaAsXml(fsId, schemaName, null);
-            response().setContentType(MgMimeType.Xml);
-            return ok(schemaXml);
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
+            String fsId = constructResourceIdString(repoType, resourcePath, false);
+
+            String uri =  "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "GETSPATIALCONTEXTS");
+            param.AddParameter("VERSION", "1.0.0");
+            param.AddParameter("RESOURCEID", fsId);
+            param.AddParameter("ACTIVEONLY", "0");
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
         } catch (MgException ex) {
             return mgServerError(ex);
         }
     }
 
-    protected static Result getClassDefinition(String repoType, String resourcePath, String schemaName, String className) {
+    protected static Result getClassNames(String repoType, String resourcePath, String schemaName, String format) {
         try {
-            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            MgStringCollection classNames = new MgStringCollection();
-            classNames.Add(className);
-            String schemaXml = featSvc.DescribeSchemaAsXml(fsId, schemaName, classNames);
-            response().setContentType(MgMimeType.Xml);
-            return ok(schemaXml);
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
+            String fsId = constructResourceIdString(repoType, resourcePath, false);
+
+            String uri =  "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "GETCLASSES");
+            param.AddParameter("VERSION", "1.0.0");
+            param.AddParameter("RESOURCEID", fsId);
+            param.AddParameter("SCHEMA", schemaName);
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
         } catch (MgException ex) {
             return mgServerError(ex);
         }
     }
 
-    protected static Result selectFeatures(String repoType, String resourcePath, String schemaName, String className) {
+    protected static Result getFeatureSchema(String repoType, String resourcePath, String schemaName, String format) {
         try {
-            MgResourceIdentifier fsId = constructLibraryResourceId(repoType, resourcePath);
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
+            String fsId = constructResourceIdString(repoType, resourcePath, false);
+
+            String uri =  "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "DESCRIBEFEATURESCHEMA");
+            param.AddParameter("VERSION", "1.0.0");
+            param.AddParameter("RESOURCEID", fsId);
+            param.AddParameter("SCHEMA", schemaName);
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
+    }
+
+    protected static Result getClassDefinition(String repoType, String resourcePath, String schemaName, String className, String format) {
+        try {
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
+            String fsId = constructResourceIdString(repoType, resourcePath, false);
+
+            String uri =  "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "DESCRIBEFEATURESCHEMA");
+            param.AddParameter("VERSION", "1.0.0");
+            param.AddParameter("RESOURCEID", fsId);
+            param.AddParameter("SCHEMA", schemaName);
+            param.AddParameter("CLASSNAMES", className);
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        }
+    }
+
+    protected static Result selectFeatures(String repoType, String resourcePath, String schemaName, String className, String format) {
+        try {
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
+            MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
             MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            
+
             MgFeatureQueryOptions query = new MgFeatureQueryOptions();
             Map<String, String[]> queryParams = request().queryString();
 
@@ -166,6 +262,8 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             return ok(result);
         } catch (MgException ex) {
             return mgServerError(ex);
+        } catch (UnsupportedEncodingException ex) {
+            return javaException(ex);
         }
     }
 }

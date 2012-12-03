@@ -11,7 +11,7 @@ import org.osgeo.mapguide.*;
 //We don't extend from MgResourceServiceController because we don't require session-checking before action invocation
 //because he session id is already part of the resource URL
 public class MgSessionResourceServiceController extends MgAbstractController {
-    public static Result getResourceContent(String sessionId, String resourcePath) {
+    public static Result getResourceContent(String sessionId, String resourcePath, String format) {
         try {
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
@@ -27,7 +27,7 @@ public class MgSessionResourceServiceController extends MgAbstractController {
         }
     }
 
-    public static Result getResourceHeader(String sessionId, String resourcePath) {
+    public static Result getResourceHeader(String sessionId, String resourcePath, String format) {
         try {
             Logger.debug("Session: " + sessionId + ", path: " + resourcePath);
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
@@ -44,7 +44,7 @@ public class MgSessionResourceServiceController extends MgAbstractController {
         }
     }
 
-    public static Result enumerateResourceData(String sessionId, String resourcePath) {
+    public static Result enumerateResourceData(String sessionId, String resourcePath, String format) {
         try {
             Logger.debug("Session: " + sessionId + ", path: " + resourcePath);
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
@@ -71,7 +71,7 @@ public class MgSessionResourceServiceController extends MgAbstractController {
 
             MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
             MgByteReader resData = resSvc.GetResourceData(resId, dataName);
-            
+
             response().setHeader("Content-Disposition", "attachment; filename=" + dataName);
             return ok(MgAjaxViewerUtil.ByteReaderToStream(resData));
         } catch (MgException ex) {

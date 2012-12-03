@@ -221,6 +221,34 @@ public abstract class MgAbstractController extends Controller {
         return false;
     }
 
+    protected static void TryFillMgCredentials(MgHttpRequestParam param) throws MgException {
+        try {
+            String authHeader = request().getHeader(MgCheckSessionAction.AUTHORIZATION);
+            if (authHeader != null) {
+                String auth = authHeader.substring(6);
+                byte[] decodedAuth = javax.xml.bind.DatatypeConverter.parseBase64Binary(auth);
+                String decodedStr = new String(decodedAuth, "UTF-8");
+                String[] credString = decodedStr.split(":");
+                if (credString.length == 1 || credString.length == 2) {
+                    String username = credString[0];
+                    String password = "";
+                    if (credString.length == 2)
+                        password = credString[1];
+
+                    param.AddParameter("USERNAME", username);
+                    if (password.length() > 0)
+                        param.AddParameter("PASSWORD", password);
+                }
+            } else {
+                String sessionId = getMgSessionId();
+                if (sessionId != null && !sessionId.equals(""))
+                    param.AddParameter("SESSION", sessionId);
+            }
+        } catch (UnsupportedEncodingException ex) {
+
+        }
+    }
+
     protected static MgSiteConnection createAnonymousMapGuideConnection() throws MgException {
         MgUserInformation userInfo = new MgUserInformation("Anonymous", "");
         MgSiteConnection siteConn = new MgSiteConnection();
@@ -245,18 +273,21 @@ public abstract class MgAbstractController extends Controller {
         return siteConn;
     }
 
-    protected static MgResourceIdentifier constructLibraryResourceId(String repoType, String resourcePath, boolean appendSlashIfNeeded) throws MgException {
+    protected static String constructResourceIdString(String repoType, String resourcePath, boolean appendSlashIfNeeded) throws MgException {
         String resIdStr = repoType + ":";
         resIdStr += "//" + resourcePath;
         if (appendSlashIfNeeded && resIdStr.charAt(resIdStr.length() - 1) != '/') {
             resIdStr += "/";
         }
-        //Logger.debug("Construct resid (" + repoType + ", " + resourcePath + " => " + resIdStr);
-        return new MgResourceIdentifier(resIdStr);
+        return resIdStr;
     }
 
-    protected static MgResourceIdentifier constructLibraryResourceId(String repoType, String resourcePath) throws MgException {
-        return constructLibraryResourceId(repoType, resourcePath, false);
+    protected static MgResourceIdentifier constructResourceId(String repoType, String resourcePath, boolean appendSlashIfNeeded) throws MgException {
+        return new MgResourceIdentifier(constructResourceIdString(repoType, resourcePath, appendSlashIfNeeded));
+    }
+
+    protected static MgResourceIdentifier constructResourceId(String repoType, String resourcePath) throws MgException {
+        return constructResourceId(repoType, resourcePath, false);
     }
 
     protected static Result mgUnauthorized(String msg, boolean bSetHeader) {
@@ -427,8 +458,11 @@ public abstract class MgAbstractController extends Controller {
             String statusMessage = result.GetHttpStatusMessage();
             if (statusMessage.equals("MgAuthenticationFailedException") || statusMessage.equals("MgUnauthorizedAccessException"))
             {
-                //Logger.debug("401 - " + statusMessage);
-                response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+                //HACK: We don't want to trip the qunit test runner with interactive dialogs
+                String fromTestHarness = request().getHeader("x-mapguide4j-test-harness");
+                if (fromTestHarness == null || !fromTestHarness.toUpperCase().equals("TRUE"))
+                    response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+
                 return unauthorized("You must enter a valid login ID and password to access this site");
             }
             else

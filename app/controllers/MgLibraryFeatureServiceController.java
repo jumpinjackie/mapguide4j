@@ -11,21 +11,45 @@ import java.util.Set;
 
 public class MgLibraryFeatureServiceController extends MgFeatureServiceController {
 
-    public static Result getFeatureProviders() {
+    public static Result getFeatureProviders(String format) {
         try {
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            MgByteReader providersContent = featSvc.GetFeatureProviders();
-            response().setContentType(providersContent.GetMimeType());
-            return ok(providersContent.ToString());
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
+            String uri = "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "GETFEATUREPROVIDERS");
+            param.AddParameter("VERSION", "1.0.0");
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
         }
     }
 
-    public static Result getProviderCapabilities(String fdoProviderName) {
+    public static Result getProviderCapabilities(String fdoProviderName, String format) {
         try {
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
             String partialConnString = "";
             Map<String, String[]> queryParams = request().queryString();
             Set<String> queryPropNames = queryParams.keySet();
@@ -37,19 +61,38 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
                     partialConnString += ";" + name + "=" + value;
                 }
             }
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            MgByteReader capabilitiesContent = featSvc.GetCapabilities(fdoProviderName, partialConnString);
-            response().setContentType(capabilitiesContent.GetMimeType());
-            return ok(capabilitiesContent.ToString());
+            String uri =  "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "GETPROVIDERCAPABILITIES");
+            param.AddParameter("VERSION", "2.0.0");
+            param.AddParameter("PROVIDER", fdoProviderName);
+            if (partialConnString.length() > 0)
+                param.AddParameter("CONNECTIONSTRING", partialConnString);
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
         }
     }
 
-    public static Result enumerateDataStores(String fdoProviderName) {
+    public static Result enumerateDataStores(String fdoProviderName, String format) {
         try {
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
             String partialConnString = "";
             Map<String, String[]> queryParams = request().queryString();
             Set<String> queryPropNames = queryParams.keySet();
@@ -61,19 +104,39 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
                     partialConnString += ";" + name + "=" + value;
                 }
             }
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            MgByteReader dataStoresContent = featSvc.EnumerateDataStores(fdoProviderName, partialConnString);
-            response().setContentType(dataStoresContent.GetMimeType());
-            return ok(dataStoresContent.ToString());
+
+            String uri = "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "ENUMERATEDATASTORES");
+            param.AddParameter("VERSION", "1.0.0");
+            param.AddParameter("PROVIDER", fdoProviderName);
+            if (partialConnString.length() > 0)
+                param.AddParameter("CONNECTIONSTRING", partialConnString);
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
         }
     }
 
-    public static Result getConnectPropertyValues(String fdoProviderName, String propName) {
+    public static Result getConnectPropertyValues(String fdoProviderName, String propName, String format) {
         try {
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
             String partialConnString = "";
             Map<String, String[]> queryParams = request().queryString();
             Set<String> queryPropNames = queryParams.keySet();
@@ -85,37 +148,50 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
                     partialConnString += ";" + name + "=" + value;
                 }
             }
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
-            MgStringCollection propVals = featSvc.GetConnectionPropertyValues(fdoProviderName, propName, partialConnString);
-            return mgStringCollectionXml(propVals);
+            String uri = "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "GETCONNECTIONPROPERTYVALUES");
+            param.AddParameter("VERSION", "1.0.0");
+            param.AddParameter("PROVIDER", fdoProviderName);
+            param.AddParameter("PROPERTY", propName);
+            if (partialConnString.length() > 0)
+                param.AddParameter("CONNECTIONSTRING", partialConnString);
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
         }
     }
 
-    public static Result selectFeatures(String resourcePath, String schemaName, String className) {
-        return selectFeatures(MgRepositoryType.Library, resourcePath, schemaName, className);
+    public static Result selectFeatures(String resourcePath, String schemaName, String className, String format) {
+        return MgFeatureServiceController.selectFeatures(MgRepositoryType.Library, resourcePath, schemaName, className, format);
     }
 
-    public static Result getSchemaNames(String resourcePath) {
-        return getSchemaNames(MgRepositoryType.Library, resourcePath);
+    public static Result getSchemaNames(String resourcePath, String format) {
+        return MgFeatureServiceController.getSchemaNames(MgRepositoryType.Library, resourcePath, format);
     }
 
-    public static Result getSpatialContexts(String resourcePath) {
-        return getSpatialContexts(MgRepositoryType.Library, resourcePath);
+    public static Result getSpatialContexts(String resourcePath, String format) {
+        return MgFeatureServiceController.getSpatialContexts(MgRepositoryType.Library, resourcePath, format);
     }
 
-    public static Result getClassNames(String resourcePath, String schemaName) {
-        return getClassNames(MgRepositoryType.Library, resourcePath, schemaName);
+    public static Result getClassNames(String resourcePath, String schemaName, String format) {
+        return MgFeatureServiceController.getClassNames(MgRepositoryType.Library, resourcePath, schemaName, format);
     }
 
-    public static Result getClassDefinition(String resourcePath, String schemaName, String className) {
-        return getClassDefinition(MgRepositoryType.Library, resourcePath, schemaName, className);
+    public static Result getClassDefinition(String resourcePath, String schemaName, String className, String format) {
+        return MgFeatureServiceController.getClassDefinition(MgRepositoryType.Library, resourcePath, schemaName, className, format);
     }
 
-    public static Result getFeatureSchema(String resourcePath, String schemaName) {
-        return getFeatureSchema(MgRepositoryType.Library, resourcePath, schemaName);
+    public static Result getFeatureSchema(String resourcePath, String schemaName, String format) {
+        return MgFeatureServiceController.getFeatureSchema(MgRepositoryType.Library, resourcePath, schemaName, format);
     }
 }

@@ -39,12 +39,23 @@ if( typeof window.DOMParser === "undefined" ){
     };
 }
 
+function stringifyGet(data) {
+    if (typeof(data) === 'string')
+        return data;
+
+    var values = [];
+    for (var key in data) {
+        values.push(key + "=" + data[key]);
+    }
+    return values.join("&");
+}
+
 function api_test(url, type, data, callback) {
     $.ajax({
         url: url,
         type: type,
         processData: false,
-        data: data,
+        data: (type === "GET") ? stringifyGet(data) : data,
         dataType: 'xml',
         async: false,
         beforeSend: function(xhr) {
@@ -69,7 +80,7 @@ function api_test_with_credentials(url, type, data, username, password, callback
         url: url,
         type: type,
         processData: false,
-        data: data,
+        data: (type === "GET") ? stringifyGet(data) : data,
         dataType: 'xml',
         beforeSend: function(xhr) {
             xhr.setRequestHeader("x-mapguide4j-test-harness", true);
@@ -156,6 +167,20 @@ test("Enumerate Resources", function() {
     api_test_with_credentials(rest_root_url + "/library/Samples/list", "GET", { depth: -1, type: "FeatureSource" }, "Foo", "Bar", function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/list.foo", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/list.foo", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/list.foo", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/list.foo", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/library/Samples/list", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got a list back");
     });
@@ -168,6 +193,45 @@ test("Enumerate Resources", function() {
     api_test_admin(rest_root_url + "/library/Samples/list", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got a list back");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/list.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got an xml list back");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/list.xml", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got an xml list back");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/list.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got an xml list back");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/list.xml", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got an xml list back");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/list.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got a json list back");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/list.json", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got a json list back");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/list.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got a json list back");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/list.json", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got a json list back");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/list.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got a html list back");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/list.html", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got a html list back");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/list.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got a html list back");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/list.html", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got a html list back");
+    });
 });
 test("Get Resource Content", function() {
     api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content", "GET", null, "Foo", "Bar", function(status, result) {
@@ -176,6 +240,19 @@ test("Get Resource Content", function() {
     api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content", "GET", { depth: -1, type: "FeatureSource" }, "Foo", "Bar", function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.bar", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.bar", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.bar", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.bar", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource content back");
     });
@@ -188,6 +265,32 @@ test("Get Resource Content", function() {
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource content back");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource content back as xml");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.xml", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource content back as xml");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource content back as xml");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.xml", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource content back as xml");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource content back as json");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.json", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource content back as json");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource content back as json");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/content.json", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource content back as json");
+    });
 });
 test("Get Resource Header", function() {
     api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header", "GET", null, "Foo", "Bar", function(status, result) {
@@ -196,6 +299,20 @@ test("Get Resource Header", function() {
     api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header", "GET", "depth=-1&type=FeatureSource", "Foo", "Bar", function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.sdfjkdsg", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.sdfjkdsg", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.sdfjkdsg", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.sdfjkdsg", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource header back");
     });
@@ -207,6 +324,32 @@ test("Get Resource Header", function() {
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource header back");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.xml", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.xml", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as json");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as json");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as json");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as json");
     });
 });
 test("Enumerate Resource Data", function() {
@@ -222,6 +365,20 @@ test("Enumerate Resource Data", function() {
     api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data", "GET", "depth=-1&type=LayerDefinition", "Foo", "Bar", function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.jsdhf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.jsdhf", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.jsdhf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.jsdhf", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected a bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back");
     });
@@ -234,6 +391,45 @@ test("Enumerate Resource Data", function() {
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.json", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.json", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", "depth=-1&type=LayerDefinition", function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
 });
 test("Enumerate Resource References", function() {
     api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references", "GET", null, "Foo", "Bar", function(status, result) {
@@ -242,6 +438,20 @@ test("Enumerate Resource References", function() {
     api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references", "GET", { depth: -1, type: "FeatureSource" }, "Foo", "Bar", function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.sdjf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.sdjf", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.sdjf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.sdjf", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back");
     });
@@ -253,6 +463,45 @@ test("Enumerate Resource References", function() {
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.json", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.json", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
     });
 });
 /*
@@ -308,10 +557,32 @@ test("Get Spatial Contexts", function() {
     api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.sdigud", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.sdigud", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.json", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -319,10 +590,39 @@ test("Get Schemas", function() {
     api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.ksjdg", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.ksjdg", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -330,10 +630,39 @@ test("Get Classes - SHP_Schema", function() {
     api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.sdgudkf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.sdgudkf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -341,10 +670,46 @@ test("Get Class Definition - SHP_Schema:Parcels", function() {
     api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.jsdfjkdf/Parcels", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.jsdfjkdf/Parcels", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.xml/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.xml/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.json/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.json/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.html/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.html/Parcels", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -352,10 +717,39 @@ test("Get FDO Providers", function() {
     api_test(rest_root_url + "/providers", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/providers.sdgfdsf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/providers.sdgfdsf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/providers", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/providers", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/providers.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/providers.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/providers.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/providers.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/providers.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/providers.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -363,10 +757,39 @@ test("SDF Provider Capabilities", function() {
     api_test(rest_root_url + "/providers/OSGeo.SDF/capabilities", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/providers/OSGeo.SDF/capabilities.ksdjgdf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/providers/OSGeo.SDF/capabilities.ksdjgdf", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/providers/OSGeo.SDF/capabilities", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/providers/OSGeo.SDF/capabilities", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/providers/OSGeo.SDF/capabilities.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/providers/OSGeo.SDF/capabilities.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/providers/OSGeo.SDF/capabilities.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/providers/OSGeo.SDF/capabilities.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/providers/OSGeo.SDF/capabilities.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/providers/OSGeo.SDF/capabilities.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -375,10 +798,39 @@ test("SDF Provider - Connection Property Values for ReadOnly", function() {
     api_test(rest_root_url + "/providers/OSGeo.SDF/connectvalues/ReadOnly", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/providers/OSGeo.SDF/connectvalues.skdjfkd/ReadOnly", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/providers/OSGeo.SDF/connectvalues.skdjfkd/ReadOnly", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/providers/OSGeo.SDF/connectvalues/ReadOnly", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/providers/OSGeo.SDF/connectvalues/ReadOnly", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/providers/OSGeo.SDF/connectvalues.xml/ReadOnly", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/providers/OSGeo.SDF/connectvalues.xml/ReadOnly", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/providers/OSGeo.SDF/connectvalues.json/ReadOnly", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/providers/OSGeo.SDF/connectvalues.json/ReadOnly", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/providers/OSGeo.SDF/connectvalues.html/ReadOnly", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/providers/OSGeo.SDF/connectvalues.html/ReadOnly", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -565,10 +1017,39 @@ test("Enum categories", function() {
     api_test(rest_root_url + "/coordsys/categories", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/coordsys/categories.sadgdsfd", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/coordsys/categories.sadgdsfd", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/coordsys/categories", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/coordsys/categories", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/coordsys/categories.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/coordsys/categories.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/coordsys/categories.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/coordsys/categories.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/coordsys/categories.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/coordsys/categories.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -576,10 +1057,39 @@ test("Enum categories - Australia", function() {
     api_test(rest_root_url + "/coordsys/category/Australia", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
+
+    api_test_anon(rest_root_url + "/coordsys/category.sdgfd/Australia", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+    api_test_admin(rest_root_url + "/coordsys/category.sdgfd/Australia", "GET", null, function(status, result) {
+        ok(status == 400, "(" + status + ") - Expected bad representation response");
+    });
+
     api_test_anon(rest_root_url + "/coordsys/category/Australia", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/coordsys/category/Australia", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/coordsys/category.xml/Australia", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/coordsys/category.xml/Australia", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/coordsys/category.json/Australia", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/coordsys/category.json/Australia", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test_anon(rest_root_url + "/coordsys/category.html/Australia", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test_admin(rest_root_url + "/coordsys/category.html/Australia", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });

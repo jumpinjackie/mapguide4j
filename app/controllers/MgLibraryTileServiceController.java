@@ -12,7 +12,7 @@ public class MgLibraryTileServiceController extends MgAbstractController {
     public static Result getTile(String resourcePath, String baseLayerGroupName, Long scaleIndex, Long tileCol, Long tileRow) {
         try {
             //TODO: I don't think the current MgTileService is conductive to supporting HTTP 304 responses at this point in time
-            MgResourceIdentifier mdfId = constructLibraryResourceId(MgRepositoryType.Library, resourcePath);
+            MgResourceIdentifier mdfId = constructResourceId(MgRepositoryType.Library, resourcePath);
             MgSiteConnection siteConn = createAnonymousMapGuideConnection();
             MgTileService tileSvc = (MgTileService)siteConn.CreateService(MgServiceType.TileService);
             MgByteReader image  = tileSvc.GetTile(mdfId, baseLayerGroupName, tileCol.intValue(), tileRow.intValue(), scaleIndex.intValue());

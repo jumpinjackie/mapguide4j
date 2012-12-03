@@ -6,23 +6,60 @@ import play.mvc.*;
 import org.osgeo.mapguide.*;
 
 public class MgCoordinateSystemController extends MgAbstractAuthenticatedController {
-    
-    public static Result enumerateCategories() {
+
+    public static Result enumerateCategories(String format) {
         try {
-            MgCoordinateSystemFactory csFactory = new MgCoordinateSystemFactory();
-            MgStringCollection categoryNames = csFactory.EnumerateCategories();
-            return mgStringCollectionXml(categoryNames);
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
+            String uri =  "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "CS.ENUMERATECATEGORIES");
+            param.AddParameter("VERSION", "1.0.0");
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
         }
     }
 
-    public static Result enumerateCoordinateSystemsByCategory(String category) {
+    public static Result enumerateCoordinateSystemsByCategory(String category, String format) {
         try {
-            MgCoordinateSystemFactory csFactory = new MgCoordinateSystemFactory();
-            MgBatchPropertyCollection coordSystems = csFactory.EnumerateCoordinateSystems(category);
-            return mgBatchPropertyCollectionXml(coordSystems);
+            String fmt = format.toLowerCase();
+            if (!fmt.equals("html") &&
+                !fmt.equals("xml") &&
+                !fmt.equals("json"))
+            {
+                return badRequest("Unsupported representation: " + format);
+            }
+
+            String uri =  "";
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
+
+            param.AddParameter("OPERATION", "CS.ENUMERATECOORDINATESYSTEMS");
+            param.AddParameter("VERSION", "1.0.0");
+            param.AddParameter("CSCATEGORY", category);
+
+            if (fmt.equals("xml") || fmt.equals("html"))
+                param.AddParameter("FORMAT", MgMimeType.Xml);
+            else if (fmt.equals("json"))
+                param.AddParameter("FORMAT", MgMimeType.Json);
+
+            return executeRequestInternal(request);
         }
         catch (MgException ex) {
             return mgServerError(ex);
