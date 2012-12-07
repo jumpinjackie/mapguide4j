@@ -66,7 +66,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             }
             else
             {
-                if (!TrySetMgCredentials(cred)) 
+                if (!TrySetMgCredentials(cred))
                 {
                     Logger.debug("Send WWW-Authenticate");
                     response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
@@ -135,7 +135,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             // what to pass to the Task Pane
             MgResourceIdentifier resId = new MgResourceIdentifier(mapDef);
             String mapName = resId.GetName();
-            
+
             String title = webLayout.GetTitle();
 
             boolean showLegend = infoPane.IsLegendBandVisible();
@@ -427,7 +427,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
             if(showTaskBar)
             {
-                String frameSetTempl = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("/internal/viewerfiles/framesettaskbar.templ"));
+                String frameSetTempl = MgAjaxViewerUtil.LoadViewerFileResource("framesettaskbar.templ");
                 String[] vals = {
                                 String.valueOf(statusbarHeight),
                                 String.valueOf(taskPaneWidth),
@@ -455,7 +455,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             }
             else
             {
-                String frameSetTempl = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("/internal/viewerfiles/framesetnotaskbar.templ"));
+                String frameSetTempl = MgAjaxViewerUtil.LoadViewerFileResource("framesetnotaskbar.templ");
                 String[] vals = {
                                 String.valueOf(toolbarHeight),
                                 String.valueOf(statusbarHeight),
@@ -488,7 +488,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             // 0 - windows
             // 1 - mac
             // 2-  unknown
-            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("/internal/viewerfiles/mainframe.templ")), locale, 0);
+            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("mainframe.templ"), locale, 0);
 
             String int0 = "0";
             String int1 = "1";
@@ -561,11 +561,16 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
     }
 
     public static Result viewerasset(String file) {
-        File f = Play.application().getFile("internal/viewerfiles/" + file);
-        if (!f.exists())
-            return notFound();
-        else
-            return ok(f);
+        InputStream assetStream = MgAjaxViewerUtil.LoadViewerFileResourceStream(file);
+        if (file.endsWith(".templ") || file.endsWith(".html"))
+            response().setContentType("text/html");
+        else if (file.endsWith(".js"))
+            response().setContentType("text/javascript");
+        else if (file.endsWith(".css"))
+            response().setContentType("text/css");
+        else if (file.endsWith(".png"))
+            response().setContentType("image/png");
+        return ok(assetStream);
     }
 
     public static Result localizedasset(String file) {
@@ -577,11 +582,15 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
     }
 
     public static Result viewericon(String file) {
-        File f = Play.application().getFile("internal/stdicons/" + file);
-        if (!f.exists())
-            return notFound();
-        else
-            return ok(f);
+        InputStream assetStream = MgAjaxViewerUtil.LoadViewerIconResourceStream(file);
+        if (file.endsWith(".gif"))
+            response().setContentType("image/gif");
+        else if (file.endsWith(".png"))
+            response().setContentType("image/png");
+        else if (file.endsWith(".cur"))
+            response().setContentType("application/octet-stream");
+
+        return ok(assetStream);
     }
 
     public static Result legendctrl() {
@@ -590,7 +599,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             String sessionId = getMgSessionId();
             String mapFrame = MgAjaxViewerUtil.ValidateFrameName(getRequestParameter("MAPFRAME", "parent"));
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
-            
+
             MgSiteConnection site = createMapGuideConnection();
             if (sessionId == null) {
                 MgSite siteObj = site.GetSite();
@@ -607,7 +616,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                 vpath + "legendui.jsp",
                 locale };
 
-            String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/legendctrl.templ"));
+            String templ = MgAjaxViewerUtil.LoadViewerFileResource("legendctrl.templ");
             response().setContentType("text/html");
             return ok(MgAjaxViewerUtil.Substitute(templ, vals));
         }
@@ -624,7 +633,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
             String mapFrame = MgAjaxViewerUtil.ValidateFrameName(getRequestParameter("MAPFRAME", "parent"));
 
-            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/propertyctrl.templ")), locale, getClientOS());
+            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("propertyctrl.templ"), locale, getClientOS());
             String vals[] = { mapFrame };
             response().setContentType("text/html");
             return ok(MgAjaxViewerUtil.Substitute(templ, vals));
@@ -678,7 +687,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                               };
                 //load html template code and format it
                 //
-                String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("/internal/viewerfiles/dwfmappane.templ")), locale, getClientOS());
+                String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("dwfmappane.templ"), locale, getClientOS());
                 response().setContentType("text/html");
                 return ok(templ);
             }
@@ -750,7 +759,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
                 //load html template code and format it
                 //
-                String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("/internal/viewerfiles/ajaxmappane.templ")), locale, getClientOS());
+                String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("ajaxmappane.templ"), locale, getClientOS());
                 String vpath = getViewerRoot();
                 String vals[] = {
                             String.valueOf(tileSizeX),
@@ -797,7 +806,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
     public static Result toolbar() {
         try {
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
-            String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/toolbar.templ"));
+            String templ = MgAjaxViewerUtil.LoadViewerFileResource("toolbar.templ");
             response().setContentType("text/html");
             return ok(templ);
         }
@@ -808,7 +817,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
     public static Result formframe() {
         try {
-            String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/formframe.templ"));
+            String templ = MgAjaxViewerUtil.LoadViewerFileResource("formframe.templ");
             response().setContentType("text/html");
             return ok(templ);
         }
@@ -860,17 +869,17 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             {
                 url = String.format("%s?SESSION=%s&MAPNAME=%s&WEBLAYOUT=%s&DWF=%s&LOCALE=%s", taskPaneUrl, sessionId, mapName, URLEncoder.encode(webLayoutId), dwf, locale);
             }
-            String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/taskframe.templ"));
+            String templ = MgAjaxViewerUtil.LoadViewerFileResource("taskframe.templ");
             String[] vals = { vpath + "tasklist.jsp",
                         locale,
                         url };
-            
+
             response().setContentType("text/html");
             return ok(MgAjaxViewerUtil.Substitute(templ, vals));
         }
         catch (MgException ex) {
             try {
-                String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/errorpage.templ")), locale, getClientOS());
+                String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("errorpage.templ"), locale, getClientOS());
                 String[] vals = { "0", MgLocalizationUtil.GetString("TASKS", locale), ex.GetExceptionMessage() };
                 response().setContentType("text/html");
                 return internalServerError(MgAjaxViewerUtil.Substitute(templ, vals));
@@ -878,7 +887,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
         }
         catch (Exception ex) {
             try {
-                String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/errorpage.templ")), locale, getClientOS());
+                String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("errorpage.templ"), locale, getClientOS());
                 String[] vals = { "0", MgLocalizationUtil.GetString("TASKS", locale), ex.getMessage() };
                 response().setContentType("text/html");
                 return internalServerError(MgAjaxViewerUtil.Substitute(templ, vals));
@@ -893,7 +902,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
         try {
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
             response().setContentType("text/html");
-            return ok(MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/taskbar.templ")), locale, getClientOS()));
+            return ok(MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("taskbar.templ"), locale, getClientOS()));
         }
         catch (Exception ex) {
             return javaException(ex);
@@ -904,7 +913,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
         try {
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
             response().setContentType("text/html");
-            return ok(MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/statusbar.templ")), locale, getClientOS()));
+            return ok(MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("statusbar.templ"), locale, getClientOS()));
         }
         catch (Exception ex) {
             return javaException(ex);
@@ -915,7 +924,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
         try {
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
             response().setContentType("text/html");
-            return ok(MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/legendui.templ")), locale, getClientOS()));
+            return ok(MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("legendui.templ"), locale, getClientOS()));
         }
         catch (Exception ex) {
             return javaException(ex);
@@ -931,7 +940,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
         StringBuilder output = new StringBuilder("\nvar layerData = new Array();\n");
         try {
             BoxedInteger intermediateVar = new BoxedInteger(0);
-            
+
             MgSiteConnection site = createMapGuideConnection();
             if (sessionId == null) {
                 MgSite siteObj = site.GetSite();
@@ -970,7 +979,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
             //load html template code and format it
             //
-            String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/legendupdate.templ"));
+            String templ = MgAjaxViewerUtil.LoadViewerFileResource("legendupdate.templ");
             String vals[] = { String.valueOf(updateType), output.toString(), getViewerRoot() + "legend.jsp"};
             String outputString = MgAjaxViewerUtil.Substitute(templ, vals);
 
@@ -991,7 +1000,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
         try {
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
             response().setContentType("text/html");
-            return ok(MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/tasklist.templ")), locale, getClientOS()));
+            return ok(MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("tasklist.templ"), locale, getClientOS()));
         }
         catch (Exception ex) {
             return javaException(ex);
@@ -1145,7 +1154,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                         String tip = "Concat(Concat(Concat('" + MgLocalizationUtil.GetString("MEASUREPARTIAL", locale) + ": ', PARTIAL), Concat(', " + MgLocalizationUtil.GetString("MEASURETOTAL", locale) + ": ', TOTAL)), ' (" + unitText + ")')";
 
                         //Create the layer definition
-                        String layerTempl = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/linelayerdef.templ"));
+                        String layerTempl = MgAjaxViewerUtil.LoadViewerFileResource("linelayerdef.templ");
                         MgByteReader layerDefContent = MgAjaxViewerUtil.BuildLayerDefinitionContent(layerTempl, dataSource, featureName, tip);
                         resourceSrvc.SetResource(layerDefId, layerDefContent, null);
                     }
@@ -1193,7 +1202,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                 layer.ForceRefresh();
             map.Save(resourceSrvc);
 
-            String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/measureui.templ"));
+            String templ = MgAjaxViewerUtil.LoadViewerFileResource("measureui.templ");
 
             templ = MgLocalizationUtil.Localize(templ, locale, getClientOS());
 
@@ -1235,7 +1244,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             String sessionId = getMgSessionId();
             String units = getRequestParameter("UNITS", "");
             double total = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("TOTAL", "0"));
-            String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/measureui.templ"));
+            String templ = MgAjaxViewerUtil.LoadViewerFileResource("measureui.templ");
             setupLocalizationPath();
             templ = MgLocalizationUtil.Localize(templ, locale, getClientOS());
 
@@ -1268,11 +1277,11 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             String locale = MgAjaxViewerUtil.ValidateLocaleString(getRequestParameter("LOCALE", "en"));
             int popup = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("POPUP", "0"));
             int us = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("US", "0"));
-            
+
             setupLocalizationPath();
 
             String vpath = getViewerRoot();
-            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/bufferui.templ")), locale, getClientOS());
+            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("bufferui.templ"), locale, getClientOS());
             String[] vals = { String.valueOf(popup),
                               vpath + "colorpicker.jsp",
                               locale,
@@ -1369,7 +1378,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                 mapSrsUnits = srsMap.GetUnits();
 
             //Create/Modify layer definition
-            String layerTempl = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/arealayerdef.templ"));
+            String layerTempl = MgAjaxViewerUtil.LoadViewerFileResource("arealayerdef.templ");
             MgByteReader layerDefContent = MgAjaxViewerUtil.BuildAreaLayerDefinitionContent(layerTempl, dataSource, featureName, fillstyle, ffcolor, transparent, fbcolor, linestyle, thickness, foretrans, lcolor);
             resourceSrvc.SetResource(layerDefId, layerDefContent, null);
 
@@ -1605,7 +1614,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             }
 
             // return the report page
-            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("internal/viewerfiles/bufferreport.templ")), locale, getClientOS());
+            String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadViewerFileResource("bufferreport.templ"), locale, getClientOS());
             String[] vals = {
                         String.valueOf(popup),
                         title,

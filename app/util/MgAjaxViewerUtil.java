@@ -17,13 +17,33 @@ import org.w3c.dom.*;
 //port of common.jsp with servlet-isms removed and/or replaced
 
 public class MgAjaxViewerUtil {
+
+    public static InputStream LoadViewerIconResourceStream(String name) {
+        return Play.application().classloader().getResourceAsStream("resources/stdicons/" + name);
+    }
+
+    public static InputStream LoadViewerFileResourceStream(String name) {
+        return Play.application().classloader().getResourceAsStream("resources/viewerfiles/" + name);
+    }
+
+    public static String LoadViewerFileResource(String templateName) throws IOException {
+        InputStream assetStream = LoadViewerFileResourceStream(templateName);
+        BufferedReader br = new BufferedReader(new InputStreamReader(assetStream));StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+            sb.append(line + "\n");
+        }
+        br.close();
+        return sb.toString();
+    }
+
     public static String LoadTemplate(String filename) throws FileNotFoundException, IOException
     {
         File theFile = new File(filename);
         return LoadTemplate(theFile);
     }
 
-    public static String LoadTemplate(File file) throws FileNotFoundException, IOException 
+    public static String LoadTemplate(File file) throws FileNotFoundException, IOException
     {
         Logger.debug("Loading template: " + file.getPath());
         int size = (int)file.length();
@@ -906,7 +926,7 @@ public class MgAjaxViewerUtil {
     }
 
     public static MgByteReader BuildAreaLayerDefinitionContent(
-        String layerTempl, String dataSource, String featureName, String fillstyle, String ffcolor, 
+        String layerTempl, String dataSource, String featureName, String fillstyle, String ffcolor,
         int transparent, String fbcolor, String linestyle, double thickness, double foretrans, String lcolor) throws MgException, Exception
     {
         String xtrans = String.format("%02x", new Object[]{new Integer((int)(255 * foretrans / 100))});

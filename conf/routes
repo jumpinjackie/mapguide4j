@@ -108,6 +108,7 @@ GET /mapguide/rest/session/:sessionId/*resourcePath/content                     
 POST /mapguide/rest/session/:sessionId/*resourcePath/data/:dataName              controllers.MgSessionResourceServiceController.setResourceData(sessionId: String, resourcePath, dataName: String)
 POST /mapguide/rest/session/:sessionId/*resourcePath/content                     controllers.MgSessionResourceServiceController.setResourceContent(sessionId: String, resourcePath)
 # NOTE: We're making a safe assumption that runtime map blobs are always stored in the session repository root, which is almost always the case
+POST /mapguide/rest/session/:sessionId/:mapName.Map                             controllers.MgViewerController.createRuntimeMap(sessionId: String, mapName: String)
 GET /mapguide/rest/session/:sessionId/:mapName.Map/layers                       controllers.MgViewerController.getMapLayers(sessionId: String, mapName: String)
 GET /mapguide/rest/session/:sessionId/:mapName.Map/groups                       controllers.MgViewerController.getMapLayerGroups(sessionId: String, mapName: String)
 GET /mapguide/rest/session/:sessionId/:mapName.Map/overlayimage                 controllers.MgViewerController.getDynamicMapOverlayImage(sessionId: String, mapName: String)

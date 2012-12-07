@@ -54,56 +54,51 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
         }
     }
 
+    public static Result createRuntimeMap(String sessionId, String mapName) {
+        try {
+            MgSiteConnection siteConn = new MgSiteConnection();
+            MgUserInformation userInfo = new MgUserInformation(sessionId);
+            siteConn.Open(userInfo);
+
+            return TODO;
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
+        }
+    }
+
     public static Result queryMapFeatures(String sessionId, String mapName) {
         try {
-            MgSiteConnection siteConn = createMapGuideConnection();
+            //Like getDynamicMapOverlayImage, we don't need MgHtmlController as previously thought. Just set up the required
+            //parameter dictionary for MgHttpRequest
+            String uri =  controllers.routes.MgViewerController.getDynamicMapOverlayImage(sessionId, mapName).absoluteURL(request());
+            MgHttpRequest request = new MgHttpRequest(uri);
+            MgHttpRequestParam param = request.GetRequestParam();
 
-            MgStringCollection layerNames = null;
-            MgGeometry selectionGeometry = null;
-            int selectionVariant = 0;
-            MgWktReaderWriter wktRw = new MgWktReaderWriter();
-            boolean persist = (getRequestParameter("PERSIST", "0").equals("1"));
-            int maxFeatures = -1;
-            String featureFilter = getRequestParameter("FEATUREFILTER", "");
-            // 1=Visible
-            // 2=Selectable
-            // 4=HasTooltips
-            int layerAttributeFilter = MgAjaxViewerUtil.GetIntParameter(getRequestParameter("LAYERATTRIBUTEFILTER", "3")); //Visible and selectable
-
+            param.AddParameter("OPERATION", "QUERYMAPFEATURES");
+            param.AddParameter("VERSION", "1.0.0");
+            param.AddParameter("SESSION", sessionId);
+            param.AddParameter("MAPNAME", mapName);
+            param.AddParameter("PERSIST", getRequestParameter("PERSIST", "0"));
+            if (hasRequestParameter("FEATUREFILTER"))
+                param.AddParameter("FEATUREFILTER", getRequestParameter("FEATUREFILTER", ""));
+            param.AddParameter("LAYERATTRIBUTEFILTER", getRequestParameter("LAYERATTRIBUTEFILTER", "3"));
+            String selectionVariant = "";
             if (hasRequestParameter("SELECTIONVARIANT")) {
                 String variant = getRequestParameter("SELECTIONVARIANT", "");
-                if (variant.equals("TOUCHES")) {
-                    selectionVariant = MgFeatureSpatialOperations.Touches;
-                } else if (variant.equals("INTERSECTS")) {
-                    selectionVariant = MgFeatureSpatialOperations.Intersects;
-                } else if (variant.equals("WITHIN")) {
-                    selectionVariant = MgFeatureSpatialOperations.Within;
-                } else if (variant.equals("ENVELOPEINTERSECTS")) {
-                    selectionVariant = MgFeatureSpatialOperations.EnvelopeIntersects;
+                if (variant.equals("TOUCHES") || variant.equals("INTERSECTS") || variant.equals("WITHIN") || variant.equals("ENVELOPEINTERSECTS")) {
+                    param.AddParameter("SELECTIONVARIANT", variant);
                 } else {
                     return badRequest("Invalid parameter: SELECTIONVARIANT");
                 }
             }
-
             if (!hasRequestParameter("GEOMETRY"))
                 return badRequest("Missing required parameter: GEOMETRY");
-            if (hasRequestParameter("LAYERNAMES")) {
-                String[] names = getRequestParameter("LAYERNAMES", "").split(",");
-                if (names.length > 0) {
-                    layerNames = new MgStringCollection();
-                    for (String s : names) {
-                        layerNames.Add(s);
-                    }
-                }
-            }
+            param.AddParameter("GEOMETRY", getRequestParameter("GEOMETRY", ""));
+            param.AddParameter("LAYERNAMES", getRequestParameter("LAYERNAMES", ""));
 
-            selectionGeometry = wktRw.Read(getRequestParameter("GEOMETRY", ""));
-
-            //NOTE: Not a published API
-            MgHtmlController controller = new MgHtmlController(siteConn);
-            MgByteReader description = controller.QueryMapFeatures(mapName, layerNames, selectionGeometry, selectionVariant, featureFilter, maxFeatures, persist, layerAttributeFilter);
-            response().setContentType(description.GetMimeType());
-            return ok(MgAjaxViewerUtil.ByteReaderToStream(description));
+            return executeRequestInternal(request);
         } catch (MgException ex) { //TODO: Rasterize the error message as the standard response won't be visible most of the time
             return mgServerError(ex);
         } catch (Exception ex) {

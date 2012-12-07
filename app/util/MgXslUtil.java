@@ -35,7 +35,7 @@ public class MgXslUtil
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-            InputStream xslStream = Play.application().classloader().getResourceAsStream("resources/" + xslStylesheet);
+            InputStream xslStream = Play.application().classloader().getResourceAsStream("resources/xsl/" + xslStylesheet);
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(MgAjaxViewerUtil.ByteReaderToStream(byteReader));
 

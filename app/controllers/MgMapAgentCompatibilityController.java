@@ -5,8 +5,7 @@ import util.*;
 import play.*;
 import play.mvc.*;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.lang.StringBuilder;
 import java.util.Map;
 import java.util.List;
@@ -93,10 +92,8 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractContro
     }
 
     public static Result agentasset(String file) {
-        File f = Play.application().getFile("internal/MapAgentForms/" + file);
-        if (!f.exists())
-            return notFound();
-        else
-            return ok(f);
+        InputStream assetStream = Play.application().classloader().getResourceAsStream("resources/MapAgentForms/" + file);
+        response().setContentType("text/html");
+        return ok(assetStream);
     }
 }
