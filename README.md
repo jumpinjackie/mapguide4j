@@ -26,13 +26,6 @@ Requirements
  - [Play! Framework 2.0.4](http://www.playframework.org/)
  - [MapGuide Open Source 2.4](http://mapguide.osgeo.org) (with Tomcat option, you don't need to actually have the Apache/Tomcat installed and running, we just need the MapGuideApi.jar and its dlls)
 
-Known Limitations
-=================
-
- ~~It is currently not possible to create a map viewer that communicates with this REST endpoint as the MapGuide Web Extensions API does not offer the ability to manipulate the display parameters of a MgMap (this is what RENDERDYNAMICOVERLAYIMAGE in the mapagent does, as it is native and has full access to internal/un-published APIs). The currently published version of RenderDynamicOverlay does not support manipulation of MgMap display parameters.
-
- We work around this with a specially built version of the MapGuide Java API that exposes some extra internal C++ classes needed for this to work.~~
-
 Setup
 =====
 
