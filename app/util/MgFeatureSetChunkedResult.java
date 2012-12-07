@@ -6,8 +6,11 @@ import java.lang.StringBuilder;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * A helper class to output the XML content of a MgFeatureReader as a chunked response
+ */
 public class MgFeatureSetChunkedResult extends StringChunks {
-    
+
     private MgFeatureReader _reader;
     private MgFeatureService _featSvc;
     private int _limit;

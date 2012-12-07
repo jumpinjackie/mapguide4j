@@ -5,6 +5,9 @@ import play.mvc.*;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * REST controller for MapGuide Site Admin operations
+ */
 public abstract class MgSiteAdminController extends MgAbstractAuthenticatedController {
 
     public static Result getSiteStatus() {

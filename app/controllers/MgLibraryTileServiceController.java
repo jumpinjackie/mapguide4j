@@ -8,6 +8,9 @@ import play.mvc.*;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * REST controller for MapGuide Tile Service operations
+ */
 public class MgLibraryTileServiceController extends MgAbstractController {
     public static Result getTile(String resourcePath, String baseLayerGroupName, Long scaleIndex, Long tileCol, Long tileRow) {
         try {

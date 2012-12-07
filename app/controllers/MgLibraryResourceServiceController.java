@@ -12,6 +12,9 @@ import play.mvc.*;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * REST controller for MapGuide Resource Service operations on site repository resources
+ */
 public class MgLibraryResourceServiceController extends MgResourceServiceController {
 
     public static Result enumerateResources(String resourcePath, String format) {

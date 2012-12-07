@@ -9,7 +9,11 @@ import play.mvc.BodyParser.*;
 import org.osgeo.mapguide.*;
 
 //We don't extend from MgResourceServiceController because we don't require session-checking before action invocation
-//because he session id is already part of the resource URL
+//because the session id is already part of the resource URL
+
+/**
+ * REST controller for MapGuide Resource Service operations on session-based resources
+ */
 public class MgSessionResourceServiceController extends MgAbstractController {
     public static Result getResourceContent(String sessionId, String resourcePath, String format) {
         try {

@@ -10,6 +10,9 @@ import java.util.Map;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * Abstract REST controller for MapGuide Feature Service operations
+ */
 public abstract class MgFeatureServiceController extends MgAbstractAuthenticatedController {
 
     protected static Result getSchemaNames(String repoType, String resourcePath, String format) {

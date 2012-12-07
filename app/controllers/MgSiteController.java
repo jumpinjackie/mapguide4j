@@ -6,6 +6,9 @@ import play.mvc.*;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * REST controller for site-related MapGuide operations
+ */
 @MgCheckSession
 public class MgSiteController extends MgAbstractController {
 

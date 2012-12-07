@@ -9,6 +9,9 @@ import java.util.Map;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * REST Controller for MapGuide viewer operations against the runtime map
+ */
 public class MgViewerController extends MgAbstractAuthenticatedController {
     public static Result getDynamicMapOverlayImage(String sessionId, String mapName) {
         try {

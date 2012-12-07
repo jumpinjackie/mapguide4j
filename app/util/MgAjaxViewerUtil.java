@@ -16,6 +16,9 @@ import org.w3c.dom.*;
 
 //port of common.jsp with servlet-isms removed and/or replaced
 
+/**
+ * Utility functions for the AJAX viewer
+ */
 public class MgAjaxViewerUtil {
 
     public static InputStream LoadViewerIconResourceStream(String name) {

@@ -7,6 +7,9 @@ import play.mvc.*;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * Abstract REST controller for MapGuide Resource Service operations
+ */
 public abstract class MgResourceServiceController extends MgAbstractAuthenticatedController {
     protected static Result getResourceContent(String resId, String format) throws MgException {
         String fmt = format.toLowerCase();

@@ -15,6 +15,12 @@ import java.text.*;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * A controller providing the existing functionality supported/required by the MapGuide AJAX viewer
+ *
+ * This is a straight transplant of all relevant .jsp code from the original AJAX viewer
+ * with all servlet-isms removed and/or replaced.
+ */
 public abstract class MgAjaxViewerController extends MgAbstractController {
 
     private static String getViewerRoot() {

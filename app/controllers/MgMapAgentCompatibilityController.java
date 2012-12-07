@@ -12,6 +12,11 @@ import java.util.List;
 
 import org.osgeo.mapguide.*;
 
+/**
+ * A controller that provides a compatibility interface to the mapagent. This controller leverages the same MgHttpRequest/MgHttpResponse
+ * backend used by the native ISAPI/Apache/CGI mapagent, thus providing the same set of functionality without us needing to re-create every
+ * mapagent operation using the MapGuide APIs
+ */
 public abstract class MgMapAgentCompatibilityController extends MgAbstractController {
 
     public static Result processGetRequest() {

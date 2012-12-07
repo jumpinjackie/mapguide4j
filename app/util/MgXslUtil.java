@@ -28,6 +28,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.stream.StreamResult;
 
+/**
+ * Utility class to transform XML content via XSL
+ */
 public class MgXslUtil
 {
     public static String TransformByteReader(MgByteReader byteReader, String xslStylesheet, Map<String, String> xslParameters) throws MgException {

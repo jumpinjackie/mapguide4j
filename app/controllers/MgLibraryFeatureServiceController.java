@@ -9,6 +9,9 @@ import java.lang.String;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * REST controller for MapGuide Feature Service operations on site repository resources
+ */
 public class MgLibraryFeatureServiceController extends MgFeatureServiceController {
 
     public static Result getFeatureProviders(String format) {

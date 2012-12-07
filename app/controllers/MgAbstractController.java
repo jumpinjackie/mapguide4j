@@ -22,6 +22,9 @@ import org.osgeo.mapguide.*;
 import org.w3c.dom.*;
 import org.w3c.dom.ls.*;
 
+/**
+ * Base class of all controllers
+ */
 public abstract class MgAbstractController extends Controller {
 
     protected static Result javaException(Throwable e) {
