@@ -2,6 +2,7 @@ package controllers;
 
 import util.*;
 
+import java.io.*;
 import play.*;
 import play.mvc.*;
 
@@ -68,6 +69,92 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
         TryFillMgCredentials(param);
         return executeRequestInternal(request);
+    }
+
+    protected static Result setResourceContent(String resId, File content) throws MgException {
+        String uri = "";
+        MgHttpRequest request = new MgHttpRequest(uri);
+        MgHttpRequestParam param = request.GetRequestParam();
+
+        param.AddParameter("OPERATION", "SETRESOURCE");
+        param.AddParameter("VERSION", "1.0.0");
+        param.AddParameter("RESOURCEID", resId);
+
+        if (content != null) {
+            param.AddParameter("CONTENT", content.getAbsolutePath());
+            param.SetParameterType("CONTENT", "tempfile");
+        }
+
+        TryFillMgCredentials(param);
+        //Don't use executeRequestInternal() as the result is not REST-ful. We want 201 (created) instead of
+        //200 (OK)
+        MgHttpResponse response = request.Execute();
+        MgHttpResult result = response.GetResult();
+        if (result.GetStatusCode() == 200) {
+            //TODO: If we want to be RESTfully pedantic we'd check the existence of this resource
+            //first before executing and return a different status code
+            return created(resId);
+        } else {
+            return mgHttpError(result);
+        }
+    }
+
+    protected static Result setResourceHeader(String resId, File content) throws MgException {
+        String uri = "";
+        MgHttpRequest request = new MgHttpRequest(uri);
+        MgHttpRequestParam param = request.GetRequestParam();
+
+        param.AddParameter("OPERATION", "SETRESOURCE");
+        param.AddParameter("VERSION", "1.0.0");
+        param.AddParameter("RESOURCEID", resId);
+
+        if (content != null) {
+            param.AddParameter("HEADER", content.getAbsolutePath());
+            param.SetParameterType("HEADER", "tempfile");
+        }
+
+        TryFillMgCredentials(param);
+        //Don't use executeRequestInternal() as the result is not REST-ful. We want 201 (created) instead of
+        //200 (OK)
+        MgHttpResponse response = request.Execute();
+        MgHttpResult result = response.GetResult();
+        if (result.GetStatusCode() == 200) {
+            //TODO: If we want to be RESTfully pedantic we'd check the existence of this resource
+            //first before executing and return a different status code
+            return created(resId);
+        } else {
+            return mgHttpError(result);
+        }
+    }
+
+    protected static Result setResourceData(String resId, String dataName, String dataType, File content) throws MgException {
+        String uri = "";
+        MgHttpRequest request = new MgHttpRequest(uri);
+        MgHttpRequestParam param = request.GetRequestParam();
+
+        param.AddParameter("OPERATION", "SETRESOURCEDATA");
+        param.AddParameter("VERSION", "1.0.0");
+        param.AddParameter("RESOURCEID", resId);
+        param.AddParameter("DATANAME", dataName);
+        param.AddParameter("DATATYPE", dataType);
+
+        if (content != null) {
+            param.AddParameter("DATA", content.getAbsolutePath());
+            param.SetParameterType("DATA", "tempfile");
+        }
+
+        TryFillMgCredentials(param);
+        //Don't use executeRequestInternal() as the result is not REST-ful. We want 201 (created) instead of
+        //200 (OK)
+        MgHttpResponse response = request.Execute();
+        MgHttpResult result = response.GetResult();
+        if (result.GetStatusCode() == 200) {
+            //TODO: If we want to be RESTfully pedantic we'd check the existence of this resource
+            //first before executing and return a different status code
+            return created(resId);
+        } else {
+            return mgHttpError(result);
+        }
     }
 
     protected static Result enumerateResourceData(String resId, String format) throws MgException {

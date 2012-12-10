@@ -137,6 +137,21 @@ public abstract class MgAbstractController extends Controller {
         }
     }
 
+    protected static boolean isResourceDocument(String resId) {
+        return resId.endsWith(MgResourceType.FeatureSource) ||
+               resId.endsWith(MgResourceType.LayerDefinition) ||
+               resId.endsWith(MgResourceType.MapDefinition) ||
+               resId.endsWith(MgResourceType.WebLayout) ||
+               resId.endsWith(MgResourceType.ApplicationDefinition) ||
+               resId.endsWith(MgResourceType.SymbolDefinition) ||
+               resId.endsWith(MgResourceType.SymbolLibrary) ||
+               resId.endsWith(MgResourceType.PrintLayout) ||
+               resId.endsWith(MgResourceType.LoadProcedure) ||
+               resId.endsWith(MgResourceType.DrawingSource) ||
+               resId.endsWith(MgResourceType.Map) ||
+               resId.endsWith(MgResourceType.Selection);
+    }
+
     protected static boolean isValidResourceType(String resType) {
         return resType == MgResourceType.Folder ||
                resType == MgResourceType.FeatureSource ||
@@ -443,6 +458,33 @@ public abstract class MgAbstractController extends Controller {
         return retVal;
     }
 
+    protected static Result mgHttpError(MgHttpResult result) throws MgException {
+        String statusMessage = result.GetHttpStatusMessage();
+        if (statusMessage.equals("MgAuthenticationFailedException") || statusMessage.equals("MgUnauthorizedAccessException"))
+        {
+            //HACK: We don't want to trip the qunit test runner with interactive dialogs
+            String fromTestHarness = request().getHeader("x-mapguide4j-test-harness");
+            if (fromTestHarness == null || !fromTestHarness.toUpperCase().equals("TRUE"))
+                response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
+
+            return unauthorized("You must enter a valid login ID and password to access this site");
+        }
+        else
+        {
+            String errHtml = String.format("\r\n" +
+                "<html>\n<head>\n" +
+                "<title>%s</title>\n" +
+                "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n" +
+                "</head>\n" +
+                "<body>\n<h2>%s</h2>\n%s\n</body>\n</html>\n",
+                statusMessage,
+                result.GetErrorMessage(),
+                result.GetDetailedErrorMessage());
+            response().setContentType("text/html");
+            return internalServerError(errHtml);
+        }
+    }
+
     protected static Result executeRequestInternal(MgHttpRequest request) throws MgException {
         MgHttpRequestParam param = request.GetRequestParam();
         MgHttpResponse response = request.Execute();
@@ -486,30 +528,7 @@ public abstract class MgAbstractController extends Controller {
                 return ok();
             }
         } else {
-            String statusMessage = result.GetHttpStatusMessage();
-            if (statusMessage.equals("MgAuthenticationFailedException") || statusMessage.equals("MgUnauthorizedAccessException"))
-            {
-                //HACK: We don't want to trip the qunit test runner with interactive dialogs
-                String fromTestHarness = request().getHeader("x-mapguide4j-test-harness");
-                if (fromTestHarness == null || !fromTestHarness.toUpperCase().equals("TRUE"))
-                    response().setHeader(MgCheckSessionAction.WWW_AUTHENTICATE, MgCheckSessionAction.REALM);
-
-                return unauthorized("You must enter a valid login ID and password to access this site");
-            }
-            else
-            {
-                String errHtml = String.format("\r\n" +
-                    "<html>\n<head>\n" +
-                    "<title>%s</title>\n" +
-                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n" +
-                    "</head>\n" +
-                    "<body>\n<h2>%s</h2>\n%s\n</body>\n</html>\n",
-                    statusMessage,
-                    result.GetErrorMessage(),
-                    result.GetDetailedErrorMessage());
-                response().setContentType("text/html");
-                return internalServerError(errHtml);
-            }
+            return mgHttpError(result);
         }
     }
 }

@@ -2,6 +2,7 @@ package controllers;
 
 import util.*;
 
+import java.io.*;
 import java.lang.Integer;
 import java.lang.NumberFormatException;
 import java.lang.String;
@@ -55,7 +56,6 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
             if (strDepth.equals(""))
                 strDepth = "-1";
             param.AddParameter("DEPTH", strDepth);
-
             param.AddParameter("RESOURCEID", constructResourceIdString(MgRepositoryType.Library, resourcePath, true));
 
             TryFillMgCredentials(param);
@@ -68,15 +68,61 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
     }
 
     public static Result setResourceContent(String resourcePath) {
-        return TODO;
+        try {
+            String resId = constructResourceIdString(MgRepositoryType.Library, resourcePath, false);
+            //HACK: We'll need to revise the routing here in the future, as we are *obviously* assuming that user
+            //will never have or create a folder resource id with a leaf folder name of the form <name>.<resource type>.
+            //For now we consider this a corner case that we hope will never happen. Such folders will be interpreted as documents
+            if (!isResourceDocument(resId)) {
+                resId += "/";
+                //We're emulating the same behavior as the mapagent. That is, folder creation is just a SETRESOURCE
+                //call on the folder resource id without any content or header
+                return MgResourceServiceController.setResourceContent(resId, null);
+            } else {
+                File file = request().body().asRaw().asFile();
+                return MgResourceServiceController.setResourceContent(resId, file);
+            }
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
+        }
     }
 
     public static Result setResourceHeader(String resourcePath) {
-        return TODO;
+        try {
+            String resId = constructResourceIdString(MgRepositoryType.Library, resourcePath, false);
+            //HACK: We'll need to revise the routing here in the future, as we are *obviously* assuming that user
+            //will never have or create a folder resource id with a leaf folder name of the form <name>.<resource type>.
+            //For now we consider this a corner case that we hope will never happen. Such folders will be interpreted as documents
+            if (!isResourceDocument(resId)) {
+                resId += "/";
+            }
+            File file = request().body().asRaw().asFile();
+            return MgResourceServiceController.setResourceHeader(resId, file);
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
+        }
     }
 
     public static Result setResourceData(String resourcePath, String dataName) {
-        return TODO;
+        try {
+            String resId = constructResourceIdString(MgRepositoryType.Library, resourcePath, false);
+            //HACK: We'll need to revise the routing here in the future, as we are *obviously* assuming that user
+            //will never have or create a folder resource id with a leaf folder name of the form <name>.<resource type>.
+            //For now we consider this a corner case that we hope will never happen. Such folders will be interpreted as documents
+            if (!isResourceDocument(resId)) {
+                resId += "/";
+            }
+            File file = request().body().asRaw().asFile();
+            return MgResourceServiceController.setResourceData(resId, dataName, "File", file);
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
+        }
     }
 
     public static Result getResourceContent(String resourcePath, String format) {
