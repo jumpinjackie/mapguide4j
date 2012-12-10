@@ -7,6 +7,7 @@ import play.mvc.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.ArrayList;
 
 import org.osgeo.mapguide.*;
 
@@ -195,6 +196,85 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
         } catch (Exception ex) {
             return javaException(ex);
         }
+    }
+
+    protected static Result deleteClasses(String repoType, String resourcePath, String schemaName, String classNames) {
+        /*
+        try {
+            String[] classes = classNames.split(",");
+            MgStringCollection deletedClasses = new MgStringCollection();
+            MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
+            MgSiteConnection siteConn = createMapGuideConnection();
+            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
+
+            MgFeatureSchemaCollection schemas = featSvc.DescribeSchema(fsId, schemaName);
+            int schemaCount = schemas.GetCount();
+            for (int i = 0; i < schemaCount; i++) {
+                MgFeatureSchema theSchema = schemas.GetItem(i);
+                if (theSchema.GetName().equals(schemaName)) {
+                    MgFeatureSchema applyMe = new MgFeatureSchema(theSchema.GetName(), theSchema.GetDescription());
+                    MgClassDefinitionCollection deleteMe = applyMe.GetClasses();
+
+                    //Find matching classes and mark them for deletion
+                    MgClassDefinitionCollection classDefs = theSchema.GetClasses();
+                    int clsCount = classDefs.GetCount();
+                    for (int j = 0; j < clsCount; j++) {
+                        MgClassDefinition clsDef = classDefs.GetItem(j);
+                        String clsName = clsDef.GetName();
+                        for (String name : classes) {
+                            if (name.equals(clsName)) {
+                                deleteMe.Add(clsDef);
+                                Logger.debug("Class marked for deletion: " + clsName);
+                                clsDef.Delete(); //Mark for deletion
+                                deletedClasses.Add(name);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (deletedClasses.GetCount() > 0) {
+                        Logger.debug("Apply Schema");
+                        featSvc.ApplySchema(fsId, applyMe);
+                    }
+                    return mgStringCollectionXml(deletedClasses);
+                }
+            }
+            return internalServerError("Schema not found: " + schemaName);
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
+        }*/
+        return TODO;
+    }
+
+    protected static Result deleteSchema(String repoType, String resourcePath, String schemaName) {
+        /*
+        try {
+            MgStringCollection deletedClasses = new MgStringCollection();
+            MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
+            MgSiteConnection siteConn = createMapGuideConnection();
+            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
+
+            MgFeatureSchemaCollection schemas = featSvc.DescribeSchema(fsId, schemaName);
+            int schemaCount = schemas.GetCount();
+            for (int i = 0; i < schemaCount; i++) {
+                MgFeatureSchema theSchema = schemas.GetItem(i);
+                if (theSchema.GetName().equals(schemaName)) {
+                    Logger.debug("Schema marked for deletion: " + schemaName);
+                    theSchema.Delete(); //Mark as deleted
+                    Logger.debug("Apply Schema");
+                    featSvc.ApplySchema(fsId, theSchema);
+                    return ok(schemaName);
+                }
+            }
+            return internalServerError("Schema not found: " + schemaName);
+        } catch (MgException ex) {
+            return mgServerError(ex);
+        } catch (Exception ex) {
+            return javaException(ex);
+        }*/
+        return TODO;
     }
 
     protected static Result selectFeatures(String repoType, String resourcePath, String schemaName, String className, String format) {

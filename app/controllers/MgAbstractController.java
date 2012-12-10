@@ -307,7 +307,8 @@ public abstract class MgAbstractController extends Controller {
     }
 
     protected static MgResourceIdentifier constructResourceId(String repoType, String resourcePath, boolean appendSlashIfNeeded) throws MgException {
-        return new MgResourceIdentifier(constructResourceIdString(repoType, resourcePath, appendSlashIfNeeded));
+        String resIdStr = constructResourceIdString(repoType, resourcePath, appendSlashIfNeeded);
+        return new MgResourceIdentifier(resIdStr);
     }
 
     protected static MgResourceIdentifier constructResourceId(String repoType, String resourcePath) throws MgException {
@@ -528,6 +529,7 @@ public abstract class MgAbstractController extends Controller {
                 return ok();
             }
         } else {
+            Logger.debug("Error executing op: " + param.GetParameterValue("OPERATION"));
             return mgHttpError(result);
         }
     }

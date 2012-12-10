@@ -49,6 +49,13 @@ GET /mapguide/rest/library/*resourcePath/schema/:schemaName/class.:format/:class
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName/class/:className    controllers.MgLibraryFeatureServiceController.getClassDefinition(resourcePath, schemaName: String, className: String, format = "xml")
 GET /mapguide/rest/library/*resourcePath/schema.:format/:schemaName             controllers.MgLibraryFeatureServiceController.getFeatureSchema(resourcePath, schemaName: String, format: String)
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName                     controllers.MgLibraryFeatureServiceController.getFeatureSchema(resourcePath, schemaName: String, format = "xml")
+
+# Schema alteration - Placed here to take higher precedence than delete resource routes below
+DELETE /mapguide/rest/library/*resourcePath/schema/:schemaName                  controllers.MgLibraryFeatureServiceController.deleteSchema(resourcePath, schemaName: String)
+DELETE /mapguide/rest/library/*resourcePath/schema/:schemaName/class/:className controllers.MgLibraryFeatureServiceController.deleteClasses(resourcePath, schemaName: String, className: String)
+DELETE /mapguide/rest/library/*resourcePath/schema/:schemaName/classes/:classNames controllers.MgLibraryFeatureServiceController.deleteClasses(resourcePath, schemaName: String, classNames: String)
+
+# Library (continued ...)
 GET /mapguide/rest/library/*resourcePath/data/:dataName                         controllers.MgLibraryResourceServiceController.getResourceData(resourcePath, dataName: String)
 DELETE /mapguide/rest/library/*resourcePath/data/:dataName                      controllers.MgLibraryResourceServiceController.deleteResourceData(resourcePath, dataName: String)
 GET /mapguide/rest/library/*resourcePath/data.:format                           controllers.MgLibraryResourceServiceController.enumerateResourceData(resourcePath, format: String)

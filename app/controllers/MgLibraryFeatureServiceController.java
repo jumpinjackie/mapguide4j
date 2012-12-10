@@ -245,4 +245,12 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
     public static Result getFeatureSchema(String resourcePath, String schemaName, String format) {
         return MgFeatureServiceController.getFeatureSchema(MgRepositoryType.Library, resourcePath, schemaName, format);
     }
+
+    public static Result deleteClasses(String resourcePath, String schemaName, String classNames) {
+        return MgFeatureServiceController.deleteClasses(MgRepositoryType.Library, resourcePath, schemaName, classNames);
+    }
+
+    public static Result deleteSchema(String resourcePath, String schemaName) {
+        return MgFeatureServiceController.deleteSchema(MgRepositoryType.Library, resourcePath, schemaName);
+    }
 }
