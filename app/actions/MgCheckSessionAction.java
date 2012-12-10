@@ -35,11 +35,15 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
             Map<String, String[]> params = ctx.request().queryString();
             if (params.get("SESSION") != null)
                 sessionId = params.get("SESSION")[0];
+            else if (params.get("session") != null)
+                sessionId = params.get("session")[0];
         }
         else if (ctx.request().method().equals("POST")) {
             Map<String, String[]> params = ctx.request().body().asFormUrlEncoded();
             if (params != null && params.get("SESSION") != null)
                 sessionId = params.get("SESSION")[0];
+            else if (params != null && params.get("session") != null)
+                sessionId = params.get("session")[0];
         }
 
         if (sessionId == null)

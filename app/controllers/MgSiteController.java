@@ -16,7 +16,7 @@ public class MgSiteController extends MgAbstractController {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
             MgSite site = siteConn.GetSite();
-            return ok(site.CreateSession());
+            return created(site.CreateSession());
         } catch (MgException ex) {
             return mgServerError(ex);
         } catch (Exception ex) {

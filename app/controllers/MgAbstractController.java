@@ -233,7 +233,7 @@ public abstract class MgAbstractController extends Controller {
     protected static void TryFillMgCredentials(MgHttpRequestParam param) throws MgException {
         try {
             String authHeader = request().getHeader(MgCheckSessionAction.AUTHORIZATION);
-            if (authHeader != null) {
+            if (authHeader != null && authHeader.length() > 6) {
                 String auth = authHeader.substring(6);
                 byte[] decodedAuth = javax.xml.bind.DatatypeConverter.parseBase64Binary(auth);
                 String decodedStr = new String(decodedAuth, "UTF-8");
