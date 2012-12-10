@@ -139,7 +139,6 @@ test("/session", function() {
 module("Resource Service - Library", {
     setup: function() {
         var self = this;
-        console.log("Resource Service - Library: Setup");
         api_test_with_credentials(rest_root_url + "/session", "POST", {}, "Anonymous", "", function(status, result) {
             ok(status != 401, "(" + status+ ") - Request should've been authenticated");
             self.anonymousSessionId = result;
@@ -150,9 +149,15 @@ module("Resource Service - Library", {
         });
     },
     teardown: function() {
-        console.log("Resource Service - Library: Teardown");
-        delete this.anonymousSessionId;
-        delete this.adminSessionId;
+        api_test(rest_root_url + "/session/" + this.anonymousSessionId, "DELETE", null, function(status, result) {
+            ok(status == 200, "(" + status + ") - Expected anonymous session to be destroyed");
+            delete this.anonymousSessionId;
+        });
+
+        api_test(rest_root_url + "/session/" + this.adminSessionId, "DELETE", null, function(status, result) {
+            ok(status == 200, "(" + status + ") - Expected admin session to be destroyed");
+            delete this.adminSessionId;
+        });
     }
 });
 test("Enumerate Resources", function() {
@@ -821,10 +826,26 @@ test("Bad Routes", function() {
 
 module("Feature Service - Library", {
     setup: function() {
-
+        var self = this;
+        api_test_with_credentials(rest_root_url + "/session", "POST", {}, "Anonymous", "", function(status, result) {
+            ok(status != 401, "(" + status+ ") - Request should've been authenticated");
+            self.anonymousSessionId = result;
+        });
+        api_test_with_credentials(rest_root_url + "/session", "POST", {}, "Administrator", "admin", function(status, result) {
+            ok(status != 401, "(" + status+ ") - Request should've been authenticated");
+            self.adminSessionId = result;
+        });
     },
     teardown: function() {
+        api_test(rest_root_url + "/session/" + this.anonymousSessionId, "DELETE", null, function(status, result) {
+            ok(status == 200, "(" + status + ") - Expected anonymous session to be destroyed");
+            delete this.anonymousSessionId;
+        });
 
+        api_test(rest_root_url + "/session/" + this.adminSessionId, "DELETE", null, function(status, result) {
+            ok(status == 200, "(" + status + ") - Expected admin session to be destroyed");
+            delete this.adminSessionId;
+        });
     }
 });
 test("Get Spatial Contexts", function() {
@@ -847,6 +868,14 @@ test("Get Spatial Contexts", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.xml", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
@@ -855,11 +884,27 @@ test("Get Spatial Contexts", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.xml", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.xml", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.json", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.json", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/spatialcontexts.json", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -883,11 +928,27 @@ test("Get Schemas", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.xml", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.xml", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.xml", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
@@ -899,11 +960,27 @@ test("Get Schemas", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.json", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.json", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.html", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schemas.html", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -927,11 +1004,27 @@ test("Get Classes - SHP_Schema", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.xml", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.xml", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.xml", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
@@ -943,11 +1036,27 @@ test("Get Classes - SHP_Schema", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.json", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.json", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.html", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/classes.html", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -971,11 +1080,27 @@ test("Get Class Definition - SHP_Schema:Parcels", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class/Parcels", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
@@ -987,6 +1112,14 @@ test("Get Class Definition - SHP_Schema:Parcels", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.xml/Parcels", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.xml/Parcels", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.json/Parcels", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
@@ -995,11 +1128,27 @@ test("Get Class Definition - SHP_Schema:Parcels", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.json/Parcels", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.json/Parcels", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.html/Parcels", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.html/Parcels", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.html/Parcels", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/schema/SHP_Schema/class.html/Parcels", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -1023,11 +1172,27 @@ test("Get FDO Providers", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/providers", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/providers.xml", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/providers.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/providers.xml", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers.xml", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
@@ -1039,11 +1204,27 @@ test("Get FDO Providers", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/providers.json", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers.json", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/providers.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/providers.html", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/providers.html", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers.html", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -1067,6 +1248,14 @@ test("SDF Provider Capabilities", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/providers/OSGeo.SDF/capabilities", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers/OSGeo.SDF/capabilities", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/providers/OSGeo.SDF/capabilities.xml", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
@@ -1075,11 +1264,27 @@ test("SDF Provider Capabilities", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/providers/OSGeo.SDF/capabilities.xml", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers/OSGeo.SDF/capabilities.xml", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/providers/OSGeo.SDF/capabilities.json", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/providers/OSGeo.SDF/capabilities.json", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/providers/OSGeo.SDF/capabilities.json", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers/OSGeo.SDF/capabilities.json", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     /*
@@ -1112,6 +1317,14 @@ test("SDF Provider - Connection Property Values for ReadOnly", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/providers/OSGeo.SDF/connectvalues/ReadOnly", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers/OSGeo.SDF/connectvalues/ReadOnly", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/providers/OSGeo.SDF/connectvalues.xml/ReadOnly", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
@@ -1120,11 +1333,27 @@ test("SDF Provider - Connection Property Values for ReadOnly", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/providers/OSGeo.SDF/connectvalues.xml/ReadOnly", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers/OSGeo.SDF/connectvalues.xml/ReadOnly", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/providers/OSGeo.SDF/connectvalues.json/ReadOnly", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/providers/OSGeo.SDF/connectvalues.json/ReadOnly", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/providers/OSGeo.SDF/connectvalues.json/ReadOnly", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/providers/OSGeo.SDF/connectvalues.json/ReadOnly", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     /*
@@ -1137,54 +1366,86 @@ test("SDF Provider - Connection Property Values for ReadOnly", function() {
     */
 });
 test("Select 100 Parcels", function() {
-    api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "maxfeatures=100", "Foo", "Bar", function(status, result) {
+    api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { maxfeatures: 100 }, "Foo", "Bar", function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
 
     //With raw credentials
-    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "maxfeatures=100", function(status, result) {
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { maxfeatures: 100 }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
-    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "maxfeatures=100", function(status, result) {
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { maxfeatures: 100 }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { session: this.anonymousSessionId, maxfeatures: 100 }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { session: this.adminSessionId, maxfeatures: 100 }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
 test("Parcels owned by SCHMITT", function() {
-    api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "filter=RNAME LIKE 'SCHMITT%25'", "Foo", "Bar", function(status, result) {
+    api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { filter: encodeURIComponent("RNAME LIKE 'SCHMITT%'") }, "Foo", "Bar", function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
 
     //With raw credentials
-    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "filter=RNAME LIKE 'SCHMITT%25'", function(status, result) {
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { filter: encodeURIComponent("RNAME LIKE 'SCHMITT%'") }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
-    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "filter=RNAME LIKE 'SCHMITT%25'", function(status, result) {
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { filter: encodeURIComponent("RNAME LIKE 'SCHMITT%'") }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { session: this.anonymousSessionId, filter: encodeURIComponent("RNAME LIKE 'SCHMITT%'") }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { session: this.adminSessionId, filter: encodeURIComponent("RNAME LIKE 'SCHMITT%'") }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
 test("Select 100 Parcels with projected property list", function() {
-    api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "properties=Autogenerated_SDF_ID,RNAME,SHPGEOM&maxfeatures=100", "Foo", "Bar", function(status, result) {
+    api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { properties: "Autogenerated_SDF_ID,RNAME,SHPGEOM", maxfeatures: 100 }, "Foo", "Bar", function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
 
     //With raw credentials
-    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "properties=Autogenerated_SDF_ID,RNAME,SHPGEOM&maxfeatures=100", function(status, result) {
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { properties: "Autogenerated_SDF_ID,RNAME,SHPGEOM", maxfeatures: 100 }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
-    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "properties=Autogenerated_SDF_ID,RNAME,SHPGEOM&maxfeatures=100", function(status, result) {
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { properties: "Autogenerated_SDF_ID,RNAME,SHPGEOM", maxfeatures: 100 }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { session: this.anonymousSessionId, properties: "Autogenerated_SDF_ID,RNAME,SHPGEOM", maxfeatures: 100 }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { session: this.adminSessionId, properties: "Autogenerated_SDF_ID,RNAME,SHPGEOM", maxfeatures: 100 }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
 test("Select 100 Parcels (xformed to WGS84.PseudoMercator)", function() {
-    api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "maxfeatures=1000&transformto=WGS84.PseudoMercator", "Foo", "Bar", function(status, result) {
+    api_test_with_credentials(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { maxfeatures: 100, transformto: "WGS84.PseudoMercator" }, "Foo", "Bar", function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
 
     //With raw credentials
-    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "maxfeatures=100&transformto=WGS84.PseudoMercator", function(status, result) {
+    api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { maxfeatures: 100, transformto: "WGS84.PseudoMercator" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
-    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", "maxfeatures=100&transformto=WGS84.PseudoMercator", function(status, result) {
+    api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { maxfeatures: 100, transformto: "WGS84.PseudoMercator" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { session: this.anonymousSessionId, maxfeatures: 100, transformto: "WGS84.PseudoMercator" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/features/SHP_Schema/Parcels", "GET", { session: this.adminSessionId, maxfeatures: 100, transformto: "WGS84.PseudoMercator" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });

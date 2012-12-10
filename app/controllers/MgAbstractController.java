@@ -192,7 +192,7 @@ public abstract class MgAbstractController extends Controller {
 
     protected static boolean isAnonymous() throws UnsupportedEncodingException {
         String authHeader = request().getHeader(MgCheckSessionAction.AUTHORIZATION);
-        if (authHeader != null) {
+        if (authHeader != null && authHeader.length() > 6) {
             String auth = authHeader.substring(6);
             byte[] decodedAuth = javax.xml.bind.DatatypeConverter.parseBase64Binary(auth);
             String decodedStr = new String(decodedAuth, "UTF-8");
@@ -211,7 +211,7 @@ public abstract class MgAbstractController extends Controller {
 
     protected static boolean TrySetMgCredentials(MgUserInformation cred) throws MgException, UnsupportedEncodingException {
         String authHeader = request().getHeader(MgCheckSessionAction.AUTHORIZATION);
-        if (authHeader != null) {
+        if (authHeader != null && authHeader.length() > 6) {
             String auth = authHeader.substring(6);
             byte[] decodedAuth = javax.xml.bind.DatatypeConverter.parseBase64Binary(auth);
             String decodedStr = new String(decodedAuth, "UTF-8");

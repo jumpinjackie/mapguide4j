@@ -12,18 +12,6 @@ import org.osgeo.mapguide.*;
 @MgCheckSession
 public class MgSiteController extends MgAbstractController {
 
-    public static Result createSession() {
-        try {
-            MgSiteConnection siteConn = createMapGuideConnection();
-            MgSite site = siteConn.GetSite();
-            return created(site.CreateSession());
-        } catch (MgException ex) {
-            return mgServerError(ex);
-        } catch (Exception ex) {
-            return javaException(ex);
-        }
-    }
-
     public static Result getGroups() {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();

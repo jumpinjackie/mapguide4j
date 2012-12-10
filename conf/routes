@@ -96,7 +96,8 @@ GET /mapguide/rest/site/groups/:groupName/users                                 
 GET /mapguide/rest/library/*resourcePath/basetileimage/:baseLayerGroupName/:scaleIndex/:tileCol,:tileRow    controllers.MgLibraryTileServiceController.getTile(resourcePath, baseLayerGroupName: String, scaleIndex: Long, tileCol: Long, tileRow: Long)
 
 # Session
-POST /mapguide/rest/session                                                     controllers.MgSiteController.createSession()
+POST /mapguide/rest/session                                                     controllers.MgSessionController.createSession()
+DELETE /mapguide/rest/session/:sessionId                                        controllers.MgSessionController.destroySession(sessionId: String)
 GET /mapguide/rest/session/:sessionId/*resourcePath/header.:format              controllers.MgSessionResourceServiceController.getResourceHeader(sessionId: String, resourcePath, format: String)
 GET /mapguide/rest/session/:sessionId/*resourcePath/header                      controllers.MgSessionResourceServiceController.getResourceHeader(sessionId: String, resourcePath, format = "xml")
 GET /mapguide/rest/session/:sessionId/*resourcePath/data/:dataName              controllers.MgSessionResourceServiceController.getResourceData(sessionId: String, resourcePath, dataName: String)

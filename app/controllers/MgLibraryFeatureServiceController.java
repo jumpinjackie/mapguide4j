@@ -66,6 +66,10 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
             Map<String, String[]> queryParams = request().queryString();
             Set<String> queryPropNames = queryParams.keySet();
             for (String name : queryPropNames) {
+                //HACK: In the very infinitsimally small case that there is an FDO connection property named "session", this will obviously break down
+                if (name.toLowerCase().equals("session"))
+                    continue;
+
                 String value = queryParams.get(name)[0];
                 if (partialConnString.length() == 0) {
                     partialConnString = name + "=" + value;
@@ -118,6 +122,10 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
             Map<String, String[]> queryParams = request().queryString();
             Set<String> queryPropNames = queryParams.keySet();
             for (String name : queryPropNames) {
+                //HACK: In the very infinitsimally small case that there is an FDO connection property named "session", this will obviously break down
+                if (name.toLowerCase().equals("session"))
+                    continue;
+
                 String value = queryParams.get(name)[0];
                 if (partialConnString.length() == 0) {
                     partialConnString = name + "=" + value;
@@ -171,6 +179,10 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
             Map<String, String[]> queryParams = request().queryString();
             Set<String> queryPropNames = queryParams.keySet();
             for (String name : queryPropNames) {
+                //HACK: In the very infinitsimally small case that there is an FDO connection property named "session", this will obviously break down
+                if (name.toLowerCase().equals("session"))
+                    continue;
+
                 String value = queryParams.get(name)[0];
                 if (partialConnString.length() == 0) {
                     partialConnString = name + "=" + value;
