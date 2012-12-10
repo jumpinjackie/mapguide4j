@@ -1294,14 +1294,6 @@ test("SDF Provider Capabilities", function() {
     api_test(rest_root_url + "/providers/OSGeo.SDF/capabilities.json", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
-    /*
-    api_test_anon(rest_root_url + "/providers/OSGeo.SDF/capabilities.html", "GET", null, function(status, result) {
-        ok(status == 200, "(" + status + ") - Response should've been ok");
-    });
-    api_test_admin(rest_root_url + "/providers/OSGeo.SDF/capabilities.html", "GET", null, function(status, result) {
-        ok(status == 200, "(" + status + ") - Response should've been ok");
-    });
-    */
 });
 //List Data Stores test case excluded as that requires a SQL Server feature source set up. Can always manually verify
 test("SDF Provider - Connection Property Values for ReadOnly", function() {
@@ -1468,10 +1460,26 @@ module("Feature Service - Session", {
 
 module("Site Service", {
     setup: function() {
-
+        var self = this;
+        api_test_with_credentials(rest_root_url + "/session", "POST", {}, "Anonymous", "", function(status, result) {
+            ok(status != 401, "(" + status+ ") - Request should've been authenticated");
+            self.anonymousSessionId = result;
+        });
+        api_test_with_credentials(rest_root_url + "/session", "POST", {}, "Administrator", "admin", function(status, result) {
+            ok(status != 401, "(" + status+ ") - Request should've been authenticated");
+            self.adminSessionId = result;
+        });
     },
     teardown: function() {
+        api_test(rest_root_url + "/session/" + this.anonymousSessionId, "DELETE", null, function(status, result) {
+            ok(status == 200, "(" + status + ") - Expected anonymous session to be destroyed");
+            delete this.anonymousSessionId;
+        });
 
+        api_test(rest_root_url + "/session/" + this.adminSessionId, "DELETE", null, function(status, result) {
+            ok(status == 200, "(" + status + ") - Expected admin session to be destroyed");
+            delete this.adminSessionId;
+        });
     }
 });
 test("Get Status", function() {
@@ -1484,6 +1492,14 @@ test("Get Status", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/site/status", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/site/status", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/site/status", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -1499,6 +1515,14 @@ test("Get Version", function() {
     api_test_admin(rest_root_url + "/site/version", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
+
+    //With session id
+    api_test(rest_root_url + "/site/version", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/site/version", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
 });
 test("List Groups", function() {
     api_test(rest_root_url + "/site/groups", "GET", null, function(status, result) {
@@ -1512,6 +1536,15 @@ test("List Groups", function() {
     api_test_admin(rest_root_url + "/site/groups", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
+
+    //With session id
+    api_test(rest_root_url + "/site/groups", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    api_test(rest_root_url + "/site/groups", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 401, "(" + status + ") - Anonymous session id should've been denied");
+    });
 });
 test("List Roles - Anonymous", function() {
     api_test(rest_root_url + "/site/user/Anonymous/roles", "GET", null, function(status, result) {
@@ -1523,6 +1556,15 @@ test("List Roles - Anonymous", function() {
 
     //With raw credentials
     api_test_admin(rest_root_url + "/site/user/Anonymous/roles", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/site/user/Anonymous/roles", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    //TODO: Review. Should anonymous be allowed to snoop its own groups and roles?
+    api_test(rest_root_url + "/site/user/Anonymous/roles", "GET", { session: this.anonymousSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -1538,6 +1580,14 @@ test("List Roles - Administrator", function() {
     api_test_admin(rest_root_url + "/site/user/Administrator/roles", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
+
+    //With session id
+    api_test(rest_root_url + "/site/user/Administrator/roles", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/site/user/Administrator/roles", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 401, "(" + status + ") - Anonymous session id should've been denied");
+    });
 });
 test("List Groups - Anonymous", function() {
     api_test(rest_root_url + "/site/user/Anonymous/groups", "GET", null, function(status, result) {
@@ -1549,6 +1599,15 @@ test("List Groups - Anonymous", function() {
 
     //With raw credentials
     api_test_admin(rest_root_url + "/site/user/Anonymous/groups", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/site/user/Anonymous/groups", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    //TODO: Review. Should anonymous be allowed to snoop its own groups and roles?
+    api_test(rest_root_url + "/site/user/Anonymous/groups", "GET", { session: this.anonymousSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -1564,6 +1623,14 @@ test("List Groups - Administrator", function() {
     api_test_admin(rest_root_url + "/site/user/Administrator/groups", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
+
+    //With session id
+    api_test(rest_root_url + "/site/user/Administrator/groups", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/site/user/Administrator/groups", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 401, "(" + status + ") - Anonymous session id should've been denied");
+    });
 });
 test("List users under everyone", function() {
     api_test(rest_root_url + "/site/groups/Everyone/users", "GET", null, function(status, result) {
@@ -1576,6 +1643,14 @@ test("List users under everyone", function() {
     //With raw credentials
     api_test_admin(rest_root_url + "/site/groups/Everyone/users", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/site/groups/Everyone/users", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/site/groups/Everyone/users", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 401, "(" + status + ") - Anonymous session id should've been denied");
     });
 });
 
@@ -1602,17 +1677,33 @@ test("GetTile", function() {
 
 module("Coordinate System", {
     setup: function() {
-
+        var self = this;
+        api_test_with_credentials(rest_root_url + "/session", "POST", {}, "Anonymous", "", function(status, result) {
+            ok(status != 401, "(" + status+ ") - Request should've been authenticated");
+            self.anonymousSessionId = result;
+        });
+        api_test_with_credentials(rest_root_url + "/session", "POST", {}, "Administrator", "admin", function(status, result) {
+            ok(status != 401, "(" + status+ ") - Request should've been authenticated");
+            self.adminSessionId = result;
+        });
     },
     teardown: function() {
+        api_test(rest_root_url + "/session/" + this.anonymousSessionId, "DELETE", null, function(status, result) {
+            ok(status == 200, "(" + status + ") - Expected anonymous session to be destroyed");
+            delete this.anonymousSessionId;
+        });
 
+        api_test(rest_root_url + "/session/" + this.adminSessionId, "DELETE", null, function(status, result) {
+            ok(status == 200, "(" + status + ") - Expected admin session to be destroyed");
+            delete this.adminSessionId;
+        });
     }
 });
 test("Enum categories", function() {
     api_test(rest_root_url + "/coordsys/categories", "GET", null, function(status, result) {
         ok(status == 401, "(" + status + ") - Request should've required authentication");
     });
-/*
+
     api_test_anon(rest_root_url + "/coordsys/categories.sadgdsfd", "GET", null, function(status, result) {
         ok(status == 400, "(" + status + ") - Expected bad representation response");
     });
@@ -1628,11 +1719,27 @@ test("Enum categories", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/coordsys/categories", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/coordsys/categories", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/coordsys/categories.xml", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/coordsys/categories.xml", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/categories.xml", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/coordsys/categories.xml", "GET", { session: this.anonymousSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
@@ -1644,6 +1751,14 @@ test("Enum categories", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/coordsys/categories.json", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/coordsys/categories.json", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/coordsys/categories.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
@@ -1651,7 +1766,14 @@ test("Enum categories", function() {
     api_test_admin(rest_root_url + "/coordsys/categories.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
-*/
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/categories.html", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/coordsys/categories.html", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
 });
 test("Enum categories - Australia", function() {
     api_test(rest_root_url + "/coordsys/category/Australia", "GET", null, function(status, result) {
@@ -1673,11 +1795,27 @@ test("Enum categories - Australia", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/coordsys/category/Australia", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/coordsys/category/Australia", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/coordsys/category.xml/Australia", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/coordsys/category.xml/Australia", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/category.xml/Australia", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/coordsys/category.xml/Australia", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
@@ -1689,11 +1827,27 @@ test("Enum categories - Australia", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 
+    //With session id
+    api_test(rest_root_url + "/coordsys/category.json/Australia", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/coordsys/category.json/Australia", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/coordsys/category.html/Australia", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
     api_test_admin(rest_root_url + "/coordsys/category.html/Australia", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/category.html/Australia", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+    });
+    api_test(rest_root_url + "/coordsys/category.html/Australia", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
     });
 });
@@ -1708,6 +1862,16 @@ test("EPSG for LL84", function() {
         ok(result == "4326", "Expected EPSG of 4326. Got: " + result);
     });
     api_test_admin(rest_root_url + "/coordsys/mentor/LL84/epsg", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == "4326", "Expected EPSG of 4326. Got: " + result);
+    });
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/mentor/LL84/epsg", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == "4326", "Expected EPSG of 4326. Got: " + result);
+    });
+    api_test(rest_root_url + "/coordsys/mentor/LL84/epsg", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
         ok(result == "4326", "Expected EPSG of 4326. Got: " + result);
     });
@@ -1727,6 +1891,16 @@ test("WKT for LL84", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
         ok(result == expect, "Expected WKT of " + expect + ". Got: " + result);
     });
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/mentor/LL84/wkt", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected WKT of " + expect + ". Got: " + result);
+    });
+    api_test(rest_root_url + "/coordsys/mentor/LL84/wkt", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected WKT of " + expect + ". Got: " + result);
+    });
 });
 test("Mentor code for EPSG:4326", function() {
     var expect = "LL84";
@@ -1743,6 +1917,16 @@ test("Mentor code for EPSG:4326", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
         ok(result == expect, "Expected code of " + expect + ". Got: " + result);
     });
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/epsg/4326/mentor", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected code of " + expect + ". Got: " + result);
+    });
+    api_test(rest_root_url + "/coordsys/epsg/4326/mentor", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected code of " + expect + ". Got: " + result);
+    });
 });
 test("WKT for EPSG:4326", function() {
     var expect = "GEOGCS[\"LL84\",DATUM[\"WGS84\",SPHEROID[\"WGS84\",6378137.000,298.25722293]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.01745329251994]]";
@@ -1756,6 +1940,16 @@ test("WKT for EPSG:4326", function() {
         ok(result == expect, "Expected WKT of " + expect + ". Got: " + result);
     });
     api_test_admin(rest_root_url + "/coordsys/epsg/4326/wkt", "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected WKT of " + expect + ". Got: " + result);
+    });
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/epsg/4326/wkt", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected WKT of " + expect + ". Got: " + result);
+    });
+    api_test(rest_root_url + "/coordsys/epsg/4326/wkt", "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
         ok(result == expect, "Expected WKT of " + expect + ". Got: " + result);
     });
@@ -1776,6 +1970,16 @@ test("WKT to mentor", function() {
         ok(status == 200, "(" + status + ") - Response should've been ok");
         ok(result == expect, "Expected code of " + expect + ". Got: " + result);
     });
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/tomentor/" + wkt, "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected code of " + expect + ". Got: " + result);
+    });
+    api_test(rest_root_url + "/coordsys/tomentor/" + wkt, "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected code of " + expect + ". Got: " + result);
+    });
 });
 test("WKT to epsg", function() {
     var wkt = "GEOGCS[\"LL84\",DATUM[\"WGS84\",SPHEROID[\"WGS84\",6378137.000,298.25722293]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.01745329251994]]";
@@ -1790,6 +1994,16 @@ test("WKT to epsg", function() {
         ok(result == expect, "Expected EPSG of " + expect + ". Got: " + result);
     });
     api_test_admin(rest_root_url + "/coordsys/toepsg/" + wkt, "GET", null, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected EPSG of " + expect + ". Got: " + result);
+    });
+
+    //With session id
+    api_test(rest_root_url + "/coordsys/toepsg/" + wkt, "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Response should've been ok");
+        ok(result == expect, "Expected EPSG of " + expect + ". Got: " + result);
+    });
+    api_test(rest_root_url + "/coordsys/toepsg/" + wkt, "GET", { session: this.adminSessionId }, function(status, result) {
         ok(status == 200, "(" + status + ") - Response should've been ok");
         ok(result == expect, "Expected EPSG of " + expect + ". Got: " + result);
     });

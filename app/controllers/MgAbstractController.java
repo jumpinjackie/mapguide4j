@@ -202,11 +202,11 @@ public abstract class MgAbstractController extends Controller {
                 String password = "";
                 if (credString.length == 2)
                     password = credString[1];
-                Logger.debug("Username: " + username);
+                //Logger.debug("Username: " + username);
                 return username.equals("Anonymous");
             }
         }
-        return false;
+        return getRequestParameter("USERNAME", "").equals("Anonymous");
     }
 
     protected static boolean TrySetMgCredentials(MgUserInformation cred) throws MgException, UnsupportedEncodingException {
@@ -223,7 +223,7 @@ public abstract class MgAbstractController extends Controller {
                     password = credString[1];
 
                 cred.SetMgUsernamePassword(username, password);
-                Logger.debug("MG Credentials set from auth header");
+                //Logger.debug("MG Credentials set from auth header");
                 return true;
             }
         }
@@ -308,7 +308,7 @@ public abstract class MgAbstractController extends Controller {
 
     protected static Result mgServerError(MgException mex) {
         try {
-            java.lang.Thread.currentThread().dumpStack();
+            //java.lang.Thread.currentThread().dumpStack();
             String data = String.format("%s%n%s", mex.GetExceptionMessage(), mex.GetStackTrace());
             //TODO: There are possibly more MapGuide Exceptions that can map cleanly to HTTP status codes
             if (mex instanceof MgResourceNotFoundException || mex instanceof MgResourceDataNotFoundException) { //404
