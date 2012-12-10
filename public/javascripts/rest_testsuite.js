@@ -128,11 +128,18 @@ test("/session", function() {
         ok(status != 401, "(" + status+ ") - Request should've been authenticated");
         ok(status == 201, "(" + status+ ") - Expected created response");
         ok(result.match(/^[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}_[A-Za-z]{2}_\w+[A-Fa-f0-9]{12}$/g) != null, "Expected session id pattern");
+
+        api_test(rest_root_url + "/session/" + result, "DELETE", null, function(status, result) {
+            ok(status == 200, "Expected OK on session destruction");
+        });
     });
     api_test_with_credentials(rest_root_url + "/session", "POST", {}, "Administrator", "admin", function(status, result) {
         ok(status != 401, "(" + status+ ") - Request should've been authenticated");
         ok(status == 201, "(" + status+ ") - Expected created response");
         ok(result.match(/^[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}_[A-Za-z]{2}_\w+[A-Fa-f0-9]{12}$/g) != null, "Expected session id pattern");
+        api_test(rest_root_url + "/session/" + result, "DELETE", null, function(status, result) {
+            ok(status == 200, "Expected OK on session destruction");
+        });
     });
 });
 

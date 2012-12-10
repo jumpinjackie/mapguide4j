@@ -28,7 +28,7 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
         //matching exceptions are caught during processing
 
         Logger.debug(ctx.request().method() + ": " + ctx.request().uri());
-        Logger.debug("Checking MapGuide Session");
+        //Logger.debug("Checking MapGuide Session");
 
         String sessionId = null;
         if (ctx.request().method().equals("GET")) {
@@ -48,11 +48,11 @@ public class MgCheckSessionAction extends Action<MgCheckSessionAction> {
 
         if (sessionId == null)
         {
-            Logger.debug("No MapGuide Session ID found. Checking username/password");
+            //Logger.debug("No MapGuide Session ID found. Checking username/password");
 
             String authHeader = ctx.request().getHeader(AUTHORIZATION);
             if (authHeader == null) {
-                Logger.debug("No HTTP authentication header found");
+                //Logger.debug("No HTTP authentication header found");
                 //HACK: We don't want to trip the qunit test runner with interactive dialogs
                 String fromTestHarness = ctx.request().getHeader("x-mapguide4j-test-harness");
                 if (fromTestHarness == null || !fromTestHarness.toUpperCase().equals("TRUE"))
