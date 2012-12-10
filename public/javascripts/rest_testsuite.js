@@ -436,6 +436,20 @@ test("Get Resource Header", function() {
         ok(status == 200, "(" + status + ") - Should've got resource header back");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.xml", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
@@ -450,6 +464,20 @@ test("Get Resource Header", function() {
         ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.xml", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.xml", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.xml", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.xml", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as xml");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource header back as json");
@@ -461,6 +489,20 @@ test("Get Resource Header", function() {
         ok(status == 200, "(" + status + ") - Should've got resource header back as json");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as json");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as json");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as json");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource header back as json");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/header.json", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource header back as json");
     });
 });
@@ -505,6 +547,20 @@ test("Enumerate Resource Data", function() {
         ok(status == 200, "(" + status + ") - Should've got resource data list back");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
@@ -516,6 +572,20 @@ test("Enumerate Resource Data", function() {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.xml", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
     });
 
@@ -533,6 +603,20 @@ test("Enumerate Resource Data", function() {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.json", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.json", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.json", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.json", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
@@ -544,6 +628,20 @@ test("Enumerate Resource Data", function() {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/data.html", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
     });
 });
@@ -582,6 +680,20 @@ test("Enumerate Resource References", function() {
         ok(status == 200, "(" + status + ") - Should've got resource data list back");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
@@ -593,6 +705,20 @@ test("Enumerate Resource References", function() {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.xml", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as xml");
     });
 
@@ -610,6 +736,20 @@ test("Enumerate Resource References", function() {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
     });
 
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.json", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.json", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.json", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.json", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as json");
+    });
+
     //With raw credentials
     api_test_anon(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", null, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
@@ -621,6 +761,20 @@ test("Enumerate Resource References", function() {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
     });
     api_test_admin(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", { depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+
+    //With session id
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", { session: this.anonymousSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", { session: this.anonymousSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", { session: this.adminSessionId }, function(status, result) {
+        ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
+    });
+    api_test(rest_root_url + "/library/Samples/Sheboygan/Data/Parcels.FeatureSource/references.html", "GET", { session: this.adminSessionId, depth: -1, type: "LayerDefinition" }, function(status, result) {
         ok(status == 200, "(" + status + ") - Should've got resource data list back as html");
     });
 });
