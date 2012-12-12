@@ -42,7 +42,7 @@ GET /mapguide/stdicons/*file                                        controllers.
 
 #GET /mapguide/mapviewerjava/                                        controllers.MgAjaxViewerController.index()
 
-# Library
+# REST - Library Repository
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName/classes.:format     controllers.MgLibraryFeatureServiceController.getClassNames(resourcePath, schemaName: String, format: String)
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName/classes             controllers.MgLibraryFeatureServiceController.getClassNames(resourcePath, schemaName: String, format = "xml")
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName/class.:format/:className    controllers.MgLibraryFeatureServiceController.getClassDefinition(resourcePath, schemaName: String, className: String, format: String)
@@ -50,12 +50,12 @@ GET /mapguide/rest/library/*resourcePath/schema/:schemaName/class/:className    
 GET /mapguide/rest/library/*resourcePath/schema.:format/:schemaName             controllers.MgLibraryFeatureServiceController.getFeatureSchema(resourcePath, schemaName: String, format: String)
 GET /mapguide/rest/library/*resourcePath/schema/:schemaName                     controllers.MgLibraryFeatureServiceController.getFeatureSchema(resourcePath, schemaName: String, format = "xml")
 
-# Schema alteration - Placed here to take higher precedence than delete resource routes below
+# REST - Schema alteration - Placed here to take higher precedence than delete resource routes below
 DELETE /mapguide/rest/library/*resourcePath/schema/:schemaName                  controllers.MgLibraryFeatureServiceController.deleteSchema(resourcePath, schemaName: String)
 DELETE /mapguide/rest/library/*resourcePath/schema/:schemaName/class/:className controllers.MgLibraryFeatureServiceController.deleteClasses(resourcePath, schemaName: String, className: String)
 DELETE /mapguide/rest/library/*resourcePath/schema/:schemaName/classes/:classNames controllers.MgLibraryFeatureServiceController.deleteClasses(resourcePath, schemaName: String, classNames: String)
 
-# Library (continued ...)
+# REST - Library Repository (continued ...)
 GET /mapguide/rest/library/*resourcePath/data/:dataName                         controllers.MgLibraryResourceServiceController.getResourceData(resourcePath, dataName: String)
 DELETE /mapguide/rest/library/*resourcePath/data/:dataName                      controllers.MgLibraryResourceServiceController.deleteResourceData(resourcePath, dataName: String)
 GET /mapguide/rest/library/*resourcePath/data.:format                           controllers.MgLibraryResourceServiceController.enumerateResourceData(resourcePath, format: String)
@@ -87,11 +87,11 @@ GET /mapguide/rest/providers/:fdoProviderName/datastores                        
 GET /mapguide/rest/providers/:fdoProviderName/connectvalues.:format/:propName           controllers.MgLibraryFeatureServiceController.getConnectPropertyValues(fdoProviderName: String, propName: String, format: String)
 GET /mapguide/rest/providers/:fdoProviderName/connectvalues/:propName           controllers.MgLibraryFeatureServiceController.getConnectPropertyValues(fdoProviderName: String, propName: String, format = "xml")
 
-# CRUD
+# REST - CRUD
 GET /mapguide/rest/library/*resourcePath/features.:format/:schemaName/:className controllers.MgLibraryFeatureServiceController.selectFeatures(resourcePath, schemaName: String, className: String, format: String)
 GET /mapguide/rest/library/*resourcePath/features/:schemaName/:className        controllers.MgLibraryFeatureServiceController.selectFeatures(resourcePath, schemaName: String, className: String, format = "xml")
 
-# Site
+# REST - Site
 GET /mapguide/rest/site/status                                                  controllers.MgSiteAdminController.getSiteStatus()
 GET /mapguide/rest/site/version                                                 controllers.MgSiteAdminController.getSiteVersion()
 GET /mapguide/rest/site/groups                                                  controllers.MgSiteController.getGroups()
@@ -99,10 +99,11 @@ GET /mapguide/rest/site/user/:userName/groups                                   
 GET /mapguide/rest/site/user/:userName/roles                                    controllers.MgSiteController.getRolesForUser(userName: String)
 GET /mapguide/rest/site/groups/:groupName/users                                 controllers.MgSiteController.getUsersForGroup(groupName: String)
 
+# REST - Tile service
 # FIXME: MgReadOnlyStream is not implemented correctly. We get an image back, but it's totally garbled
 GET /mapguide/rest/library/*resourcePath/basetileimage/:baseLayerGroupName/:scaleIndex/:tileCol,:tileRow    controllers.MgLibraryTileServiceController.getTile(resourcePath, baseLayerGroupName: String, scaleIndex: Long, tileCol: Long, tileRow: Long)
 
-# Session
+# REST - Session
 POST /mapguide/rest/session                                                     controllers.MgSessionController.createSession()
 DELETE /mapguide/rest/session/:sessionId                                        controllers.MgSessionController.destroySession(sessionId: String)
 GET /mapguide/rest/session/:sessionId/*resourcePath/header.:format              controllers.MgSessionResourceServiceController.getResourceHeader(sessionId: String, resourcePath, format: String)
@@ -121,7 +122,7 @@ GET /mapguide/rest/session/:sessionId/:mapName.Map/layers                       
 GET /mapguide/rest/session/:sessionId/:mapName.Map/groups                       controllers.MgViewerController.getMapLayerGroups(sessionId: String, mapName: String)
 GET /mapguide/rest/session/:sessionId/:mapName.Map/overlayimage                 controllers.MgViewerController.getDynamicMapOverlayImage(sessionId: String, mapName: String)
 
-# Coordinate System
+# REST - Coordinate System
 GET /mapguide/rest/coordsys/categories.:format                      controllers.MgCoordinateSystemController.enumerateCategories(format: String)
 GET /mapguide/rest/coordsys/categories                              controllers.MgCoordinateSystemController.enumerateCategories(format = "xml")
 GET /mapguide/rest/coordsys/category.:format/:category                      controllers.MgCoordinateSystemController.enumerateCoordinateSystemsByCategory(category: String, format: String)
@@ -136,6 +137,14 @@ GET /mapguide/rest/coordsys/epsg/:epsgCode/wkt                      controllers.
 #GET /mapguide/rest/coordsys/epsg/:epsgCode/metersPerUnit/:mpu       controllers.MgCoordinateSystemController.getMetersPerUnitForEpsg(epsgCode: Long, mpu: Float)
 GET /mapguide/rest/coordsys/tomentor/*wkt                           controllers.MgCoordinateSystemController.getCoordinateSystemCodeFromWkt(wkt)
 GET /mapguide/rest/coordsys/toepsg/*wkt                             controllers.MgCoordinateSystemController.getEpsgFromWkt(wkt)
+
+# TMS
+GET /mapguide/tms                                                   controllers.MgTmsController.index()
+GET /mapguide/tms/test                                              controllers.MgTmsController.testpage()
+GET /mapguide/tms/:version                                          controllers.MgTmsController.serviceDescription(version: String)
+GET /mapguide/tms/:version/:tileMap                                 controllers.MgTmsController.tileMap(version: String, tileMap: String)
+GET /mapguide/tms/:version/:tileMap/:tileSet/:row/:col.:format      controllers.MgTmsController.tile(version: String, tileMap: String, tileSet: Long, row: Long, col: Long, format: String)
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                               controllers.Assets.at(path="/public", file)

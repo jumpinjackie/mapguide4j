@@ -1,0 +1,4 @@
+@(serviceName: String, tmsVersion: String)<?xml version="1.0" encoding="UTF-8" ?>
+<Services>
+  <TileMapService title="@serviceName" version="@tmsVersion" href="@controllers.routes.MgTmsController.serviceDescription(tmsVersion).absoluteURL(request())" />
+</Services>

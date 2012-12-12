@@ -6,16 +6,16 @@ public class RuntimeMapInfo
 
     private String _mapDefinitionId;
 
-    private ZoomBox _extents;
+    private Bounds _extents;
 
     public RuntimeMapInfo(String mapDefinitionId, String mapName) {
         _mapDefinitionId = mapDefinitionId;
         _mapName = mapName;
     }
 
-    public ZoomBox getMapExtents() { return _extents; }
+    public Bounds getMapExtents() { return _extents; }
 
-    public void setMapExtents(ZoomBox extents) { _extents = extents; }
+    public void setMapExtents(Bounds extents) { _extents = extents; }
 
     public String getMapName() { return _mapName; }
 

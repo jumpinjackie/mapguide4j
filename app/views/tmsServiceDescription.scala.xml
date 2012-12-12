@@ -1,0 +1,13 @@
+@(serviceName: String, tmsVersion: String, serviceDescription: String, tiledMaps: List[model.TmsTiledMapInfo])<?xml version="1.0" encoding="UTF-8" ?>
+<TileMapService version="@tmsVersion" services="@controllers.routes.MgTmsController.index().absoluteURL(request())">
+    <Title>@serviceName</Title>
+    <Abstract>@serviceDescription</Abstract>
+    <TileMaps>
+    @for(tiledMap <- tiledMaps) {
+        <TileMap title="@tiledMap.getTitle()"
+                 srs="@tiledMap.getSrs()"
+                 profile="@tiledMap.getProfile()"
+                 href="@controllers.routes.MgTmsController.tileMap(tmsVersion, tiledMap.getMapId()).absoluteURL(request())" />
+    }
+    </TileMaps>
+</TileMapService>

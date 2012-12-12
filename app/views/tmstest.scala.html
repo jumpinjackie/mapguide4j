@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>mapguide4j TMS Test (Sheboygan)</title>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/OpenLayers.js")"></script>
+        <script type="text/javascript">
+            window.onload = function() {
+                var map = new OpenLayers.Map("map", { theme: null });
+                var layer = new OpenLayers.Layer.TMS("Sheboygan Test", "@controllers.routes.MgTmsController.index().absoluteURL(request())/", {
+                    layername: "sheboygan", type: "png"
+                });
+                map.addLayer(layer);
+                map.zoomToExtent(new OpenLayers.Bounds(-87.764986990962, 43.6913981287878, -87.6955215108997, 43.7975200004803));
+            };
+        </script>
+    </head>
+    <body>
+        <p>Testing the Sheboygan Tiled Map via mapguide4j's TMS layer</p>
+        <div id="map" style="border: 1px solid black; width: 500px; height: 350px">
+        </div>
+    </body>
+</html>

@@ -1,0 +1,14 @@
+@(tmsVersion: String, map: model.TmsTiledMapDefinition, tileWidth: Integer, tileHeight: Integer, tileFormat: String, tileMimeType: String)<?xml version="1.0" encoding="UTF-8" ?>
+<TileMap version="@tmsVersion" tilemapservice="@controllers.routes.MgTmsController.serviceDescription(tmsVersion).absoluteURL(request())">
+    <Title>@map.getInfo().getTitle()</Title>
+    <Abstract>@map.getInfo().getAbstract()</Abstract>
+    <SRS>@map.getInfo().getSrs()</SRS>
+    <BoundingBox minx="@map.getBounds().getMinX()" miny="@map.getBounds().getMinY()" maxx="@map.getBounds().getMaxX()" maxy="@map.getBounds().getMaxY()" />
+    <Origin x="@map.getBounds().getMinX()" y="@map.getBounds().getMinY()" />
+    <TileFormat width="@tileWidth" height="@tileHeight" mime-type="@tileMimeType" extension=".@tileFormat" />
+    <TileSets profile="@map.getInfo().getProfile()">
+    @for(ts <- map.getTileSets()) {
+        <TileSet href="@map.getUrl(ts, controllers.routes.MgTmsController.tileMap(tmsVersion, map.getInfo().getMapId()).absoluteURL(request()))" units-per-pixel="@ts.getUnitsPerPixelAsString()" order="@ts.getOrder()" />
+    }
+    </TileSets>
+</TileMap>
