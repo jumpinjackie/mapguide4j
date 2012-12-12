@@ -199,7 +199,8 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
     }
 
     protected static Result deleteClasses(String repoType, String resourcePath, String schemaName, String classNames) {
-        /*
+        //NOTE: This is currently fubar due to:
+        //http://trac.osgeo.org/mapguide/ticket/2198
         try {
             String[] classes = classNames.split(",");
             MgStringCollection deletedClasses = new MgStringCollection();
@@ -244,12 +245,12 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             return mgServerError(ex);
         } catch (Exception ex) {
             return javaException(ex);
-        }*/
-        return TODO;
+        }
     }
 
     protected static Result deleteSchema(String repoType, String resourcePath, String schemaName) {
-        /*
+        //NOTE: This is currently fubar due to:
+        //http://trac.osgeo.org/mapguide/ticket/2198
         try {
             MgStringCollection deletedClasses = new MgStringCollection();
             MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
@@ -273,8 +274,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             return mgServerError(ex);
         } catch (Exception ex) {
             return javaException(ex);
-        }*/
-        return TODO;
+        }
     }
 
     protected static Result selectFeatures(String repoType, String resourcePath, String schemaName, String className, String format) {
