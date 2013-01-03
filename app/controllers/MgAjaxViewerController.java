@@ -567,6 +567,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
     }
 
     public static Result viewerasset(String file) {
+        //TODO: 304 responses. This stuff rarely changes
         File f = Play.application().getFile("internal/viewerfiles/" + file);
         if (!f.exists())
             return notFound();
@@ -575,6 +576,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
     }
 
     public static Result localizedasset(String file) {
+        //TODO: 304 responses. This stuff rarely changes
         File f = Play.application().getFile("internal/localized/" + file);
         if (!f.exists())
             return notFound();
@@ -583,15 +585,10 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
     }
 
     public static Result viewericon(String file) {
+        //TODO: 304 responses. This stuff rarely changes
         File f = Play.application().getFile("internal/stdicons/" + file);
         if (!f.exists())
             return notFound();
-
-        // Get the last modification information.
-        //Long lastModified = f.lastModified();
-        //Date date = new Date(lastModified);
-        //response().setHeader(LAST_MODIFIED, date.toString());
-        //response().setHeader(CACHE_CONTROL, "max-age=7776000"); //90 days
         return ok(f);
     }
 
