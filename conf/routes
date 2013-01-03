@@ -84,7 +84,7 @@ GET /mapguide/rest/providers/:fdoProviderName/capabilities.:format              
 GET /mapguide/rest/providers/:fdoProviderName/capabilities                      controllers.MgLibraryFeatureServiceController.getProviderCapabilities(fdoProviderName: String, format = "xml")
 GET /mapguide/rest/providers/:fdoProviderName/datastores.:format                controllers.MgLibraryFeatureServiceController.enumerateDataStores(fdoProviderName: String, format: String)
 GET /mapguide/rest/providers/:fdoProviderName/datastores                        controllers.MgLibraryFeatureServiceController.enumerateDataStores(fdoProviderName: String, format = "xml")
-GET /mapguide/rest/providers/:fdoProviderName/connectvalues.:format/:propName           controllers.MgLibraryFeatureServiceController.getConnectPropertyValues(fdoProviderName: String, propName: String, format: String)
+GET /mapguide/rest/providers/:fdoProviderName/connectvalues.:format/:propName   controllers.MgLibraryFeatureServiceController.getConnectPropertyValues(fdoProviderName: String, propName: String, format: String)
 GET /mapguide/rest/providers/:fdoProviderName/connectvalues/:propName           controllers.MgLibraryFeatureServiceController.getConnectPropertyValues(fdoProviderName: String, propName: String, format = "xml")
 
 # REST - CRUD
