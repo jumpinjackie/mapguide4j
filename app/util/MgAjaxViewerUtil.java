@@ -153,7 +153,7 @@ public class MgAjaxViewerUtil {
         try
         {
             MgResourceIdentifier resId = new MgResourceIdentifier(proposedResourceId);
-            validResourceId = resId.ToString();
+            validResourceId = resId.toString();
         }
         catch(MgException e)
         {
@@ -258,10 +258,10 @@ public class MgAjaxViewerUtil {
 
         if(coll != null)
         {
-            for(int i = 0, j = 0; i < coll.GetCount(); i++)
+            for(int i = 0, j = 0; i < coll.getCount(); i++)
             {
-                MgWebWidget item = coll.GetWidget(i);
-                int it = item.GetType();
+                MgWebWidget item = coll.getWidget(i);
+                int it = item.getType();
                 if (it == MgWebWidgetType.Separator)
                 {
                     Object[] formatArgs = { varname, new Integer(j++) };
@@ -269,11 +269,11 @@ public class MgAjaxViewerUtil {
                 }
                 else if ( it == MgWebWidgetType.Command && item instanceof MgWebCommandWidget )
                 {
-                    MgWebCommand cmd = ((MgWebCommandWidget)item).GetCommand();
-                    Integer cmdIndex = (Integer)cmds.get(cmd.GetName());
+                    MgWebCommand cmd = ((MgWebCommandWidget)item).getCommand();
+                    Integer cmdIndex = (Integer)cmds.get(cmd.getName());
                     if(cmdIndex == null)
                         continue;
-                    Object[] formatArgs = { varname, new Integer(j++), StrEscape(cmd.GetLabel()), cmdIndex };
+                    Object[] formatArgs = { varname, new Integer(j++), StrEscape(cmd.getLabel()), cmdIndex };
                     def = def + MessageFormat.format("{0}[{1,number,integer}] = new CommandItem(\"{2}\", {3,number,integer});\n", formatArgs);
                 }
                 else
@@ -283,8 +283,8 @@ public class MgAjaxViewerUtil {
                     String htmlName = "FlyoutDiv" + curFlyout.value();
                     Object[] formatArgs1 = { subVarname };
                     def = def + MessageFormat.format("var {0} = new Array()\n", formatArgs1);
-                    def = def + DeclareUiItems(cmds, curFlyout, ((MgWebFlyoutWidget) item).GetSubItems(), subVarname);
-                    Object[] formatArgs2 = { varname, new Integer(j++), StrEscape( ((MgWebFlyoutWidget) item).GetLabel() ), subVarname, StrEscape( htmlName ), ((MgWebFlyoutWidget) item).GetIconUrl() };
+                    def = def + DeclareUiItems(cmds, curFlyout, ((MgWebFlyoutWidget) item).getSubItems(), subVarname);
+                    Object[] formatArgs2 = { varname, new Integer(j++), StrEscape( ((MgWebFlyoutWidget) item).getLabel() ), subVarname, StrEscape( htmlName ), ((MgWebFlyoutWidget) item).getIconUrl() };
                     def = def + MessageFormat.format("{0}[{1,number,integer}] = new FlyoutItem(\"{2}\", {3}, \"{4}\", \"{5}\");\n", formatArgs2);
                 }
             }
@@ -297,21 +297,21 @@ public class MgAjaxViewerUtil {
         ArrayList tree = new ArrayList();
         HashMap knownGroups = new HashMap();
         ArrayList unresolved = new ArrayList();
-        MgLayerGroupCollection groups = map.GetLayerGroups();
+        MgLayerGroupCollection groups = map.getLayerGroups();
 
-        for(int i = 0; i < groups.GetCount(); i++)
+        for(int i = 0; i < groups.getCount(); i++)
         {
-            MgLayerGroup rtGroup = (MgLayerGroup)groups.GetItem(i);
-            TreeItem node = new TreeItem(rtGroup.GetName(), true, rtGroup, "null");
+            MgLayerGroup rtGroup = (MgLayerGroup)groups.getItem(i);
+            TreeItem node = new TreeItem(rtGroup.getName(), true, rtGroup, "null");
             knownGroups.put(node.name, node);
-            MgLayerGroup parentGroup = rtGroup.GetGroup();
+            MgLayerGroup parentGroup = rtGroup.getGroup();
             if(parentGroup == null)
             {
                 tree.add(node);
             }
             else
             {
-                String parentName = parentGroup.GetName();
+                String parentName = parentGroup.getName();
                 TreeItem parentNode = (TreeItem)knownGroups.get(parentName);
                 if(parentNode != null)
                     parentNode.Attach(node);
@@ -335,28 +335,28 @@ public class MgAjaxViewerUtil {
             }
         }
         // Get the layers
-        MgLayerCollection layers = map.GetLayers();
+        MgLayerCollection layers = map.getLayers();
 
         // Get the resource Ids of the layers
         MgStringCollection resIds = new MgStringCollection();
-        for(int i = 0; i < layers.GetCount(); i++)
+        for(int i = 0; i < layers.getCount(); i++)
         {
-            MgLayer rtLayer = (MgLayer) layers.GetItem(i);
-            MgResourceIdentifier resId = rtLayer.GetLayerDefinition();
-            resIds.Add(resId.ToString());
+            MgLayer rtLayer = (MgLayer) layers.getItem(i);
+            MgResourceIdentifier resId = rtLayer.getLayerDefinition();
+            resIds.add(resId.toString());
         }
-        MgStringCollection layersData = resSrvc.GetResourceContents(resIds, null);
+        MgStringCollection layersData = resSrvc.getResourceContents(resIds, null);
 
-        for(int i = 0; i < layers.GetCount(); i++)
+        for(int i = 0; i < layers.getCount(); i++)
         {
-            MgLayer rtLayer = (MgLayer) layers.GetItem(i);
-            TreeItem node = new TreeItem(rtLayer.GetName(), false, rtLayer, (String)layersData.GetItem(i));
-            MgLayerGroup parentGroup = rtLayer.GetGroup();
+            MgLayer rtLayer = (MgLayer) layers.getItem(i);
+            TreeItem node = new TreeItem(rtLayer.getName(), false, rtLayer, (String)layersData.getItem(i));
+            MgLayerGroup parentGroup = rtLayer.getGroup();
             if(parentGroup == null)
                 tree.add(node);
             else
             {
-                TreeItem parentNode = (TreeItem)knownGroups.get(parentGroup.GetName());
+                TreeItem parentNode = (TreeItem)knownGroups.get(parentGroup.getName());
                 if(parentNode != null)
                     parentNode.Attach(node);
                 else
@@ -370,11 +370,11 @@ public class MgAjaxViewerUtil {
     public static HashMap BuildLayerMap(MgMap map) throws MgException
     {
         HashMap layerMap = new HashMap();
-        MgLayerCollection layers = map.GetLayers();
-        for(int i = 0; i < layers.GetCount(); i++)
+        MgLayerCollection layers = map.getLayers();
+        for(int i = 0; i < layers.getCount(); i++)
         {
-            MgLayer rtLayer = (MgLayer) layers.GetItem(i);
-            layerMap.put(rtLayer.GetObjectId(), rtLayer);
+            MgLayer rtLayer = (MgLayer) layers.getItem(i);
+            layerMap.put(rtLayer.getObjectId(), rtLayer);
         }
         return layerMap;
     }
@@ -408,21 +408,21 @@ public class MgAjaxViewerUtil {
                         {
                             output.append(String.format("var %s = new GroupItem(\"%s\", %s, %s, %s, %s, \"%s\", \"%s\", %s);\n",
                                                                new Object[] {groupName,
-                                                               StrEscape(rtLayerGroup.GetLegendLabel()),
-                                                               rtLayerGroup.GetExpandInLegend()? "true": "false",
+                                                               StrEscape(rtLayerGroup.getLegendLabel()),
+                                                               rtLayerGroup.getExpandInLegend()? "true": "false",
                                                                parentName,
-                                                               rtLayerGroup.GetVisible()? "true": "false",
-                                                               rtLayerGroup.GetDisplayInLegend()? "true": "false",
-                                                               rtLayerGroup.GetObjectId(),
-                                                               StrEscape(rtLayerGroup.GetName()),
-                                                               rtLayerGroup.GetLayerGroupType() == MgLayerGroupType.BaseMap? "true": "false"}));
+                                                               rtLayerGroup.getVisible()? "true": "false",
+                                                               rtLayerGroup.getDisplayInLegend()? "true": "false",
+                                                               rtLayerGroup.getObjectId(),
+                                                               StrEscape(rtLayerGroup.getName()),
+                                                               rtLayerGroup.getLayerGroupType() == MgLayerGroupType.BaseMap? "true": "false"}));
                         }
                         else
                         {
                             output.append(String.format("var %s = new GroupSummary(\"%s\", \"%s\", %s, %s);\n",
                                                                new Object[] {groupName,
-                                                               StrEscape(rtLayerGroup.GetName()),
-                                                               rtLayerGroup.GetObjectId(),
+                                                               StrEscape(rtLayerGroup.getName()),
+                                                               rtLayerGroup.getObjectId(),
                                                                arrChildName,
                                                                parentName}));
                         }
@@ -443,22 +443,22 @@ public class MgAjaxViewerUtil {
                         MgLayer rtLayer = (MgLayer)node.rtObject;
                         if(fulldata)
                         {
-                            MgResourceIdentifier resId = rtLayer.GetLayerDefinition();
+                            MgResourceIdentifier resId = rtLayer.getLayerDefinition();
                             String layerData = node.layerData;
                             String layerName = "lyr" + (intermediateVar.increment());
-                            String objectId = rtLayer.GetObjectId();
+                            String objectId = rtLayer.getObjectId();
                             output.append(String.format("var %s = new LayerItem(\"%s\", \"%s\", %s, %s, %s, %s, %s, \"%s\", \"%s\", %s);\n",
                                                                new Object[] {layerName,
-                                                               StrEscape(rtLayer.GetLegendLabel()),
-                                                               rtLayer.GetName(),
-                                                               rtLayer.GetExpandInLegend()? "true": "false",
+                                                               StrEscape(rtLayer.getLegendLabel()),
+                                                               rtLayer.getName(),
+                                                               rtLayer.getExpandInLegend()? "true": "false",
                                                                parentName,
-                                                               rtLayer.GetVisible()? "true": "false",
-                                                               rtLayer.GetDisplayInLegend()? "true": "false",
-                                                               rtLayer.GetSelectable()? "true": "false",
-                                                               resId.ToString(),
+                                                               rtLayer.getVisible()? "true": "false",
+                                                               rtLayer.getDisplayInLegend()? "true": "false",
+                                                               rtLayer.getSelectable()? "true": "false",
+                                                               resId.toString(),
                                                                objectId,
-                                                               rtLayer.GetLayerType() == MgLayerType.BaseMap? "true": "false"}));
+                                                               rtLayer.getLayerType() == MgLayerType.BaseMap? "true": "false"}));
 
                             output.append(String.format("%s[%d] = %s;\n",
                                                                new Object[] {container,
@@ -476,9 +476,9 @@ public class MgAjaxViewerUtil {
                             output.append(String.format("%s[%d] = new LayerSummary(\"%s\", \"%s\", \"%s\");\n",
                                                                 new Object[] {container,
                                                                 Integer.valueOf(i),
-                                                                StrEscape(rtLayer.GetName()),
-                                                                rtLayer.GetObjectId(),
-                                                                rtLayer.GetLayerDefinition().ToString()}));
+                                                                StrEscape(rtLayer.getName()),
+                                                                rtLayer.getObjectId(),
+                                                                rtLayer.getLayerDefinition().toString()}));
                         }
                     }
                 }
@@ -597,11 +597,11 @@ public class MgAjaxViewerUtil {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
             byte[] byteBuffer = new byte[1024];
-            int numBytes = byteReader.Read(byteBuffer, 1024);
+            int numBytes = byteReader.read(byteBuffer, 1024);
             while(numBytes > 0)
             {
                 bos.write(byteBuffer, 0, numBytes);
-                numBytes = byteReader.Read(byteBuffer, 1024);
+                numBytes = byteReader.read(byteBuffer, 1024);
             }
             stream = new ByteArrayInputStream(bos.toByteArray());
         }
@@ -624,8 +624,8 @@ public class MgAjaxViewerUtil {
     {
         HashMap<String, String> mappings = new HashMap<String, String>();
 
-        MgByteReader content = resSvc.GetResourceContent(layer.GetLayerDefinition());
-        ByteArrayInputStream contentReader = new ByteArrayInputStream(content.ToString().getBytes("UTF-8"));
+        MgByteReader content = resSvc.getResourceContent(layer.getLayerDefinition());
+        ByteArrayInputStream contentReader = new ByteArrayInputStream(content.toString().getBytes("UTF-8"));
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
@@ -653,31 +653,31 @@ public class MgAjaxViewerUtil {
         switch(propType)
         {
             case MgPropertyType.Boolean:
-                value = String.format(locale, "%s", reader.GetBoolean(propName));
+                value = String.format(locale, "%s", reader.getBoolean(propName));
                 break;
             case MgPropertyType.Byte:
-                value = String.format(locale, "%d", reader.GetByte(propName));
+                value = String.format(locale, "%d", reader.getByte(propName));
                 break;
             case MgPropertyType.DateTime:
-                value = GetDateTimeString(reader.GetDateTime(propName)); // yyyy-mm-dd is enforced regardless of locale
+                value = GetDateTimeString(reader.getDateTime(propName)); // yyyy-mm-dd is enforced regardless of locale
                 break;
             case MgPropertyType.Single:
-                value = String.format(locale, "%f", reader.GetSingle(propName));
+                value = String.format(locale, "%f", reader.getSingle(propName));
                 break;
             case MgPropertyType.Double:
-                value = String.format(locale, "%f", reader.GetDouble(propName));
+                value = String.format(locale, "%f", reader.getDouble(propName));
                 break;
             case MgPropertyType.Int16:
-                value = String.format(locale, "%d", reader.GetInt16(propName));
+                value = String.format(locale, "%d", reader.getInt16(propName));
                 break;
             case MgPropertyType.Int32:
-                value = String.format(locale, "%d", reader.GetInt32(propName));
+                value = String.format(locale, "%d", reader.getInt32(propName));
                 break;
             case MgPropertyType.Int64:
-                value = String.format(locale, "%d", reader.GetInt64(propName));
+                value = String.format(locale, "%d", reader.getInt64(propName));
                 break;
             case MgPropertyType.String:
-                value = JsonEscape(reader.GetString(propName)); // string content is arbitrary
+                value = JsonEscape(reader.getString(propName)); // string content is arbitrary
                 value = value.replaceAll("\\s+", " ").trim();
                 break;
             default: //NOT PRESENTABLE IN PROPERTY GRID
@@ -689,7 +689,7 @@ public class MgAjaxViewerUtil {
 
     public static String GetDateTimeString(MgDateTime value) throws MgException
     {
-        return value.GetYear() + "-" + value.GetMonth() + "-" + value.GetDay();
+        return value.getYear() + "-" + value.getMonth() + "-" + value.getDay();
     }
 
     public static String JsonEscape(String str)
@@ -863,7 +863,7 @@ public class MgAjaxViewerUtil {
 
     public static String GetMapSrs(MgMap map) throws MgException
     {
-        String srs = map.GetMapSRS();
+        String srs = map.getMapSRS();
         if(!srs.equals(""))
             return srs;
 
@@ -876,10 +876,10 @@ public class MgAjaxViewerUtil {
     {
         MgLayer layer = null;
         int i;
-        for(i = 0; i < layers.GetCount(); i++)
+        for(i = 0; i < layers.getCount(); i++)
         {
-            MgLayer layer1 = (MgLayer) layers.GetItem(i);
-            if(layer1.GetLayerDefinition().ToString().equals(layerDef))
+            MgLayer layer1 = (MgLayer) layers.getItem(i);
+            if(layer1.getLayerDefinition().toString().equals(layerDef))
             {
                 layer = layer1;
                 break;
@@ -890,7 +890,7 @@ public class MgAjaxViewerUtil {
 
     public static boolean DataSourceExists(MgResourceService resourceSrvc, MgResourceIdentifier resId) throws MgException
     {
-        return resourceSrvc.ResourceExists(resId);
+        return resourceSrvc.resourceExists(resId);
     }
 
     public static MgByteReader BuildLayerDefinitionContent(String layerTempl, String dataSource, String featureName, String tip) throws MgException, Exception
@@ -906,7 +906,7 @@ public class MgAjaxViewerUtil {
         byte[] bytes = layerTempl.getBytes("UTF-8");
 
         MgByteSource src = new MgByteSource(bytes, bytes.length);
-        return src.GetReader();
+        return src.getReader();
     }
 
     public static MgByteReader BuildAreaLayerDefinitionContent(
@@ -928,31 +928,32 @@ public class MgAjaxViewerUtil {
         byte[] bytes = layerTempl.getBytes("UTF-8");
 
         MgByteSource src = new MgByteSource(bytes, bytes.length);
-        return src.GetReader();
+        return src.getReader();
     }
 
     public static void ClearDataSource(MgFeatureService featureSrvc, MgResourceIdentifier dataSourceId, String featureName)  throws MgException
     {
         MgDeleteFeatures deleteCmd = new MgDeleteFeatures(featureName, "KEY >= 0");
         MgFeatureCommandCollection commands = new MgFeatureCommandCollection();
-        commands.Add(deleteCmd);
-        featureSrvc.UpdateFeatures(dataSourceId, commands, false);
+        commands.add(deleteCmd);
+        MgPropertyCollection result = featureSrvc.updateFeatures(dataSourceId, commands, false);
+        ReleaseReader(result);
     }
 
     public static void ReleaseReader(MgPropertyCollection res) throws MgException
     {
         if(res == null)
             return;
-        MgProperty prop = res.GetItem(0);
+        MgProperty prop = res.getItem(0);
         if(prop == null)
             return;
         if (prop instanceof MgStringProperty)
-            throw new RuntimeException(((MgStringProperty)prop).GetValue());
+            throw new RuntimeException(((MgStringProperty)prop).getValue());
         MgFeatureProperty resProp = (MgFeatureProperty)prop;
-        MgFeatureReader reader = (MgFeatureReader)resProp.GetValue();
+        MgFeatureReader reader = (MgFeatureReader)resProp.getValue();
         if(reader == null)
             return;
-        reader.Close();
+        reader.close();
     }
 
     public static void ReleaseReader(MgPropertyCollection res, MgFeatureCommandCollection commands) throws MgException
@@ -960,18 +961,18 @@ public class MgAjaxViewerUtil {
         if(res == null)
             return;
 
-        for(int i = 0; i < res.GetCount(); i++)
+        for(int i = 0; i < res.getCount(); i++)
         {
-            MgFeatureCommand cmd = commands.GetItem(i);
+            MgFeatureCommand cmd = commands.getItem(i);
             if(cmd instanceof MgInsertFeatures)
             {
-                MgFeatureProperty resProp = (MgFeatureProperty)res.GetItem(i);
+                MgFeatureProperty resProp = (MgFeatureProperty)res.getItem(i);
                 if(resProp != null)
                 {
-                    MgFeatureReader reader = (MgFeatureReader)resProp.GetValue();
+                    MgFeatureReader reader = (MgFeatureReader)resProp.getValue();
                     if(reader == null)
                         return;
-                    reader.Close();
+                    reader.close();
                 }
             }
         }
@@ -982,10 +983,10 @@ public class MgAjaxViewerUtil {
     {
         MgPropertyCollection bufferProps = new MgPropertyCollection();
         MgInt32Property idProp = new MgInt32Property("ID", featureId);
-        bufferProps.Add(idProp);
-        MgByteReader geomReader = agfRW.Write(featureGeom);
+        bufferProps.add(idProp);
+        MgByteReader geomReader = agfRW.write(featureGeom);
         MgGeometryProperty geomProp = new MgGeometryProperty("GEOM", geomReader);
-        bufferProps.Add(geomProp);
-        propCollection.Add(bufferProps);
+        bufferProps.add(geomProp);
+        propCollection.addItem(bufferProps);
     }
 }

@@ -22,18 +22,18 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "GETRESOURCECONTENT");
-        param.AddParameter("VERSION", "1.0.0");
+        param.addParameter("OPERATION", "GETRESOURCECONTENT");
+        param.addParameter("VERSION", "1.0.0");
         if (fmt.equals("xml")) {
-            param.AddParameter("FORMAT", MgMimeType.Xml);
+            param.addParameter("FORMAT", MgMimeType.Xml);
         }
         else if (fmt.equals("json")) {
-            param.AddParameter("FORMAT", MgMimeType.Json);
+            param.addParameter("FORMAT", MgMimeType.Json);
         }
 
-        param.AddParameter("RESOURCEID", resId);
+        param.addParameter("RESOURCEID", resId);
 
         TryFillMgCredentials(param);
         return executeRequestInternal(request);
@@ -50,22 +50,22 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "GETRESOURCEHEADER");
-        param.AddParameter("VERSION", "1.0.0");
+        param.addParameter("OPERATION", "GETRESOURCEHEADER");
+        param.addParameter("VERSION", "1.0.0");
         if (fmt.equals("xml")) {
-            param.AddParameter("FORMAT", MgMimeType.Xml);
+            param.addParameter("FORMAT", MgMimeType.Xml);
         }
         else if (fmt.equals("json")) {
-            param.AddParameter("FORMAT", MgMimeType.Json);
+            param.addParameter("FORMAT", MgMimeType.Json);
         }
         else if (fmt.equals("html")) {
-            param.AddParameter("FORMAT", MgMimeType.Xml);
-            param.AddParameter("XSLSTYLESHEET", "ResourceHeader.xsl");
+            param.addParameter("FORMAT", MgMimeType.Xml);
+            param.addParameter("XSLSTYLESHEET", "ResourceHeader.xsl");
         }
 
-        param.AddParameter("RESOURCEID", resId);
+        param.addParameter("RESOURCEID", resId);
 
         TryFillMgCredentials(param);
         return executeRequestInternal(request);
@@ -74,23 +74,23 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
     protected static Result setResourceContent(String resId, File content) throws MgException {
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "SETRESOURCE");
-        param.AddParameter("VERSION", "1.0.0");
-        param.AddParameter("RESOURCEID", resId);
+        param.addParameter("OPERATION", "SETRESOURCE");
+        param.addParameter("VERSION", "1.0.0");
+        param.addParameter("RESOURCEID", resId);
 
         if (content != null) {
-            param.AddParameter("CONTENT", content.getAbsolutePath());
-            param.SetParameterType("CONTENT", "tempfile");
+            param.addParameter("CONTENT", content.getAbsolutePath());
+            param.setParameterType("CONTENT", "tempfile");
         }
 
         TryFillMgCredentials(param);
         //Don't use executeRequestInternal() as the result is not REST-ful. We want 201 (created) instead of
         //200 (OK)
-        MgHttpResponse response = request.Execute();
-        MgHttpResult result = response.GetResult();
-        if (result.GetStatusCode() == 200) {
+        MgHttpResponse response = request.execute();
+        MgHttpResult result = response.getResult();
+        if (result.getStatusCode() == 200) {
             //TODO: If we want to be RESTfully pedantic we'd check the existence of this resource
             //first before executing and return a different status code
             return created(resId);
@@ -102,23 +102,23 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
     protected static Result setResourceHeader(String resId, File content) throws MgException {
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "SETRESOURCE");
-        param.AddParameter("VERSION", "1.0.0");
-        param.AddParameter("RESOURCEID", resId);
+        param.addParameter("OPERATION", "SETRESOURCE");
+        param.addParameter("VERSION", "1.0.0");
+        param.addParameter("RESOURCEID", resId);
 
         if (content != null) {
-            param.AddParameter("HEADER", content.getAbsolutePath());
-            param.SetParameterType("HEADER", "tempfile");
+            param.addParameter("HEADER", content.getAbsolutePath());
+            param.setParameterType("HEADER", "tempfile");
         }
 
         TryFillMgCredentials(param);
         //Don't use executeRequestInternal() as the result is not REST-ful. We want 201 (created) instead of
         //200 (OK)
-        MgHttpResponse response = request.Execute();
-        MgHttpResult result = response.GetResult();
-        if (result.GetStatusCode() == 200) {
+        MgHttpResponse response = request.execute();
+        MgHttpResult result = response.getResult();
+        if (result.getStatusCode() == 200) {
             //TODO: If we want to be RESTfully pedantic we'd check the existence of this resource
             //first before executing and return a different status code
             return created(resId);
@@ -130,25 +130,25 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
     protected static Result setResourceData(String resId, String dataName, String dataType, File content) throws MgException {
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "SETRESOURCEDATA");
-        param.AddParameter("VERSION", "1.0.0");
-        param.AddParameter("RESOURCEID", resId);
-        param.AddParameter("DATANAME", dataName);
-        param.AddParameter("DATATYPE", dataType);
+        param.addParameter("OPERATION", "SETRESOURCEDATA");
+        param.addParameter("VERSION", "1.0.0");
+        param.addParameter("RESOURCEID", resId);
+        param.addParameter("DATANAME", dataName);
+        param.addParameter("DATATYPE", dataType);
 
         if (content != null) {
-            param.AddParameter("DATA", content.getAbsolutePath());
-            param.SetParameterType("DATA", "tempfile");
+            param.addParameter("DATA", content.getAbsolutePath());
+            param.setParameterType("DATA", "tempfile");
         }
 
         TryFillMgCredentials(param);
         //Don't use executeRequestInternal() as the result is not REST-ful. We want 201 (created) instead of
         //200 (OK)
-        MgHttpResponse response = request.Execute();
-        MgHttpResult result = response.GetResult();
-        if (result.GetStatusCode() == 200) {
+        MgHttpResponse response = request.execute();
+        MgHttpResult result = response.getResult();
+        if (result.getStatusCode() == 200) {
             //TODO: If we want to be RESTfully pedantic we'd check the existence of this resource
             //first before executing and return a different status code
             return created(resId);
@@ -168,22 +168,22 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "ENUMERATERESOURCEDATA");
-        param.AddParameter("VERSION", "1.0.0");
+        param.addParameter("OPERATION", "ENUMERATERESOURCEDATA");
+        param.addParameter("VERSION", "1.0.0");
         if (fmt.equals("xml")) {
-            param.AddParameter("FORMAT", MgMimeType.Xml);
+            param.addParameter("FORMAT", MgMimeType.Xml);
         }
         else if (fmt.equals("json")) {
-            param.AddParameter("FORMAT", MgMimeType.Json);
+            param.addParameter("FORMAT", MgMimeType.Json);
         }
         else if (fmt.equals("html")) {
-            param.AddParameter("FORMAT", MgMimeType.Xml);
-            param.AddParameter("XSLSTYLESHEET", "ResourceDataList.xsl");
+            param.addParameter("FORMAT", MgMimeType.Xml);
+            param.addParameter("XSLSTYLESHEET", "ResourceDataList.xsl");
         }
 
-        param.AddParameter("RESOURCEID", resId);
+        param.addParameter("RESOURCEID", resId);
 
         TryFillMgCredentials(param);
         return executeRequestInternal(request);
@@ -192,12 +192,12 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
     protected static Result getResourceData(String resId, String dataName) throws MgException {
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "GETRESOURCEDATA");
-        param.AddParameter("VERSION", "1.0.0");
-        param.AddParameter("RESOURCEID", resId);
-        param.AddParameter("DATANAME", dataName);
+        param.addParameter("OPERATION", "GETRESOURCEDATA");
+        param.addParameter("VERSION", "1.0.0");
+        param.addParameter("RESOURCEID", resId);
+        param.addParameter("DATANAME", dataName);
 
         TryFillMgCredentials(param);
         return executeRequestInternal(request);
@@ -214,23 +214,23 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
 
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "ENUMERATERESOURCEREFERENCES");
-        param.AddParameter("VERSION", "1.0.0");
+        param.addParameter("OPERATION", "ENUMERATERESOURCEREFERENCES");
+        param.addParameter("VERSION", "1.0.0");
 
         if (fmt.equals("xml")) {
-            param.AddParameter("FORMAT", MgMimeType.Xml);
+            param.addParameter("FORMAT", MgMimeType.Xml);
         }
         else if (fmt.equals("json")) {
-            param.AddParameter("FORMAT", MgMimeType.Json);
+            param.addParameter("FORMAT", MgMimeType.Json);
         }
         else if (fmt.equals("html")) {
-            param.AddParameter("FORMAT", MgMimeType.Xml);
-            param.AddParameter("XSLSTYLESHEET", "ResourceReferenceList.xsl");
+            param.addParameter("FORMAT", MgMimeType.Xml);
+            param.addParameter("XSLSTYLESHEET", "ResourceReferenceList.xsl");
         }
 
-        param.AddParameter("RESOURCEID", resId);
+        param.addParameter("RESOURCEID", resId);
 
         TryFillMgCredentials(param);
         return executeRequestInternal(request);
@@ -239,12 +239,12 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
     protected static Result deleteResourceData(String resId, String dataName) throws MgException {
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "DELETERESOURCEDATA");
-        param.AddParameter("VERSION", "1.0.0");
-        param.AddParameter("RESOURCEID", resId);
-        param.AddParameter("DATANAME", dataName);
+        param.addParameter("OPERATION", "DELETERESOURCEDATA");
+        param.addParameter("VERSION", "1.0.0");
+        param.addParameter("RESOURCEID", resId);
+        param.addParameter("DATANAME", dataName);
 
         TryFillMgCredentials(param);
         return executeRequestInternal(request);
@@ -253,11 +253,11 @@ public abstract class MgResourceServiceController extends MgAbstractAuthenticate
     protected static Result deleteResource(String resId) throws MgException {
         String uri = "";
         MgHttpRequest request = new MgHttpRequest(uri);
-        MgHttpRequestParam param = request.GetRequestParam();
+        MgHttpRequestParam param = request.getRequestParam();
 
-        param.AddParameter("OPERATION", "DELETERESOURCE");
-        param.AddParameter("VERSION", "1.0.0");
-        param.AddParameter("RESOURCEID", resId);
+        param.addParameter("OPERATION", "DELETERESOURCE");
+        param.addParameter("VERSION", "1.0.0");
+        param.addParameter("RESOURCEID", resId);
 
         TryFillMgCredentials(param);
         return executeRequestInternal(request);

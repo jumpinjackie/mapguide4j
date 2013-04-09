@@ -19,37 +19,37 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
             //parameter dictionary for MgHttpRequest
             String uri =  controllers.routes.MgViewerController.getDynamicMapOverlayImage(sessionId, mapName).absoluteURL(request());
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "GETDYNAMICMAPOVERLAYIMAGE");
-            param.AddParameter("VERSION", "2.1.0");
-            param.AddParameter("SESSION", sessionId);
-            param.AddParameter("MAPNAME", mapName);
-            param.AddParameter("FORMAT", getRequestParameter("FORMAT", ""));
+            param.addParameter("OPERATION", "GETDYNAMICMAPOVERLAYIMAGE");
+            param.addParameter("VERSION", "2.1.0");
+            param.addParameter("SESSION", sessionId);
+            param.addParameter("MAPNAME", mapName);
+            param.addParameter("FORMAT", getRequestParameter("FORMAT", ""));
 
             if (hasRequestParameter("SELECTIONCOLOR")) {
-                param.AddParameter("SELECTIONCOLOR", getRequestParameter("SELECTIONCOLOR", ""));
+                param.addParameter("SELECTIONCOLOR", getRequestParameter("SELECTIONCOLOR", ""));
             }
             if (hasRequestParameter("BEHAVIOR")) {
-                param.AddParameter("BEHAVIOR", getRequestParameter("BEHAVIOR", "0"));
+                param.addParameter("BEHAVIOR", getRequestParameter("BEHAVIOR", "0"));
             }
             if (hasRequestParameter("SETDISPLAYDPI")) {
-                param.AddParameter("SETDISPLAYDPI", getRequestParameter("SETDISPLAYDPI", ""));
+                param.addParameter("SETDISPLAYDPI", getRequestParameter("SETDISPLAYDPI", ""));
             }
             if (hasRequestParameter("SETDISPLAYWIDTH")) {
-                param.AddParameter("SETDISPLAYWIDTH", getRequestParameter("SETDISPLAYWIDTH", ""));
+                param.addParameter("SETDISPLAYWIDTH", getRequestParameter("SETDISPLAYWIDTH", ""));
             }
             if (hasRequestParameter("SETDISPLAYHEIGHT")) {
-                param.AddParameter("SETDISPLAYHEIGHT", getRequestParameter("SETDISPLAYHEIGHT", ""));
+                param.addParameter("SETDISPLAYHEIGHT", getRequestParameter("SETDISPLAYHEIGHT", ""));
             }
             if (hasRequestParameter("SETVIEWSCALE")) {
-                param.AddParameter("SETVIEWSCALE", getRequestParameter("SETVIEWSCALE", ""));
+                param.addParameter("SETVIEWSCALE", getRequestParameter("SETVIEWSCALE", ""));
             }
             if (hasRequestParameter("SETVIEWCENTERX")) {
-                param.AddParameter("SETVIEWCENTERX", getRequestParameter("SETVIEWCENTERX", ""));
+                param.addParameter("SETVIEWCENTERX", getRequestParameter("SETVIEWCENTERX", ""));
             }
             if (hasRequestParameter("SETVIEWCENTERY")) {
-                param.AddParameter("SETVIEWCENTERY", getRequestParameter("SETVIEWCENTERY", ""));
+                param.addParameter("SETVIEWCENTERY", getRequestParameter("SETVIEWCENTERY", ""));
             }
             return executeRequestInternal(request);
         } catch (MgException ex) { //TODO: Rasterize the error message as the standard response won't be visible most of the time
@@ -61,7 +61,7 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
         try {
             MgSiteConnection siteConn = new MgSiteConnection();
             MgUserInformation userInfo = new MgUserInformation(sessionId);
-            siteConn.Open(userInfo);
+            siteConn.open(userInfo);
 
             return TODO;
         } catch (MgException ex) {
@@ -77,29 +77,29 @@ public class MgViewerController extends MgAbstractAuthenticatedController {
             //parameter dictionary for MgHttpRequest
             String uri =  controllers.routes.MgViewerController.getDynamicMapOverlayImage(sessionId, mapName).absoluteURL(request());
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "QUERYMAPFEATURES");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("SESSION", sessionId);
-            param.AddParameter("MAPNAME", mapName);
-            param.AddParameter("PERSIST", getRequestParameter("PERSIST", "0"));
+            param.addParameter("OPERATION", "QUERYMAPFEATURES");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("SESSION", sessionId);
+            param.addParameter("MAPNAME", mapName);
+            param.addParameter("PERSIST", getRequestParameter("PERSIST", "0"));
             if (hasRequestParameter("FEATUREFILTER"))
-                param.AddParameter("FEATUREFILTER", getRequestParameter("FEATUREFILTER", ""));
-            param.AddParameter("LAYERATTRIBUTEFILTER", getRequestParameter("LAYERATTRIBUTEFILTER", "3"));
+                param.addParameter("FEATUREFILTER", getRequestParameter("FEATUREFILTER", ""));
+            param.addParameter("LAYERATTRIBUTEFILTER", getRequestParameter("LAYERATTRIBUTEFILTER", "3"));
             String selectionVariant = "";
             if (hasRequestParameter("SELECTIONVARIANT")) {
                 String variant = getRequestParameter("SELECTIONVARIANT", "");
                 if (variant.equals("TOUCHES") || variant.equals("INTERSECTS") || variant.equals("WITHIN") || variant.equals("ENVELOPEINTERSECTS")) {
-                    param.AddParameter("SELECTIONVARIANT", variant);
+                    param.addParameter("SELECTIONVARIANT", variant);
                 } else {
                     return badRequest("Invalid parameter: SELECTIONVARIANT");
                 }
             }
             if (!hasRequestParameter("GEOMETRY"))
                 return badRequest("Missing required parameter: GEOMETRY");
-            param.AddParameter("GEOMETRY", getRequestParameter("GEOMETRY", ""));
-            param.AddParameter("LAYERNAMES", getRequestParameter("LAYERNAMES", ""));
+            param.addParameter("GEOMETRY", getRequestParameter("GEOMETRY", ""));
+            param.addParameter("LAYERNAMES", getRequestParameter("LAYERNAMES", ""));
 
             return executeRequestInternal(request);
         } catch (MgException ex) { //TODO: Rasterize the error message as the standard response won't be visible most of the time

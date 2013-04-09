@@ -24,7 +24,7 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractContro
         String uri =  controllers.routes.MgMapAgentCompatibilityController.processGetRequest().absoluteURL(request());
         try {
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
             boolean bGotAuth = parseAuthenticationHeader(param);
             //Logger.debug("Got authentication header: " + bGotAuth);
@@ -36,9 +36,9 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractContro
             // 2. A USERNAME parameter (PASSWORD optional). If not specified the http authentication header is checked and extracted if found
             //
             //Whether these values are valid will be determined by MgSiteConnection in the MgHttpRequest handler when we come to execute it
-            boolean bValid = param.ContainsParameter("SESSION");
+            boolean bValid = param.containsParameter("SESSION");
             if (!bValid)
-                bValid = param.ContainsParameter("USERNAME");
+                bValid = param.containsParameter("USERNAME");
 
             if (!bValid) {
                 //Logger.debug("Un-authenticated request. Sending WWW-Authenticate");
@@ -62,7 +62,7 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractContro
         String uri =  controllers.routes.MgMapAgentCompatibilityController.processGetRequest().absoluteURL(request());
         try {
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
             boolean bGotAuth = parseAuthenticationHeader(param);
             //Logger.debug("Got authentication header: " + bGotAuth);
@@ -74,9 +74,9 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractContro
             // 2. A USERNAME parameter (PASSWORD optional). If not specified the http authentication header is checked and extracted if found
             //
             //Whether these values are valid will be determined by MgSiteConnection in the MgHttpRequest handler when we come to execute it
-            boolean bValid = param.ContainsParameter("SESSION");
+            boolean bValid = param.containsParameter("SESSION");
             if (!bValid)
-                bValid = param.ContainsParameter("USERNAME");
+                bValid = param.containsParameter("USERNAME");
 
             if (!bValid) {
                 //Logger.debug("Un-authenticated request. Sending WWW-Authenticate");
@@ -97,8 +97,10 @@ public abstract class MgMapAgentCompatibilityController extends MgAbstractContro
     }
 
     public static Result agentasset(String file) {
-        InputStream assetStream = Play.application().classloader().getResourceAsStream("resources/MapAgentForms/" + file);
-        response().setContentType("text/html");
-        return ok(assetStream);
+        File f = Play.application().getFile("internal/MapAgentForms/" + file);
+        if (!f.exists())
+            return notFound();
+        else
+            return ok(f);
     }
 }

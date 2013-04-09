@@ -8,6 +8,7 @@
 
 # Home page
 GET /                                                               controllers.Application.index()
+GET /mapguide                                                       controllers.Application.landing()
 GET /mapguide/                                                      controllers.Application.landing()
 
 GET /mapguide/rest/test                                             controllers.MgTestController.index()

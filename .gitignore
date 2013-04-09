@@ -27,3 +27,6 @@ MgPlatformBase.dll
 MgWebApp.dll
 MgWebSupport.dll
 xerces-c_3_1mg.dll
+/MapGuideJavaApiEx.dll
+/lib/MapGuideApiEx-sources.jar
+/lib/MapGuideApiEx.jar

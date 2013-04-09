@@ -24,16 +24,16 @@ public class MgSiteController extends MgAbstractController {
 
             String uri =  "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "ENUMERATEGROUPS");
-            param.AddParameter("VERSION", "1.0.0");
+            param.addParameter("OPERATION", "ENUMERATEGROUPS");
+            param.addParameter("VERSION", "1.0.0");
 
             if (fmt.equals("xml")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             }
             else if (fmt.equals("json")) {
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
             }
 
             TryFillMgCredentials(param);
@@ -57,10 +57,10 @@ public class MgSiteController extends MgAbstractController {
             }
 
             MgSiteConnection siteConn = createMapGuideConnection();
-            MgSite site = siteConn.GetSite();
+            MgSite site = siteConn.getSite();
 
             try {
-                String user = site.GetUserForSession();
+                String user = site.getUserForSession();
                 //Hmmm. Should we allow Anonymous to discover its own roles?
                 if (user.equals("Anonymous") && !userName.equals("Anonymous")) {
                     //HACK: We don't want to trip the qunit test runner with interactive dialogs
@@ -71,9 +71,9 @@ public class MgSiteController extends MgAbstractController {
                 }
             } catch (MgException ex) { } //Could happen if we have non-anonymous credentials in the http authentication header
 
-            MgByteReader content = site.EnumerateGroups(userName);
-            response().setContentType(content.GetMimeType());
-            return ok(content.ToString());
+            MgByteReader content = site.enumerateGroups(userName);
+            response().setContentType(content.getMimeType());
+            return ok(content.toString());
         } catch (MgException ex) {
             return mgServerError(ex);
         } catch (Exception ex) {
@@ -93,10 +93,10 @@ public class MgSiteController extends MgAbstractController {
             }
 
             MgSiteConnection siteConn = createMapGuideConnection();
-            MgSite site = siteConn.GetSite();
+            MgSite site = siteConn.getSite();
 
             try {
-                String user = site.GetUserForSession();
+                String user = site.getUserForSession();
                 //Hmmm. Should we allow Anonymous to discover its own roles?
                 if (user.equals("Anonymous") && !userName.equals("Anonymous")) {
                     //HACK: We don't want to trip the qunit test runner with interactive dialogs
@@ -107,7 +107,7 @@ public class MgSiteController extends MgAbstractController {
                 }
             } catch (MgException ex) { } //Could happen if we have non-anonymous credentials in the http authentication header
 
-            MgStringCollection content = site.EnumerateRoles(userName);
+            MgStringCollection content = site.enumerateRoles(userName);
             return mgStringCollectionXml(content);
         } catch (MgException ex) {
             return mgServerError(ex);
@@ -136,16 +136,16 @@ public class MgSiteController extends MgAbstractController {
 
             String uri =  "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "ENUMERATEUSERS");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("GROUP", groupName);
+            param.addParameter("OPERATION", "ENUMERATEUSERS");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("GROUP", groupName);
             if (fmt.equals("xml")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             }
             else if (fmt.equals("json")) {
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
             }
 
             TryFillMgCredentials(param);

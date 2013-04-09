@@ -15,9 +15,9 @@ public abstract class MgSiteAdminController extends MgAbstractAuthenticatedContr
         try {
             MgUserInformation userInfo = getMgCredentials();
             admin = new MgServerAdmin();
-            admin.Open(userInfo);
+            admin.open(userInfo);
 
-            MgPropertyCollection status = admin.GetSiteStatus();
+            MgPropertyCollection status = admin.getSiteStatus();
             return mgPropertyCollectionXml(status);
         } catch (MgException ex) {
             return mgServerError(ex);
@@ -26,7 +26,7 @@ public abstract class MgSiteAdminController extends MgAbstractAuthenticatedContr
         } finally {
             if (admin != null) {
                 try {
-                    admin.Close();
+                    admin.close();
                 }
                 catch (Exception e) { }
             }
@@ -38,8 +38,8 @@ public abstract class MgSiteAdminController extends MgAbstractAuthenticatedContr
         try {
             MgUserInformation userInfo = getMgCredentials();
             admin = new MgServerAdmin();
-            admin.Open(userInfo);
-            return ok(admin.GetSiteVersion());
+            admin.open(userInfo);
+            return ok(admin.getSiteVersion());
         } catch (MgException ex) {
             return mgServerError(ex);
         } catch (Exception ex) {
@@ -47,7 +47,7 @@ public abstract class MgSiteAdminController extends MgAbstractAuthenticatedContr
         } finally {
             if (admin != null) {
                 try {
-                    admin.Close();
+                    admin.close();
                 }
                 catch (Exception e) { }
             }

@@ -26,20 +26,20 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
 
             String uri = "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "GETFEATUREPROVIDERS");
-            param.AddParameter("VERSION", "1.0.0");
+            param.addParameter("OPERATION", "GETFEATUREPROVIDERS");
+            param.addParameter("VERSION", "1.0.0");
 
             if (fmt.equals("xml")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             }
             else if (fmt.equals("json")) {
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
             }
             else if (fmt.equals("html")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
-                param.AddParameter("XSLSTYLESHEET", "FdoProviderList.xsl");
+                param.addParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("XSLSTYLESHEET", "FdoProviderList.xsl");
             }
 
             return executeRequestInternal(request);
@@ -79,23 +79,23 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
             }
             String uri =  "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "GETPROVIDERCAPABILITIES");
-            param.AddParameter("VERSION", "2.0.0");
-            param.AddParameter("PROVIDER", fdoProviderName);
+            param.addParameter("OPERATION", "GETPROVIDERCAPABILITIES");
+            param.addParameter("VERSION", "2.0.0");
+            param.addParameter("PROVIDER", fdoProviderName);
             if (partialConnString.length() > 0)
-                param.AddParameter("CONNECTIONSTRING", partialConnString);
+                param.addParameter("CONNECTIONSTRING", partialConnString);
 
             if (fmt.equals("xml")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             }
             else if (fmt.equals("json")) {
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
             }
             //else if (fmt.equals("html")) {
-            //    param.AddParameter("FORMAT", MgMimeType.Xml);
-            //    param.AddParameter("XSLSTYLESHEET", "FdoProviderCapabilities.xsl");
+            //    param.addParameter("FORMAT", MgMimeType.Xml);
+            //    param.addParameter("XSLSTYLESHEET", "FdoProviderCapabilities.xsl");
             //}
 
             return executeRequestInternal(request);
@@ -136,23 +136,23 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
 
             String uri = "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "ENUMERATEDATASTORES");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("PROVIDER", fdoProviderName);
+            param.addParameter("OPERATION", "ENUMERATEDATASTORES");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("PROVIDER", fdoProviderName);
             if (partialConnString.length() > 0)
-                param.AddParameter("CONNECTIONSTRING", partialConnString);
+                param.addParameter("CONNECTIONSTRING", partialConnString);
 
             if (fmt.equals("xml")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             }
             else if (fmt.equals("json")) {
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
             }/*
             else if (fmt.equals("html")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
-                param.AddParameter("XSLSTYLESHEET", "FdoDataStoreList.xsl");
+                param.addParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("XSLSTYLESHEET", "FdoDataStoreList.xsl");
             }*/
 
             return executeRequestInternal(request);
@@ -192,24 +192,24 @@ public class MgLibraryFeatureServiceController extends MgFeatureServiceControlle
             }
             String uri = "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "GETCONNECTIONPROPERTYVALUES");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("PROVIDER", fdoProviderName);
-            param.AddParameter("PROPERTY", propName);
+            param.addParameter("OPERATION", "GETCONNECTIONPROPERTYVALUES");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("PROVIDER", fdoProviderName);
+            param.addParameter("PROPERTY", propName);
             if (partialConnString.length() > 0)
-                param.AddParameter("CONNECTIONSTRING", partialConnString);
+                param.addParameter("CONNECTIONSTRING", partialConnString);
 
             if (fmt.equals("xml")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             }
             else if (fmt.equals("json")) {
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
             }/*
             else if (fmt.equals("html")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
-                param.AddParameter("XSLSTYLESHEET", "StringCollection.xsl");
+                param.addParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("XSLSTYLESHEET", "StringCollection.xsl");
             }*/
 
             return executeRequestInternal(request);

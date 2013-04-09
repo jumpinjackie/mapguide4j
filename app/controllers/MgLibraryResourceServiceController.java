@@ -30,23 +30,23 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
 
             String uri = "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "ENUMERATERESOURCES");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("TYPE", getRequestParameter("type", ""));
-            param.AddParameter("COMPUTECHILDREN", "1");
+            param.addParameter("OPERATION", "ENUMERATERESOURCES");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("TYPE", getRequestParameter("type", ""));
+            param.addParameter("COMPUTECHILDREN", "1");
 
             String strDepth = getRequestParameter("depth", "");
             if (fmt.equals("xml")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             }
             else if (fmt.equals("json")) {
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
             }
             else if (fmt.equals("html")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
-                param.AddParameter("XSLSTYLESHEET", "ResourceList.xsl");
+                param.addParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("XSLSTYLESHEET", "ResourceList.xsl");
 
                 //No depth specified, then set to 1. As for html we want a single level view
                 if (strDepth.equals(""))
@@ -55,8 +55,8 @@ public class MgLibraryResourceServiceController extends MgResourceServiceControl
 
             if (strDepth.equals(""))
                 strDepth = "-1";
-            param.AddParameter("DEPTH", strDepth);
-            param.AddParameter("RESOURCEID", constructResourceIdString(MgRepositoryType.Library, resourcePath, true));
+            param.addParameter("DEPTH", strDepth);
+            param.addParameter("RESOURCEID", constructResourceIdString(MgRepositoryType.Library, resourcePath, true));
 
             TryFillMgCredentials(param);
             return executeRequestInternal(request);

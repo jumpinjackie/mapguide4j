@@ -237,7 +237,7 @@ public abstract class MgAbstractController extends Controller {
                 if (credString.length == 2)
                     password = credString[1];
 
-                cred.SetMgUsernamePassword(username, password);
+                cred.setMgUsernamePassword(username, password);
                 //Logger.debug("MG Credentials set from auth header");
                 return true;
             }
@@ -259,14 +259,14 @@ public abstract class MgAbstractController extends Controller {
                     if (credString.length == 2)
                         password = credString[1];
 
-                    param.AddParameter("USERNAME", username);
+                    param.addParameter("USERNAME", username);
                     if (password.length() > 0)
-                        param.AddParameter("PASSWORD", password);
+                        param.addParameter("PASSWORD", password);
                 }
             } else {
                 String sessionId = getMgSessionId();
                 if (sessionId != null && !sessionId.equals(""))
-                    param.AddParameter("SESSION", sessionId);
+                    param.addParameter("SESSION", sessionId);
             }
         } catch (UnsupportedEncodingException ex) {
 
@@ -276,7 +276,7 @@ public abstract class MgAbstractController extends Controller {
     protected static MgSiteConnection createAnonymousMapGuideConnection() throws MgException {
         MgUserInformation userInfo = new MgUserInformation("Anonymous", "");
         MgSiteConnection siteConn = new MgSiteConnection();
-        siteConn.Open(userInfo);
+        siteConn.open(userInfo);
         return siteConn;
     }
 
@@ -284,7 +284,7 @@ public abstract class MgAbstractController extends Controller {
         String sessionId = getMgSessionId();
         MgUserInformation userInfo = new MgUserInformation();
         if (sessionId != null && !sessionId.equals("")) {
-            userInfo.SetMgSessionId(sessionId);
+            userInfo.setMgSessionId(sessionId);
         }
         TrySetMgCredentials(userInfo);
         return userInfo;
@@ -293,7 +293,7 @@ public abstract class MgAbstractController extends Controller {
     protected static MgSiteConnection createMapGuideConnection() throws MgException, UnsupportedEncodingException {
         MgUserInformation userInfo = getMgCredentials();
         MgSiteConnection siteConn = new MgSiteConnection();
-        siteConn.Open(userInfo);
+        siteConn.open(userInfo);
         return siteConn;
     }
 
@@ -325,7 +325,7 @@ public abstract class MgAbstractController extends Controller {
     protected static Result mgServerError(MgException mex) {
         try {
             //java.lang.Thread.currentThread().dumpStack();
-            String data = String.format("%s%n%s", mex.GetExceptionMessage(), mex.GetStackTrace());
+            String data = String.format("%s%n%s", mex.getExceptionMessage(), mex.getExceptionStackTrace());
             //TODO: There are possibly more MapGuide Exceptions that can map cleanly to HTTP status codes
             if (mex instanceof MgResourceNotFoundException || mex instanceof MgResourceDataNotFoundException) { //404
                 return notFound(data);
@@ -344,9 +344,9 @@ public abstract class MgAbstractController extends Controller {
 
     protected static Result mgSpatialContextReaderXml(MgSpatialContextReader scReader) {
         try {
-            MgByteReader reader = scReader.ToXml();
-            response().setContentType(reader.GetMimeType());
-            return ok(reader.ToString());
+            MgByteReader reader = scReader.toXml();
+            response().setContentType(reader.getMimeType());
+            return ok(reader.toString());
         } catch (MgException ex) {
             return mgServerError(ex);
         }
@@ -354,9 +354,9 @@ public abstract class MgAbstractController extends Controller {
 
     protected static Result mgBatchPropertyCollectionXml(MgBatchPropertyCollection batchProps) {
         try {
-            MgByteReader reader = batchProps.ToXml();
-            response().setContentType(reader.GetMimeType());
-            return ok(reader.ToString());
+            MgByteReader reader = batchProps.toXml();
+            response().setContentType(reader.getMimeType());
+            return ok(reader.toString());
         } catch (MgException ex) {
             return mgServerError(ex);
         }
@@ -364,9 +364,9 @@ public abstract class MgAbstractController extends Controller {
 
     protected static Result mgPropertyCollectionXml(MgPropertyCollection props) {
         try {
-            MgByteReader reader = props.ToXml();
+            MgByteReader reader = props.toXml();
             response().setContentType("text/xml"); //(reader.GetMimeType());
-            return ok(reader.ToString());
+            return ok(reader.toString());
         } catch (MgException ex) {
             return mgServerError(ex);
         }
@@ -375,9 +375,9 @@ public abstract class MgAbstractController extends Controller {
     protected static Result mgStringCollectionXml(MgStringCollection strings) {
         try {
             if (strings != null) {
-                MgByteReader reader = strings.ToXml();
-                response().setContentType(reader.GetMimeType());
-                return ok(reader.ToString());
+                MgByteReader reader = strings.toXml();
+                response().setContentType(reader.getMimeType());
+                return ok(reader.toString());
             } else {
                 response().setContentType("text/xml");
                 return ok("<StringCollection />");
@@ -399,8 +399,8 @@ public abstract class MgAbstractController extends Controller {
                 String password = "";
                 if (credString.length == 2)
                     password = credString[1];
-                param.AddParameter("USERNAME", username);
-                param.AddParameter("PASSWORD", password);
+                param.addParameter("USERNAME", username);
+                param.addParameter("PASSWORD", password);
                 //Logger.debug("Parsed: " + username + ":" + password);
                 return true;
             }
@@ -412,7 +412,7 @@ public abstract class MgAbstractController extends Controller {
         Map<String, String[]> query = request().queryString();
         if (query != null) {
             for (String name : query.keySet()) {
-                param.AddParameter(name, query.get(name)[0]);
+                param.addParameter(name, query.get(name)[0]);
             }
         }
     }
@@ -422,14 +422,14 @@ public abstract class MgAbstractController extends Controller {
         Map<String, String[]> bodyData = request().body().asFormUrlEncoded();
         if (bodyData != null) {
             for (String name : bodyData.keySet()) {
-                param.AddParameter(name, bodyData.get(name)[0]);
+                param.addParameter(name, bodyData.get(name)[0]);
             }
         }
         if (formData != null) {
             Map<String, String[]> query = formData.asFormUrlEncoded();
             if (query != null) {
                 for (String name : query.keySet()) {
-                    param.AddParameter(name, query.get(name)[0]);
+                    param.addParameter(name, query.get(name)[0]);
                 }
             }
             //These are the file upload bits
@@ -437,22 +437,22 @@ public abstract class MgAbstractController extends Controller {
             if (fileParts != null && fileParts.size() > 0) {
                 for (Http.MultipartFormData.FilePart part : fileParts) {
                     File f = part.getFile();
-                    param.AddParameter(part.getKey(), f.getAbsolutePath());
-                    param.SetParameterType(part.getKey(), "tempfile"); //This is the hint to MgHttpRequest handler to create an MgByteSource from this value
+                    param.addParameter(part.getKey(), f.getAbsolutePath());
+                    param.setParameterType(part.getKey(), "tempfile"); //This is the hint to MgHttpRequest handler to create an MgByteSource from this value
                 }
             }
         }
     }
 
     protected static Map<String, String> collectXslParameters(MgHttpRequestParam param) throws MgException {
-        MgStringCollection pNames = param.GetParameterNames();
-        if (pNames == null || pNames.GetCount() == 0)
+        MgStringCollection pNames = param.getParameterNames();
+        if (pNames == null || pNames.getCount() == 0)
             return null;
         Map<String, String> retVal = new HashMap<String, String>();
-        for (int i = 0; i < pNames.GetCount(); i++) {
-            String name = pNames.GetItem(i);
+        for (int i = 0; i < pNames.getCount(); i++) {
+            String name = pNames.getItem(i);
             if (name.startsWith("XSLPARAM.")) {
-                String value = param.GetParameterValue(name);
+                String value = param.getParameterValue(name);
                 retVal.put(name.substring("XSLPARAM.".length()), value);
             }
         }
@@ -460,7 +460,7 @@ public abstract class MgAbstractController extends Controller {
     }
 
     protected static Result mgHttpError(MgHttpResult result) throws MgException {
-        String statusMessage = result.GetHttpStatusMessage();
+        String statusMessage = result.getHttpStatusMessage();
         if (statusMessage.equals("MgAuthenticationFailedException") || statusMessage.equals("MgUnauthorizedAccessException"))
         {
             //HACK: We don't want to trip the qunit test runner with interactive dialogs
@@ -479,49 +479,49 @@ public abstract class MgAbstractController extends Controller {
                 "</head>\n" +
                 "<body>\n<h2>%s</h2>\n%s\n</body>\n</html>\n",
                 statusMessage,
-                result.GetErrorMessage(),
-                result.GetDetailedErrorMessage());
+                result.getErrorMessage(),
+                result.getDetailedErrorMessage());
             response().setContentType("text/html");
             return internalServerError(errHtml);
         }
     }
 
     protected static Result executeRequestInternal(MgHttpRequest request) throws MgException {
-        MgHttpRequestParam param = request.GetRequestParam();
-        MgHttpResponse response = request.Execute();
-        MgHttpResult result = response.GetResult();
+        MgHttpRequestParam param = request.getRequestParam();
+        MgHttpResponse response = request.execute();
+        MgHttpResult result = response.getResult();
 
-        if (result.GetStatusCode() == 200) {
-            MgDisposable resultObj = result.GetResultObject();
+        if (result.getStatusCode() == 200) {
+            MgDisposable resultObj = result.getResultObject();
             if (resultObj != null) {
-                response().setContentType(result.GetResultContentType());
+                response().setContentType(result.getResultContentType());
                 if (resultObj instanceof MgByteReader) {
                     //The XSLSTYLESHEET is a mapguide4j "hint" to transform the result to HTML using the given XSL stylesheet
-                    if (result.GetResultContentType().equals(MgMimeType.Xml) && param.ContainsParameter("XSLSTYLESHEET")) {
+                    if (result.getResultContentType().equals(MgMimeType.Xml) && param.containsParameter("XSLSTYLESHEET")) {
                         response().setContentType("text/html");
-                        return ok(MgXslUtil.TransformByteReader((MgByteReader)resultObj, param.GetParameterValue("XSLSTYLESHEET"), collectXslParameters(param)));
+                        return ok(MgXslUtil.TransformByteReader((MgByteReader)resultObj, param.getParameterValue("XSLSTYLESHEET"), collectXslParameters(param)));
                     } else {
                         return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)resultObj));
                     }
                 } else if (resultObj instanceof MgFeatureReader) {
-                    MgByteReader br = ((MgFeatureReader)resultObj).ToXml();
+                    MgByteReader br = ((MgFeatureReader)resultObj).toXml();
                     return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
                 } else if (resultObj instanceof MgStringCollection) {
                     return mgStringCollectionXml((MgStringCollection)resultObj);
                 } else if (resultObj instanceof MgSqlDataReader) {
-                    MgByteReader br = ((MgSqlDataReader)resultObj).ToXml();
+                    MgByteReader br = ((MgSqlDataReader)resultObj).toXml();
                     return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
                 } else if (resultObj instanceof MgDataReader) {
-                    MgByteReader br = ((MgDataReader)resultObj).ToXml();
+                    MgByteReader br = ((MgDataReader)resultObj).toXml();
                     return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
                 } else if (resultObj instanceof MgSpatialContextReader) {
-                    MgByteReader br = ((MgSpatialContextReader)resultObj).ToXml();
+                    MgByteReader br = ((MgSpatialContextReader)resultObj).toXml();
                     return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
                 } else if (resultObj instanceof MgLongTransactionReader) {
-                    MgByteReader br = ((MgLongTransactionReader)resultObj).ToXml();
+                    MgByteReader br = ((MgLongTransactionReader)resultObj).toXml();
                     return ok(MgAjaxViewerUtil.ByteReaderToStream((MgByteReader)br));
                 } else if (resultObj instanceof MgHttpPrimitiveValue) {
-                    return ok(((MgHttpPrimitiveValue)resultObj).ToString());
+                    return ok(((MgHttpPrimitiveValue)resultObj).toString());
                 } else {
                     return badRequest("Not sure how to output: " + resultObj.toString());
                 }
@@ -529,7 +529,7 @@ public abstract class MgAbstractController extends Controller {
                 return ok();
             }
         } else {
-            Logger.debug("Error executing op: " + param.GetParameterValue("OPERATION"));
+            Logger.debug("Error executing op: " + param.getParameterValue("OPERATION"));
             return mgHttpError(result);
         }
     }

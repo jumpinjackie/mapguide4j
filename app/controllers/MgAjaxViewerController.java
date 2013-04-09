@@ -62,13 +62,13 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             if(sessionId != null && !sessionId.equals(""))
             {
                 Logger.debug("Set MG session id");
-                cred.SetMgSessionId(sessionId);
+                cred.setMgSessionId(sessionId);
                 createSession = false;
             }
             else if(username != null && !username.equals(""))
             {
                 Logger.debug("Set MG credentials");
-                cred.SetMgUsernamePassword(username, password);
+                cred.setMgUsernamePassword(username, password);
             }
             else
             {
@@ -81,40 +81,40 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             }
 
             MgSiteConnection site = new MgSiteConnection();
-            cred.SetLocale(locale);
-            //cred.SetClientIp(GetClientIp(request));
-            cred.SetClientAgent(MgAjaxViewerUtil.GetClientAgent());
+            cred.setLocale(locale);
+            //cred.setClientIp(GetClientIp(request));
+            cred.setClientAgent(MgAjaxViewerUtil.GetClientAgent());
 
-            site.Open(cred);
+            site.open(cred);
 
             if (createSession)
             {
-                MgSite site1 = site.GetSite();
-                sessionId = site1.CreateSession();
+                MgSite site1 = site.getSite();
+                sessionId = site1.createSession();
             }
             //Get a MgWebLayout object initialized with the specified web layout definition
             //
             MgWebLayout webLayout = null;
-            MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+            MgResourceService resourceSrvc = (MgResourceService)site.createService(MgServiceType.ResourceService);
             MgResourceIdentifier webLayoutId = new MgResourceIdentifier(webLayoutDefinition);
             webLayout = new MgWebLayout(resourceSrvc, webLayoutId);
 
             //calculate the size of the variable elements of the viewer
             //
-            MgWebToolBar toolBar = webLayout.GetToolBar();
-            MgWebUiPane statusBar = webLayout.GetStatusBar();
-            MgWebTaskPane taskPane = webLayout.GetTaskPane();
-            MgWebInformationPane infoPane = webLayout.GetInformationPane();
-            MgWebTaskBar taskBar = taskPane.GetTaskBar();
-            String mapDef = webLayout.GetMapDefinition();
+            MgWebToolBar toolBar = webLayout.getToolBar();
+            MgWebUiPane statusBar = webLayout.getStatusBar();
+            MgWebTaskPane taskPane = webLayout.getTaskPane();
+            MgWebInformationPane infoPane = webLayout.getInformationPane();
+            MgWebTaskBar taskBar = taskPane.getTaskBar();
+            String mapDef = webLayout.getMapDefinition();
 
             int forDwf = 0;
-            boolean showTaskPane = taskPane.IsVisible();
-            boolean showTaskBar = taskBar.IsVisible();
-            boolean showStatusbar = statusBar.IsVisible();
-            boolean showToolbar = toolBar.IsVisible();
+            boolean showTaskPane = taskPane.isVisible();
+            boolean showTaskBar = taskBar.isVisible();
+            boolean showStatusbar = statusBar.isVisible();
+            boolean showToolbar = toolBar.isVisible();
 
-            int taskPaneWidth = taskPane.GetWidth();
+            int taskPaneWidth = taskPane.getWidth();
             int toolbarHeight = 30;
             int taskBarHeight = 30;
             int statusbarHeight = 26;
@@ -125,7 +125,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             statusbarHeight = showStatusbar? statusbarHeight: 0;
 
             //Encode the initial url so that it does not trip any sub-frames (especially if this url has parameters)
-            String taskPaneUrl = URLEncoder.encode(taskPane.GetInitialTaskUrl(), "UTF-8");
+            String taskPaneUrl = URLEncoder.encode(taskPane.getInitialTaskUrl(), "UTF-8");
             String vpath = getViewerRoot();
             boolean defHome = false;
             if(taskPaneUrl == null || taskPaneUrl.length() == 0) {
@@ -140,19 +140,19 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             // as this script is running. However the naming convention is fixed enough that we can figure out
             // what to pass to the Task Pane
             MgResourceIdentifier resId = new MgResourceIdentifier(mapDef);
-            String mapName = resId.GetName();
+            String mapName = resId.getName();
 
-            String title = webLayout.GetTitle();
+            String title = webLayout.getTitle();
 
-            boolean showLegend = infoPane.IsLegendBandVisible();
-            boolean showProperties = infoPane.IsPropertiesBandVisible();
+            boolean showLegend = infoPane.isLegendBandVisible();
+            boolean showProperties = infoPane.isPropertiesBandVisible();
 
             int infoWidth = 0;
             if(showLegend || showProperties)
             {
-                if(infoPane.IsVisible())
+                if(infoPane.isVisible())
                 {
-                    infoWidth = infoPane.GetWidth();
+                    infoWidth = infoPane.getWidth();
                     if(infoWidth < 5)
                         infoWidth = 5;    //ensure visible
                 }
@@ -169,18 +169,18 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
             //view center
             //
-            MgPoint ptCenter = webLayout.GetCenter();
+            MgPoint ptCenter = webLayout.getCenter();
             String center = "null";
             if(ptCenter != null)
             {
-                MgCoordinate coord = ptCenter.GetCoordinate();
-                Object[] formatArgs = { Double.toString(coord.GetX()), Double.toString(coord.GetY()) };
+                MgCoordinate coord = ptCenter.getCoordinate();
+                Object[] formatArgs = { Double.toString(coord.getX()), Double.toString(coord.getY()) };
                 center = MessageFormat.format("new Point({0}, {1})", formatArgs);
             }
 
             //Process commands and declare command objects
             //
-            MgWebCommandCollection commands = webLayout.GetCommands();
+            MgWebCommandCollection commands = webLayout.getCommands();
             String cmdObjects = "";
             String cmdObject = "";
             int navCmdIndex = 0;
@@ -193,27 +193,27 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             int selAwareCmdCount = 0;
             String selAwareCmds = "";
 
-            for(int i = 0; i < commands.GetCount(); i++)
+            for(int i = 0; i < commands.getCount(); i++)
             {
-                MgWebCommand cmd = commands.GetItem(i);
-                if(!cmd.IsUsed())
+                MgWebCommand cmd = commands.getItem(i);
+                if(!cmd.isUsed())
                     continue;
-                int tgtViewer = cmd.GetTargetViewerType();
+                int tgtViewer = cmd.getTargetViewerType();
                 if((tgtViewer == MgWebTargetViewerType.Dwf) != (forDwf == 1) && (tgtViewer != MgWebTargetViewerType.All))
                     continue;
-                String name = cmd.GetName();
-                int action = cmd.GetAction();
+                String name = cmd.getName();
+                int action = cmd.getAction();
                 if (action == MgWebActions.Search)
                 {
                     MgWebSearchCommand searchCmd = (MgWebSearchCommand)cmd;
 
                     // create the column objects
                     String cols = "var resCols" + searchCmdIndex + " = new Array();\n";
-                    if(searchCmd.GetResultColumnCount() > 0)
+                    if(searchCmd.getResultColumnCount() > 0)
                     {
-                        for(int j = 0; j < searchCmd.GetResultColumnCount(); j++)
+                        for(int j = 0; j < searchCmd.getResultColumnCount(); j++)
                         {
-                            Object[] formatArgs = { new Integer(searchCmdIndex), new Integer(j), MgAjaxViewerUtil.StrEscape(searchCmd.GetColumnDisplayNameAt(j)), MgAjaxViewerUtil.StrEscape(searchCmd.GetColumnPropertyNameAt(j)) };
+                            Object[] formatArgs = { new Integer(searchCmdIndex), new Integer(j), MgAjaxViewerUtil.StrEscape(searchCmd.getColumnDisplayNameAt(j)), MgAjaxViewerUtil.StrEscape(searchCmd.getColumnPropertyNameAt(j)) };
                             String col = MessageFormat.format("resCols{0,number,integer}[{1,number,integer}] = new ResultColumn(\"{2}\", \"{3}\");\n", formatArgs);
                             cols += col;
                         }
@@ -223,19 +223,19 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     // declare a new search command object
                     Object[] formatArgs = { new Integer(i),
                                             MgAjaxViewerUtil.StrEscape(name),
-                                            MgAjaxViewerUtil.StrEscape(searchCmd.GetLabel()),
+                                            MgAjaxViewerUtil.StrEscape(searchCmd.getLabel()),
                                             new Integer(action),
-                                            searchCmd.GetIconUrl(),
-                                            searchCmd.GetDisabledIconUrl(),
-                                            MgAjaxViewerUtil.StrEscape(searchCmd.GetTooltip()),
-                                            MgAjaxViewerUtil.StrEscape(searchCmd.GetDescription()),
-                                            searchCmd.GetLayer(),
-                                            MgAjaxViewerUtil.StrEscape(searchCmd.GetPrompt()),
+                                            searchCmd.getIconUrl(),
+                                            searchCmd.getDisabledIconUrl(),
+                                            MgAjaxViewerUtil.StrEscape(searchCmd.getTooltip()),
+                                            MgAjaxViewerUtil.StrEscape(searchCmd.getDescription()),
+                                            searchCmd.getLayer(),
+                                            MgAjaxViewerUtil.StrEscape(searchCmd.getPrompt()),
                                             new Integer(searchCmdIndex),
-                                            MgAjaxViewerUtil.StrEscape(searchCmd.GetFilter()),
-                                            new Integer(searchCmd.GetMatchLimit()),
-                                            new Integer(searchCmd.GetTarget()),
-                                            searchCmd.GetTargetName() };
+                                            MgAjaxViewerUtil.StrEscape(searchCmd.getFilter()),
+                                            new Integer(searchCmd.getMatchLimit()),
+                                            new Integer(searchCmd.getTarget()),
+                                            searchCmd.getTargetName() };
                     cmdObject = MessageFormat.format("commands[{0,number,integer}] = new SearchCommand(\"{1}\", \"{2}\", {3,number,integer}, \"{4}\", \"{5}\", \"{6}\", \"{7}\", \"{8}\", \"{9}\", resCols{10}, \"{11}\", {12,number,integer}, {13,number,integer}, \"{14}\");\n", formatArgs);
 
                     searchCmdIndex++;
@@ -247,24 +247,24 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     // create the parameter objects
                     String paramObjs = "var navParams" + navCmdIndex + " = new Array();\n";
                     String layers = "var layers" + navCmdIndex + " = new Array();\n";
-                    if(invokeUrlCmd.GetParameterCount() > 0)
+                    if(invokeUrlCmd.getParameterCount() > 0)
                     {
-                        for(int j = 0; j < invokeUrlCmd.GetParameterCount(); j++)
+                        for(int j = 0; j < invokeUrlCmd.getParameterCount(); j++)
                         {
-                            Object[] formatArgs = { new Integer(navCmdIndex), new Integer(j), invokeUrlCmd.GetParameterNameAt(j), invokeUrlCmd.GetParameterValueAt(j) };
+                            Object[] formatArgs = { new Integer(navCmdIndex), new Integer(j), invokeUrlCmd.getParameterNameAt(j), invokeUrlCmd.getParameterValueAt(j) };
                             String param = MessageFormat.format("navParams{0,number,integer}[{1,number,integer}] = new NavParam(\"{2}\", \"{3}\");\n", formatArgs);
                             paramObjs = paramObjs + param;
                         }
                     }
-                    for( int j = 0;  j < invokeUrlCmd.GetLayerCount(); j++ )
+                    for( int j = 0;  j < invokeUrlCmd.getLayerCount(); j++ )
                     {
-                        Object[] formatArgs = { new Integer(navCmdIndex), new Integer(j), invokeUrlCmd.GetLayerNameAt(j) };
+                        Object[] formatArgs = { new Integer(navCmdIndex), new Integer(j), invokeUrlCmd.getLayerNameAt(j) };
                         String layer = MessageFormat.format("layers{0,number,integer}[{1,number,integer}] = \"{2}\";\n", formatArgs);
                         layers = layers + layer;
                     }
                     cmdObjects = cmdObjects + paramObjs + layers;
 
-                    if(invokeUrlCmd.DisabledIfSelectionEmpty() || invokeUrlCmd.GetLayerCount() > 0)
+                    if(invokeUrlCmd.disabledIfSelectionEmpty() || invokeUrlCmd.getLayerCount() > 0)
                     {
                         Object[] formatArgs = { new Integer(selAwareCmdCount), new Integer(i) };
                         selAwareCmds = selAwareCmds + MessageFormat.format("selectionAwareCmds[{0,number,integer}] = {1,number,integer};\n", formatArgs);
@@ -275,16 +275,16 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     Object[] formatArgs = { new Integer(i),
                                             MgAjaxViewerUtil.StrEscape(name),
                                             new Integer(action),
-                                            invokeUrlCmd.GetIconUrl(),
-                                            invokeUrlCmd.GetDisabledIconUrl(),
-                                            MgAjaxViewerUtil.StrEscape( invokeUrlCmd.GetTooltip()),
-                                            MgAjaxViewerUtil.StrEscape( invokeUrlCmd.GetDescription()),
-                                            invokeUrlCmd.GetUrl(),
+                                            invokeUrlCmd.getIconUrl(),
+                                            invokeUrlCmd.getDisabledIconUrl(),
+                                            MgAjaxViewerUtil.StrEscape( invokeUrlCmd.getTooltip()),
+                                            MgAjaxViewerUtil.StrEscape( invokeUrlCmd.getDescription()),
+                                            invokeUrlCmd.getUrl(),
                                             new Integer(navCmdIndex),
-                                            invokeUrlCmd.DisabledIfSelectionEmpty() ? "true" : "false",
+                                            invokeUrlCmd.disabledIfSelectionEmpty() ? "true" : "false",
                                             new Integer(navCmdIndex),
-                                            new Integer(invokeUrlCmd.GetTarget()),
-                                            invokeUrlCmd.GetTargetName() };
+                                            new Integer(invokeUrlCmd.getTarget()),
+                                            invokeUrlCmd.getTargetName() };
                     cmdObject = MessageFormat.format("commands[{0,number,integer}] = new InvokeUrlCommand(\"{1}\", {2,number,integer}, \"{3}\", \"{4}\", \"{5}\", \"{6}\", \"{7}\", navParams{8,number,integer}, {9}, layers{10,number,integer}, {11,number,integer}, \"{12}\");\n", formatArgs);
                     navCmdIndex++;
                 }
@@ -304,12 +304,12 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     Object[] formatArgs = { new Integer(i),
                                             MgAjaxViewerUtil.StrEscape( name ),
                                             new Integer( action ),
-                                            targetCmd.GetIconUrl(),
-                                            targetCmd.GetDisabledIconUrl(),
-                                            MgAjaxViewerUtil.StrEscape(targetCmd.GetTooltip()),
-                                            MgAjaxViewerUtil.StrEscape(targetCmd.GetDescription()),
-                                            new Integer( targetCmd.GetTarget()),
-                                            targetCmd.GetTargetName() };
+                                            targetCmd.getIconUrl(),
+                                            targetCmd.getDisabledIconUrl(),
+                                            MgAjaxViewerUtil.StrEscape(targetCmd.getTooltip()),
+                                            MgAjaxViewerUtil.StrEscape(targetCmd.getDescription()),
+                                            new Integer( targetCmd.getTarget()),
+                                            targetCmd.getTargetName() };
                     cmdObject = MessageFormat.format("commands[{0,number,integer}] = new UiTargetCommand(\"{1}\", {2,number,integer}, \"{3}\", \"{4}\", \"{5}\", \"{6}\", {7,number,integer}, \"{8}\");\n", formatArgs);
                 }
                 else if(action == MgWebActions.Help)
@@ -320,13 +320,13 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     Object[] formatArgs = { new Integer(i),
                                             MgAjaxViewerUtil.StrEscape(name),
                                             new Integer(action),
-                                            helpCmd.GetIconUrl(),
-                                            helpCmd.GetDisabledIconUrl(),
-                                            MgAjaxViewerUtil.StrEscape(helpCmd.GetTooltip()),
-                                            MgAjaxViewerUtil.StrEscape(helpCmd.GetDescription()),
-                                            helpCmd.GetUrl(),
-                                            new Integer(helpCmd.GetTarget()),
-                                            helpCmd.GetTargetName() };
+                                            helpCmd.getIconUrl(),
+                                            helpCmd.getDisabledIconUrl(),
+                                            MgAjaxViewerUtil.StrEscape(helpCmd.getTooltip()),
+                                            MgAjaxViewerUtil.StrEscape(helpCmd.getDescription()),
+                                            helpCmd.getUrl(),
+                                            new Integer(helpCmd.getTarget()),
+                                            helpCmd.getTargetName() };
                     cmdObject = MessageFormat.format("commands[{0,number,integer}] = new HelpCommand(\"{1}\", {2,number,integer}, \"{3}\", \"{4}\", \"{5}\", \"{6}\", \"{7}\", {8,number,integer}, \"{9}\");\n", formatArgs);
                 }
                 else if(action == MgWebActions.PrintMap)
@@ -335,10 +335,10 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
                     // declare the print layouts
                     String layouts = "var layouts" + printCmdIndex + " = new Array();\n";
-                    for(int j = 0; j < printCmd.GetPrintLayoutCount(); j++)
+                    for(int j = 0; j < printCmd.getPrintLayoutCount(); j++)
                     {
                         String layout = "";
-                        Object[] formatArgs = { new Integer(printCmdIndex), new Integer(j), printCmd.GetPrintLayoutAt(j) };
+                        Object[] formatArgs = { new Integer(printCmdIndex), new Integer(j), printCmd.getPrintLayoutAt(j) };
                         layout = MessageFormat.format("layouts{0,number,integer}[{1,number,integer}] = \"{2}\";\n", formatArgs);
                         layouts = layouts + layout;
                     }
@@ -348,10 +348,10 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     Object[] formatArgs = { new Integer(i),
                                             MgAjaxViewerUtil.StrEscape( name ),
                                             new Integer(action),
-                                            printCmd.GetIconUrl(),
-                                            printCmd.GetDisabledIconUrl(),
-                                            MgAjaxViewerUtil.StrEscape( printCmd.GetTooltip()),
-                                            MgAjaxViewerUtil.StrEscape( printCmd.GetDescription()),
+                                            printCmd.getIconUrl(),
+                                            printCmd.getDisabledIconUrl(),
+                                            MgAjaxViewerUtil.StrEscape( printCmd.getTooltip()),
+                                            MgAjaxViewerUtil.StrEscape( printCmd.getDescription()),
                                             new Integer(printCmdIndex) };
                     cmdObject = MessageFormat.format("commands[{0,number,integer}] = new PrintCommand(\"{1}\", {2,number,integer}, \"{3}\", \"{4}\", \"{5}\", \"{6}\", layouts{7,number,integer});\n", formatArgs );
                     printCmdIndex++;
@@ -364,14 +364,14 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     Object[] formatArgs = { new Integer(i),
                                             MgAjaxViewerUtil.StrEscape(name),
                                             new Integer(action),
-                                            invokeScriptCmd.GetIconUrl(),
-                                            invokeScriptCmd.GetDisabledIconUrl(),
-                                            MgAjaxViewerUtil.StrEscape( invokeScriptCmd.GetTooltip()),
-                                            MgAjaxViewerUtil.StrEscape( invokeScriptCmd.GetDescription()),
+                                            invokeScriptCmd.getIconUrl(),
+                                            invokeScriptCmd.getDisabledIconUrl(),
+                                            MgAjaxViewerUtil.StrEscape( invokeScriptCmd.getTooltip()),
+                                            MgAjaxViewerUtil.StrEscape( invokeScriptCmd.getDescription()),
                                             new Integer( scriptCmdIndex ) };
                     cmdObject = MessageFormat.format("commands[{0,number,integer}] = new InvokeScriptCommand(\"{1}\", {2,number,integer}, \"{3}\", \"{4}\", \"{5}\", \"{6}\", {7,number,integer});\n", formatArgs);
 
-                    userCode = userCode + "\nfunction UserFunc" + scriptCmdIndex + "()\n{\n" + invokeScriptCmd.GetScriptCode() + "\n}\n";
+                    userCode = userCode + "\nfunction UserFunc" + scriptCmdIndex + "()\n{\n" + invokeScriptCmd.getScriptCode() + "\n}\n";
                     Object[] formatArgs2 = { new Integer(scriptCmdIndex), new Integer(scriptCmdIndex) };
                     userCodeCalls = userCodeCalls + MessageFormat.format("case {0,number,integer}: UserFunc{0,number,integer}(); break;\n", formatArgs2);
 
@@ -383,10 +383,10 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     Object[] formatArgs = { new Integer(i),
                                             name,
                                             new Integer(action),
-                                            cmd.GetIconUrl(),
-                                            cmd.GetDisabledIconUrl(),
-                                            MgAjaxViewerUtil.StrEscape(cmd.GetTooltip()),
-                                            MgAjaxViewerUtil.StrEscape(cmd.GetDescription()) };
+                                            cmd.getIconUrl(),
+                                            cmd.getDisabledIconUrl(),
+                                            MgAjaxViewerUtil.StrEscape(cmd.getTooltip()),
+                                            MgAjaxViewerUtil.StrEscape(cmd.getDescription()) };
                     cmdObject = MessageFormat.format("commands[{0,number,integer}] = new BasicCommand(\"{1}\", {2,number,integer}, \"{3}\", \"{4}\", \"{5}\", \"{6}\");\n", formatArgs);
                 }
                 cmdObjects = cmdObjects + cmdObject;
@@ -396,32 +396,32 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
             //Declare toolbar items
             //
-            String toolbarDef = MgAjaxViewerUtil.DeclareUiItems(cmds, curFlyout, toolBar.GetWidgets(), "toolbarItems");
+            String toolbarDef = MgAjaxViewerUtil.DeclareUiItems(cmds, curFlyout, toolBar.getWidgets(), "toolbarItems");
 
             //Declare task items
-            String taskListDef = MgAjaxViewerUtil.DeclareUiItems(cmds, curFlyout, taskBar.GetTaskList(), "taskItems");
+            String taskListDef = MgAjaxViewerUtil.DeclareUiItems(cmds, curFlyout, taskBar.getTaskList(), "taskItems");
 
             //Declare context menu items
-            MgWebContextMenu ctxMenu = webLayout.GetContextMenu();
+            MgWebContextMenu ctxMenu = webLayout.getContextMenu();
             String ctxMenuDef;
-            if(ctxMenu.IsVisible())
+            if(ctxMenu.isVisible())
                 ctxMenuDef = MgAjaxViewerUtil.DeclareUiItems(cmds, curFlyout, ctxMenu, "ctxMenuItems");
             else
                 ctxMenuDef = "";
 
             //task items texts
             String taskItemTexts = "";
-            MgWebWidgetCollection taskButtons = taskBar.GetTaskButtons();
+            MgWebWidgetCollection taskButtons = taskBar.getTaskButtons();
             for(int i = 0; i < 4; i ++)
             {
-                MgWebTaskBarWidget btn = (MgWebTaskBarWidget)taskButtons.GetWidget(i);
+                MgWebTaskBarWidget btn = (MgWebTaskBarWidget)taskButtons.getWidget(i);
                 if(i > 0)
                     taskItemTexts += ",";
-                taskItemTexts += "\"" + MgAjaxViewerUtil.StrEscape(btn.GetName()) + "\"," +
-                                    "\"" + MgAjaxViewerUtil.StrEscape(btn.GetTooltip()) + "\"," +
-                                    "\"" + MgAjaxViewerUtil.StrEscape(btn.GetDescription()) + "\"," +
-                                    "\"" + MgAjaxViewerUtil.StrEscape(btn.GetIconUrl()) + "\"," +
-                                    "\"" + MgAjaxViewerUtil.StrEscape(btn.GetDisabledIconUrl()) + "\"";
+                taskItemTexts += "\"" + MgAjaxViewerUtil.StrEscape(btn.getName()) + "\"," +
+                                    "\"" + MgAjaxViewerUtil.StrEscape(btn.getTooltip()) + "\"," +
+                                    "\"" + MgAjaxViewerUtil.StrEscape(btn.getDescription()) + "\"," +
+                                    "\"" + MgAjaxViewerUtil.StrEscape(btn.getIconUrl()) + "\"," +
+                                    "\"" + MgAjaxViewerUtil.StrEscape(btn.getDisabledIconUrl()) + "\"";
             }
 
             //transmit the session to the map pane if one was specified to this request
@@ -446,9 +446,9 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                                 showProperties? "1": "0",
                                 String.valueOf(infoWidth),
                                 locale,
-                                String.valueOf(webLayout.GetHyperlinkTarget()),
-                                webLayout.GetHyperlinkTargetFrame(),
-                                webLayout.IsZoomControlVisible()? "1": "0",
+                                String.valueOf(webLayout.getHyperlinkTarget()),
+                                webLayout.getHyperlinkTargetFrame(),
+                                webLayout.isZoomControlVisible()? "1": "0",
                                 sessionParam,
                                 vpath + "formframe.jsp",
                                 String.valueOf(taskBarHeight),
@@ -474,9 +474,9 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                                 showProperties? "1": "0",
                                 String.valueOf(infoWidth),
                                 locale,
-                                String.valueOf(webLayout.GetHyperlinkTarget()),
-                                webLayout.GetHyperlinkTargetFrame(),
-                                webLayout.IsZoomControlVisible()? "1": "0",
+                                String.valueOf(webLayout.getHyperlinkTarget()),
+                                webLayout.getHyperlinkTargetFrame(),
+                                webLayout.isZoomControlVisible()? "1": "0",
                                 sessionParam,
                                 srcTaskFrame,
                                 vpath + "formframe.jsp",
@@ -499,10 +499,10 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             String int0 = "0";
             String int1 = "1";
             String[] vals = {
-                              webLayout.GetTitle(),
+                              webLayout.getTitle(),
                               getMapAgentUrl(),
-                              webLayout.GetEnablePingServer()? int1 : int0,
-                              String.valueOf(site.GetSite().GetSessionTimeout()),
+                              webLayout.getEnablePingServer()? int1 : int0,
+                              String.valueOf(site.getSite().getSessionTimeout()),
                               locale,
                               showToolbar ? int1 : int0,
                               showStatusbar ? int1 : int0,
@@ -514,7 +514,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                               mapDef,
                               String.valueOf(taskPaneWidth),
                               center,
-                              String.valueOf(webLayout.GetScale()),
+                              String.valueOf(webLayout.getScale()),
                               MgAjaxViewerUtil.StrEscape(title),
                               (forDwf == 1)? "1" : "0",
                               cmdObjects,
@@ -601,8 +601,8 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
             MgSiteConnection site = createMapGuideConnection();
             if (sessionId == null) {
-                MgSite siteObj = site.GetSite();
-                sessionId = siteObj.GetCurrentSession();
+                MgSite siteObj = site.getSite();
+                sessionId = siteObj.getCurrentSession();
             }
 
             String vpath = getViewerRoot();
@@ -657,8 +657,8 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
             MgSiteConnection site = createMapGuideConnection();
             if (sessionId == null) {
-                MgSite siteObj = site.GetSite();
-                sessionId = siteObj.GetCurrentSession();
+                MgSite siteObj = site.getSite();
+                sessionId = siteObj.getCurrentSession();
             }
 
             if (type.equals("DWF"))
@@ -692,33 +692,33 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             }
             else
             {
-                MgTileService tileSrvc = (MgTileService)site.CreateService(MgServiceType.TileService);
-                int tileSizeX = tileSrvc.GetDefaultTileSizeX();
-                int tileSizeY = tileSrvc.GetDefaultTileSizeY();
+                MgTileService tileSrvc = (MgTileService)site.createService(MgServiceType.TileService);
+                int tileSizeX = tileSrvc.getDefaultTileSizeX();
+                int tileSizeY = tileSrvc.getDefaultTileSizeY();
 
-                MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+                MgResourceService resourceSrvc = (MgResourceService)site.createService(MgServiceType.ResourceService);
 
                 MgMap map = new MgMap();
                 MgResourceIdentifier resId = new MgResourceIdentifier(mapDefinition);
-                String mapName = resId.GetName();
-                map.Create(resourceSrvc, resId, mapName);
+                String mapName = resId.getName();
+                map.create(resourceSrvc, resId, mapName);
 
                 //create an empty selection object and store it in the session repository
                 MgSelection sel = new MgSelection(map);
-                sel.Save(resourceSrvc, mapName);
+                sel.save(resourceSrvc, mapName);
 
                 //get the map extent and calculate the scale factor
                 //
-                MgEnvelope mapExtent = map.GetMapExtent();
-                String srs = map.GetMapSRS();
+                MgEnvelope mapExtent = map.getMapExtent();
+                String srs = map.getMapSRS();
                 double metersPerUnit;
                 String unitsType;
                 if(srs != null && srs.length() > 0)
                 {
                     MgCoordinateSystemFactory csFactory = new MgCoordinateSystemFactory();
-                    MgCoordinateSystem cs = csFactory.Create(srs);
-                    metersPerUnit = cs.ConvertCoordinateSystemUnitsToMeters(1.0);
-                    unitsType = cs.GetUnits();
+                    MgCoordinateSystem cs = csFactory.create(srs);
+                    metersPerUnit = cs.convertCoordinateSystemUnitsToMeters(1.0);
+                    unitsType = cs.getUnits();
                 }
                 else
                 {
@@ -726,9 +726,9 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     unitsType = MgLocalizationUtil.GetString("DISTANCEMETERS", locale);
                 }
 
-                MgCoordinate llExtent = mapExtent.GetLowerLeftCoordinate();
-                MgCoordinate urExtent = mapExtent.GetUpperRightCoordinate();
-                String bgColor = map.GetBackgroundColor();
+                MgCoordinate llExtent = mapExtent.getLowerLeftCoordinate();
+                MgCoordinate urExtent = mapExtent.getUpperRightCoordinate();
+                String bgColor = map.getBackgroundColor();
                 if(bgColor.length() == 8)
                 {
                     bgColor = "#" + bgColor.substring(2);
@@ -742,9 +742,9 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
                 // Create a sorted set of display scales
                 TreeSet scales = new TreeSet();
-                for(int i = 0; i < map.GetFiniteDisplayScaleCount(); i++)
+                for(int i = 0; i < map.getFiniteDisplayScaleCount(); i++)
                 {
-                    scales.add(new Double(map.GetFiniteDisplayScaleAt(i)));
+                    scales.add(new Double(map.getFiniteDisplayScaleAt(i)));
                 }
                 Iterator iter = scales.iterator();
                 int i = 0;
@@ -754,7 +754,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     i++;
                 }
                 MgResourceIdentifier mapStateId = new MgResourceIdentifier("Session:" + sessionId + "//" + mapName + "." + MgResourceType.Map);
-                map.Save(resourceSrvc, mapStateId);
+                map.save(resourceSrvc, mapStateId);
 
                 //load html template code and format it
                 //
@@ -770,8 +770,8 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                             showLegend != 0 ? "true": "false",
                             showProperties != 0 ? "true": "false",
                             sessionId,
-                            String.valueOf(llExtent.GetX()), String.valueOf(llExtent.GetY()),
-                            String.valueOf(urExtent.GetX()), String.valueOf(urExtent.GetY()),
+                            String.valueOf(llExtent.getX()), String.valueOf(llExtent.getY()),
+                            String.valueOf(urExtent.getX()), String.valueOf(urExtent.getY()),
                             String.valueOf(metersPerUnit),
                             unitsType,
                             bgColor,
@@ -835,16 +835,16 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             //connect to the site and get a feature service and a resource service instances
             MgSiteConnection site = createMapGuideConnection();
             if (sessionId == null) {
-                MgSite siteObj = site.GetSite();
-                sessionId = siteObj.GetCurrentSession();
+                MgSite siteObj = site.getSite();
+                sessionId = siteObj.getCurrentSession();
             }
 
             //Get the MgWebLayout object
-            MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+            MgResourceService resourceSrvc = (MgResourceService)site.createService(MgServiceType.ResourceService);
             MgResourceIdentifier webLayoutResId = new MgResourceIdentifier(webLayoutId);
             MgWebLayout webLayout = new MgWebLayout(resourceSrvc, webLayoutResId);
-            MgWebTaskPane taskPane = webLayout.GetTaskPane();
-            String taskPaneUrl = taskPane.GetInitialTaskUrl();
+            MgWebTaskPane taskPane = webLayout.getTaskPane();
+            String taskPaneUrl = taskPane.getInitialTaskUrl();
             String vpath = getViewerRoot();
             if (taskPaneUrl == null || taskPaneUrl.length() == 0)
             {
@@ -879,7 +879,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
         catch (MgException ex) {
             try {
                 String templ = MgLocalizationUtil.Localize(MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("/internal/viewerfiles/errorpage.templ")), locale, getClientOS());
-                String[] vals = { "0", MgLocalizationUtil.GetString("TASKS", locale), ex.GetExceptionMessage() };
+                String[] vals = { "0", MgLocalizationUtil.GetString("TASKS", locale), ex.getExceptionMessage() };
                 response().setContentType("text/html");
                 return internalServerError(MgAjaxViewerUtil.Substitute(templ, vals));
             } catch (Throwable t) {}
@@ -942,16 +942,16 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
             MgSiteConnection site = createMapGuideConnection();
             if (sessionId == null) {
-                MgSite siteObj = site.GetSite();
-                sessionId = siteObj.GetCurrentSession();
+                MgSite siteObj = site.getSite();
+                sessionId = siteObj.getCurrentSession();
             }
 
-            MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+            MgResourceService resourceSrvc = (MgResourceService)site.createService(MgServiceType.ResourceService);
 
             //Load the map runtime state.
             //
             MgMap map = new MgMap();
-            map.Open(resourceSrvc, mapName);
+            map.open(resourceSrvc, mapName);
 
             int updateType = -1;
 
@@ -1044,8 +1044,8 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             }
 
             MgSiteConnection site = createMapGuideConnection();
-            MgFeatureService featureSrvc = (MgFeatureService)site.CreateService(MgServiceType.FeatureService);
-            MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+            MgFeatureService featureSrvc = (MgFeatureService)site.createService(MgServiceType.FeatureService);
+            MgResourceService resourceSrvc = (MgResourceService)site.createService(MgServiceType.ResourceService);
 
             MgResourceIdentifier dataSourceId = new MgResourceIdentifier(dataSource);
             MgResourceIdentifier layerDefId = new MgResourceIdentifier(layerDef);
@@ -1053,8 +1053,8 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             //load the map runtime state and locate the measure layer
             //
             MgMap map = new MgMap();
-            map.Open(resourceSrvc, mapName);
-            MgLayerCollection layers = map.GetLayers();
+            map.open(resourceSrvc, mapName);
+            MgLayerCollection layers = map.getLayers();
             srs = MgAjaxViewerUtil.GetMapSrs(map);
 
             MgLayer layer = MgAjaxViewerUtil.FindLayer(layers, layerDef);
@@ -1063,22 +1063,22 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             {
                 total = 0;
                 if(layer != null)
-                    layers.Remove(layer);
+                    layers.remove(layer);
                 if(MgAjaxViewerUtil.DataSourceExists(resourceSrvc, dataSourceId))
                     MgAjaxViewerUtil.ClearDataSource(featureSrvc, dataSourceId, featureName);
             }
             else
             {
                 MgCoordinateSystemFactory srsFactory = new MgCoordinateSystemFactory();
-                MgCoordinateSystem srsMap = srsFactory.Create(srs);
+                MgCoordinateSystem srsMap = srsFactory.create(srs);
 
-                int srsType = srsMap.GetType();
+                int srsType = srsMap.getType();
                 if(srsType == MgCoordinateSystemType.Geographic)
-                    distance = srsMap.MeasureGreatCircleDistance(x1, y1, x2, y2);
+                    distance = srsMap.measureGreatCircleDistance(x1, y1, x2, y2);
                 else
-                    distance = srsMap.MeasureEuclideanDistance(x1, y1, x2, y2);
+                    distance = srsMap.measureEuclideanDistance(x1, y1, x2, y2);
 
-                distance = srsMap.ConvertCoordinateSystemUnitsToMeters(distance);
+                distance = srsMap.convertCoordinateSystemUnitsToMeters(distance);
 
                 if (units.equals("mi")) distance *= 0.000621371192;  //get miles
                 if (units.equals("km")) distance *= 0.001;           //get kilometers
@@ -1091,9 +1091,9 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                 //
                 MgGeometryFactory geomFactory = new MgGeometryFactory();
                 MgCoordinateCollection coordinates = new MgCoordinateCollection();
-                coordinates.Add(geomFactory.CreateCoordinateXY(x1, y1));
-                coordinates.Add(geomFactory.CreateCoordinateXY(x2, y2));
-                MgLineString geom = geomFactory.CreateLineString(coordinates);
+                coordinates.add(geomFactory.createCoordinateXY(x1, y1));
+                coordinates.add(geomFactory.createCoordinateXY(x2, y2));
+                MgLineString geom = geomFactory.createLineString(coordinates);
 
                 if(segId == 1)
                 {
@@ -1104,42 +1104,45 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                         //create feature source
                         //
                         MgClassDefinition classDef = new MgClassDefinition();
+                        MgPropertyDefinitionCollection clsProps = classDef.getProperties();
+                        MgPropertyDefinitionCollection idProps = classDef.getIdentityProperties();
 
-                        classDef.SetName(featureName);
-                        classDef.SetDescription(MgLocalizationUtil.GetString("MEASUREFEATURECLASS", locale));
-                        classDef.SetDefaultGeometryPropertyName("GEOM");
+                        classDef.setName(featureName);
+                        classDef.setDescription(MgLocalizationUtil.GetString("MEASUREFEATURECLASS", locale));
+                        classDef.setDefaultGeometryPropertyName("GEOM");
 
                         //Set KEY property
                         MgDataPropertyDefinition prop = new MgDataPropertyDefinition("KEY");
-                        prop.SetDataType(MgPropertyType.Int32);
-                        prop.SetAutoGeneration(true);
-                        prop.SetReadOnly(true);
-                        classDef.GetIdentityProperties().Add(prop);
-                        classDef.GetProperties().Add(prop);
+                        prop.setDataType(MgPropertyType.Int32);
+                        prop.setAutoGeneration(true);
+                        prop.setReadOnly(true);
+                        idProps.add(prop);
+                        clsProps.add(prop);
 
                         //Set PARTIAL property. Hold the distance for this segment
                         prop = new MgDataPropertyDefinition("PARTIAL");
-                        prop.SetDataType(MgPropertyType.Double);
-                        classDef.GetProperties().Add(prop);
+                        prop.setDataType(MgPropertyType.Double);
+                        clsProps.add(prop);
 
                         //Set TOTAL property. Hold the total distance up to this segment, including it
                         prop = new MgDataPropertyDefinition("TOTAL");
-                        prop.SetDataType(MgPropertyType.Double);
-                        classDef.GetProperties().Add(prop);
+                        prop.setDataType(MgPropertyType.Double);
+                        clsProps.add(prop);
 
                         //Set geometry property
                         MgGeometricPropertyDefinition geomProp = new MgGeometricPropertyDefinition("GEOM");
                         //geomProp.SetGeometryTypes(MgFeatureGeometricType.mfgtSurface); //TODO use the constant when exposed
-                        geomProp.SetGeometryTypes(4);
-                        classDef.GetProperties().Add(geomProp);
+                        geomProp.setGeometryTypes(4);
+                        clsProps.add(geomProp);
 
                         //Create the schema
                         MgFeatureSchema schema = new MgFeatureSchema("MeasureSchema", MgLocalizationUtil.GetString("MEASURESCHEMADESCR", locale));
-                        schema.GetClasses().Add(classDef);
+                        MgClassDefinitionCollection classes = schema.getClasses();
+                        classes.add(classDef);
 
                         //finally, creation of the feature source
                         MgCreateSdfParams parameters = new MgCreateSdfParams("MapSrs", srs, schema);
-                        featureSrvc.CreateFeatureSource(dataSourceId, parameters);
+                        featureSrvc.createFeatureSource(dataSourceId, parameters);
 
                         //build map tip
                         String unitText = "";
@@ -1155,7 +1158,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                         //Create the layer definition
                         String layerTempl = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("/internal/viewerfiles/linelayerdef.templ"));
                         MgByteReader layerDefContent = MgAjaxViewerUtil.BuildLayerDefinitionContent(layerTempl, dataSource, featureName, tip);
-                        resourceSrvc.SetResource(layerDefId, layerDefContent, null);
+                        resourceSrvc.setResource(layerDefId, layerDefContent, null);
                     }
                     else
                     {
@@ -1168,9 +1171,9 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     {
                         legendName = MgLocalizationUtil.GetString("MEASURELAYER", locale);
                         layer = new MgLayer(layerDefId, resourceSrvc);
-                        layer.SetDisplayInLegend(true);
-                        layer.SetLegendLabel(legendName);
-                        layers.Insert(0, layer);
+                        layer.setDisplayInLegend(true);
+                        layer.setLegendLabel(legendName);
+                        layers.insert(0, layer);
                     }
                 }
                 // create a feature representing this segment and insert it into the data source
@@ -1178,28 +1181,28 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                 MgPropertyCollection measureProps = new MgPropertyCollection();
 
                 MgDoubleProperty partialProp = new MgDoubleProperty("PARTIAL", distance);
-                measureProps.Add(partialProp);
+                measureProps.add(partialProp);
 
                 MgDoubleProperty totalProp = new MgDoubleProperty("TOTAL", total);
-                measureProps.Add(totalProp);
+                measureProps.add(totalProp);
 
                 MgAgfReaderWriter agf = new MgAgfReaderWriter();
-                MgByteReader geomReader = agf.Write(geom);
+                MgByteReader geomReader = agf.write(geom);
                 MgGeometryProperty geometryProp = new MgGeometryProperty("GEOM", geomReader);
-                measureProps.Add(geometryProp);
+                measureProps.add(geometryProp);
 
                 MgInsertFeatures cmd = new MgInsertFeatures(featureName, measureProps);
                 MgFeatureCommandCollection commands = new MgFeatureCommandCollection();
-                commands.Add(cmd);
+                commands.add(cmd);
 
                 //Insert the distance feature in the temporary data source
                 //
-                MgAjaxViewerUtil.ReleaseReader(featureSrvc.UpdateFeatures(dataSourceId, commands, false));
+                MgAjaxViewerUtil.ReleaseReader(featureSrvc.updateFeatures(dataSourceId, commands, false));
             }
 
             if(layer != null)
-                layer.ForceRefresh();
-            map.Save(resourceSrvc);
+                layer.forceRefresh();
+            map.save(resourceSrvc);
 
             String templ = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("/internal/viewerfiles/measureui.templ"));
 
@@ -1340,8 +1343,8 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
             //connect to the site and get a feature service and a resource service instances
             MgSiteConnection site = createMapGuideConnection();
-            MgFeatureService featureSrvc = (MgFeatureService)site.CreateService(MgServiceType.FeatureService);
-            MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+            MgFeatureService featureSrvc = (MgFeatureService)site.createService(MgServiceType.FeatureService);
+            MgResourceService resourceSrvc = (MgResourceService)site.createService(MgServiceType.ResourceService);
 
             MgResourceIdentifier dataSourceId = new MgResourceIdentifier(dataSource);
             MgResourceIdentifier layerDefId = new MgResourceIdentifier(layerDef);
@@ -1349,11 +1352,11 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             //load the map runtime state
             //
             MgMap map = new MgMap();
-            map.Open(resourceSrvc, mapName);
+            map.open(resourceSrvc, mapName);
 
             //locate the buffer layer in the map. It might or might not already exist
             //
-            MgLayerCollection layers = map.GetLayers();
+            MgLayerCollection layers = map.getLayers();
             MgLayer layer = MgAjaxViewerUtil.FindLayer(layers, bufferName);
 
             String[] layerNames = layersParam.split(",");
@@ -1371,15 +1374,15 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             MgCoordinateSystemFactory srsFactory = new MgCoordinateSystemFactory();
             String srsDefMap = MgAjaxViewerUtil.GetMapSrs(map);
             String mapSrsUnits = "";
-            MgCoordinateSystem srsMap = srsFactory.Create(srsDefMap);
-            boolean arbitraryMapSrs = (srsMap.GetType() == MgCoordinateSystemType.Arbitrary);
+            MgCoordinateSystem srsMap = srsFactory.create(srsDefMap);
+            boolean arbitraryMapSrs = (srsMap.getType() == MgCoordinateSystemType.Arbitrary);
             if(arbitraryMapSrs)
-                mapSrsUnits = srsMap.GetUnits();
+                mapSrsUnits = srsMap.getUnits();
 
             //Create/Modify layer definition
             String layerTempl = MgAjaxViewerUtil.LoadTemplate(Play.application().getFile("/internal/viewerfiles/arealayerdef.templ"));
             MgByteReader layerDefContent = MgAjaxViewerUtil.BuildAreaLayerDefinitionContent(layerTempl, dataSource, featureName, fillstyle, ffcolor, transparent, fbcolor, linestyle, thickness, foretrans, lcolor);
-            resourceSrvc.SetResource(layerDefId, layerDefContent, null);
+            resourceSrvc.setResource(layerDefId, layerDefContent, null);
 
             if(layer == null)
             {
@@ -1387,45 +1390,48 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                 //Targetting a new layer. create a data source for it
                 //
                 MgClassDefinition classDef = new MgClassDefinition();
+                MgPropertyDefinitionCollection clsProps = classDef.getProperties();
+                MgPropertyDefinitionCollection idProps = classDef.getIdentityProperties();
 
-                classDef.SetName(featureName);
-                classDef.SetDescription(MgLocalizationUtil.GetString("BUFFERCLASSDESCR", locale));
-                classDef.SetDefaultGeometryPropertyName("GEOM");
+                classDef.setName(featureName);
+                classDef.setDescription(MgLocalizationUtil.GetString("BUFFERCLASSDESCR", locale));
+                classDef.setDefaultGeometryPropertyName("GEOM");
 
                 //Set KEY property
                 MgDataPropertyDefinition propKey = new MgDataPropertyDefinition("KEY");
-                propKey.SetDataType(MgPropertyType.Int32);
-                propKey.SetAutoGeneration(true);
-                propKey.SetReadOnly(true);
-                classDef.GetIdentityProperties().Add(propKey);
-                classDef.GetProperties().Add(propKey);
+                propKey.setDataType(MgPropertyType.Int32);
+                propKey.setAutoGeneration(true);
+                propKey.setReadOnly(true);
+                idProps.add(propKey);
+                clsProps.add(propKey);
 
                 //Set ID property. Hold this segment ID
                 MgDataPropertyDefinition propID = new MgDataPropertyDefinition("ID");
-                propID.SetDataType(MgPropertyType.Int32);
-                classDef.GetProperties().Add(propID);
+                propID.setDataType(MgPropertyType.Int32);
+                clsProps.add(propID);
 
                 //Set geometry property
                 MgGeometricPropertyDefinition geomProp = new MgGeometricPropertyDefinition("GEOM");
                 //geomProp.SetGeometryTypes(MgFeatureGeometricType.mfgtSurface); //TODO use the constant when exposed
-                geomProp.SetGeometryTypes(4);
-                classDef.GetProperties().Add(geomProp);
+                geomProp.setGeometryTypes(4);
+                clsProps.add(geomProp);
 
                 //Create the schema
                 MgFeatureSchema schema = new MgFeatureSchema("BufferSchema", MgLocalizationUtil.GetString("BUFFERSCHEMADESCR", locale));
-                schema.GetClasses().Add(classDef);
+                MgClassDefinitionCollection classes = schema.getClasses();
+                classes.add(classDef);
 
                 //finally, creation of the feature source
                 MgCreateSdfParams sdfParams = new MgCreateSdfParams("LatLong", srsDefMap, schema);
-                featureSrvc.CreateFeatureSource(dataSourceId, sdfParams);
+                featureSrvc.createFeatureSource(dataSourceId, sdfParams);
 
                 //Add layer to map
                 layer = new MgLayer(layerDefId, resourceSrvc);
-                layer.SetName(bufferName);
-                layer.SetLegendLabel(bufferName);
-                layer.SetDisplayInLegend(true);
-                layer.SetSelectable(true);
-                layers.Insert(0, layer);
+                layer.setName(bufferName);
+                layer.setLegendLabel(bufferName);
+                layer.setDisplayInLegend(true);
+                layer.setSelectable(true);
+                layers.insert(0, layer);
             }
             else
             {
@@ -1435,7 +1441,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             }
 
             MgSelection sel = new MgSelection(map, selText);
-            MgReadOnlyLayerCollection selLayers = sel.GetLayers();
+            MgReadOnlyLayerCollection selLayers = sel.getLayers();
 
             MgAgfReaderWriter agfRW = new MgAgfReaderWriter();
             MgGeometryCollection bufferGeometries = new MgGeometryCollection();
@@ -1451,11 +1457,11 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
             MgGeometryCollection inputGeometries = new MgGeometryCollection();
 
             int bufferFeatures = 0;
-            for(int li =0; li < selLayers.GetCount(); li++)
+            for(int li =0; li < selLayers.getCount(); li++)
             {
-                MgLayer selLayer = (MgLayer) selLayers.GetItem(li);
+                MgLayer selLayer = (MgLayer) selLayers.getItem(li);
                 boolean inputLayer = false;
-                String selLayerName = selLayer.GetName();
+                String selLayerName = selLayer.getName();
                 for(int il = 0; il < layerNames.length; il++)
                 {
                     if(layerNames[il].equals(selLayerName))
@@ -1469,11 +1475,11 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
                 // get the data source SRS
                 //
-                MgResourceIdentifier featSourceId = new MgResourceIdentifier(selLayer.GetFeatureSourceId());
-                MgSpatialContextReader ctxs = featureSrvc.GetSpatialContexts(featSourceId, false);
+                MgResourceIdentifier featSourceId = new MgResourceIdentifier(selLayer.getFeatureSourceId());
+                MgSpatialContextReader ctxs = featureSrvc.getSpatialContexts(featSourceId, false);
                 String srsDefDs = "";
-                if(ctxs != null && ctxs.ReadNext())
-                    srsDefDs = ctxs.GetCoordinateSystemWkt();
+                if(ctxs != null && ctxs.readNext())
+                    srsDefDs = ctxs.getCoordinateSystemWkt();
 
                 if(srsDefDs == null || srsDefDs.length() == 0)
                 {
@@ -1481,12 +1487,12 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                     continue;
                 }
 
-                srsDs = srsFactory.Create(srsDefDs);
-                boolean arbitraryDsSrs = (srsDs.GetType() == MgCoordinateSystemType.Arbitrary);
+                srsDs = srsFactory.create(srsDefDs);
+                boolean arbitraryDsSrs = (srsDs.getType() == MgCoordinateSystemType.Arbitrary);
                 String dsSrsUnits = "";
 
                 if(arbitraryDsSrs)
-                    dsSrsUnits = srsDs.GetUnits();
+                    dsSrsUnits = srsDs.getUnits();
 
                 // exclude layer if:
                 //  the map is non-arbitrary and the layer is arbitrary or vice-versa
@@ -1501,51 +1507,51 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
                 // calculate distance in the data source SRS units
                 //
-                double dist = srsDs.ConvertMetersToCoordinateSystemUnits(distance);
+                double dist = srsDs.convertMetersToCoordinateSystemUnits(distance);
 
                 // calculate great circle unless data source srs is arbitrary
                 MgCoordinateSystemMeasure measure;
                 if(!arbitraryDsSrs)
-                     measure = srsDs.GetMeasure();
+                     measure = srsDs.getMeasure();
                 else
                      measure = null;
 
                 // create a SRS transformer if necessary
                 MgCoordinateSystemTransform srsXform;
                 if(!srsDefDs.equals(srsDefMap))
-                    srsXform = srsFactory.GetTransform(srsDs, srsMap);
+                    srsXform = srsFactory.getTransform(srsDs, srsMap);
                 else
                     srsXform = null;
 
-                String featureClassName = selLayer.GetFeatureClassName();
-                String filter = sel.GenerateFilter(selLayer, featureClassName);
+                String featureClassName = selLayer.getFeatureClassName();
+                String filter = sel.generateFilter(selLayer, featureClassName);
                 if(filter == null || filter.length() == 0)
                     continue;
 
                 MgFeatureQueryOptions query = new MgFeatureQueryOptions();
-                query.SetFilter(filter);
+                query.setFilter(filter);
 
-                MgResourceIdentifier featureSource = new MgResourceIdentifier(selLayer.GetFeatureSourceId());
+                MgResourceIdentifier featureSource = new MgResourceIdentifier(selLayer.getFeatureSourceId());
 
-                MgFeatureReader features = featureSrvc.SelectFeatures(featureSource, featureClassName, query);
+                MgFeatureReader features = featureSrvc.selectFeatures(featureSource, featureClassName, query);
 
-                if(features.ReadNext())
+                if(features.readNext())
                 {
-                    MgClassDefinition classDef = features.GetClassDefinition();
-                    String geomPropName = classDef.GetDefaultGeometryPropertyName();
+                    MgClassDefinition classDef = features.getClassDefinition();
+                    String geomPropName = classDef.getDefaultGeometryPropertyName();
 
                     do
                     {
-                        MgByteReader geomReader = features.GetGeometry(geomPropName);
-                        MgGeometry geom = agfRW.Read(geomReader);
+                        MgByteReader geomReader = features.getGeometry(geomPropName);
+                        MgGeometry geom = agfRW.read(geomReader);
 
                         if(merge == 0)
                         {
-                            geomBuffer = geom.Buffer(dist, measure);
+                            geomBuffer = geom.buffer(dist, measure);
                             if (geomBuffer != null)
                             {
                                 if(srsXform != null)
-                                    geomBuffer = (MgGeometry)geomBuffer.Transform(srsXform);
+                                    geomBuffer = (MgGeometry)geomBuffer.transform(srsXform);
                                 MgAjaxViewerUtil.AddFeatureToCollection(propCollection, agfRW, featId++, geomBuffer);
                                 bufferFeatures++;
                             }
@@ -1553,29 +1559,30 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                         else
                         {
                             if(srsXform != null)
-                                geom = (MgGeometry)geom.Transform(srsXform);
-                            inputGeometries.Add(geom);
+                                geom = (MgGeometry)geom.transform(srsXform);
+                            inputGeometries.add(geom);
                         }
                     }
-                    while(features.ReadNext());
+                    while(features.readNext());
 
-                    features.Close();
+                    features.close();
                 }
             }
 
             if(merge == 1)
             {
-                if(inputGeometries.GetCount() > 0)
+                if(inputGeometries.getCount() > 0)
                 {
-                    double dist = srsMap.ConvertMetersToCoordinateSystemUnits(distance);
+                    double dist = srsMap.convertMetersToCoordinateSystemUnits(distance);
                     MgCoordinateSystemMeasure measure;
                     if(!arbitraryMapSrs)
-                        measure = srsMap.GetMeasure();
+                        measure = srsMap.getMeasure();
                     else
                         measure = null;
 
                     MgGeometryFactory geomFactory = new MgGeometryFactory();
-                    geomBuffer = geomFactory.CreateMultiGeometry(inputGeometries).Buffer(dist, measure);
+                    MgGeometry multiGeom = geomFactory.createMultiGeometry(inputGeometries);
+                    geomBuffer = multiGeom.buffer(dist, measure);
                     if (geomBuffer != null)
                     {
                         MgAjaxViewerUtil.AddFeatureToCollection(propCollection, agfRW, featId, geomBuffer);
@@ -1584,19 +1591,20 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                 }
             }
 
-            if(propCollection.GetCount() > 0)
+            if(propCollection.getCount() > 0)
             {
-                commands.Add(new MgInsertFeatures(featureName, propCollection));
+                MgInsertFeatures insertCmd = new MgInsertFeatures(featureName, propCollection);
+                commands.add(insertCmd);
 
                 //Insert the features in the temporary data source
                 //
-                MgAjaxViewerUtil.ReleaseReader(featureSrvc.UpdateFeatures(dataSourceId, commands, false), commands);
+                MgAjaxViewerUtil.ReleaseReader(featureSrvc.updateFeatures(dataSourceId, commands, false), commands);
             }
 
             // Save the new map state
             //
-            layer.ForceRefresh();
-            map.Save(resourceSrvc);
+            layer.forceRefresh();
+            map.save(resourceSrvc);
 
             //build report message
             String title = MgLocalizationUtil.GetString("BUFFERREPORTTITLE", locale);
@@ -1660,16 +1668,16 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                 //filter out unused commands
                 //
                 MgSiteConnection site = createMapGuideConnection();
-                MgResourceService resourceSrvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+                MgResourceService resourceSrvc = (MgResourceService)site.createService(MgServiceType.ResourceService);
                 MgResourceIdentifier wli = new MgResourceIdentifier(webLayout);
                 byte[] hb = fixedupHtml.getBytes("UTF-8");
                 MgByteSource src = new MgByteSource(hb, hb.length);
                 MgWebLayout wl = new MgWebLayout(resourceSrvc, wli);
-                MgByteReader pagestream = wl.ProcessGettingStartedPage(src.GetReader(), dwf);
+                MgByteReader pagestream = wl.processGettingStartedPage(src.getReader(), dwf);
                 if (pagestream == null)
                     return ok(fixedupHtml);
                 else
-                    return ok(pagestream.ToString());
+                    return ok(pagestream.toString());
             }
             else
                 return ok(fixedupHtml);
@@ -1691,33 +1699,33 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
         {
             MgSiteConnection site = createMapGuideConnection();
             if (sessionId == null) {
-                MgSite siteObj = site.GetSite();
-                sessionId = siteObj.GetCurrentSession();
+                MgSite siteObj = site.getSite();
+                sessionId = siteObj.getCurrentSession();
             }
 
-            MgResourceService resSvc = (MgResourceService)site.CreateService(MgServiceType.ResourceService);
+            MgResourceService resSvc = (MgResourceService)site.createService(MgServiceType.ResourceService);
 
             MgMap map = new MgMap(site);
-            map.Open(mapName);
+            map.open(mapName);
 
             MgSelection selection = new MgSelection(map);
-            selection.Open(resSvc, mapName);
+            selection.open(resSvc, mapName);
 
-            MgReadOnlyLayerCollection layers = selection.GetLayers();
-            if (layers != null && layers.GetCount() > 0)
+            MgReadOnlyLayerCollection layers = selection.getLayers();
+            if (layers != null && layers.getCount() > 0)
             {
-                int layerCount = layers.GetCount();
+                int layerCount = layers.getCount();
                 MgAgfReaderWriter agfRW = new MgAgfReaderWriter();
                 SelectionSet selectionSet = new SelectionSet();
 
                 for (int i = 0; i < layerCount; i++)
                 {
-                    MgLayerBase layer = layers.GetItem(i);
-                    String layerName = layer.GetName();
+                    MgLayerBase layer = layers.getItem(i);
+                    String layerName = layer.getName();
 
-                    MgResourceIdentifier fsId = new MgResourceIdentifier(layer.GetFeatureSourceId());
-                    String className = layer.GetFeatureClassName();
-                    String geomName = layer.GetFeatureGeometryName();
+                    MgResourceIdentifier fsId = new MgResourceIdentifier(layer.getFeatureSourceId());
+                    String className = layer.getFeatureClassName();
+                    String geomName = layer.getFeatureGeometryName();
 
                     MgFeatureQueryOptions query = new MgFeatureQueryOptions();
                     HashMap<String, String> mappings = MgAjaxViewerUtil.GetLayerPropertyMappings(resSvc, layer);
@@ -1725,48 +1733,48 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
 
                     for (String name : propNames)
                     {
-                        query.AddFeatureProperty(name);
+                        query.addFeatureProperty(name);
                     }
 
-                    query.AddFeatureProperty(geomName);
-                    String filter = selection.GenerateFilter(layer, className);
-                    query.SetFilter(filter);
+                    query.addFeatureProperty(geomName);
+                    String filter = selection.generateFilter(layer, className);
+                    query.setFilter(filter);
 
-                    MgFeatureReader reader = layer.SelectFeatures(query);
+                    MgFeatureReader reader = layer.selectFeatures(query);
 
-                    MgClassDefinition clsDef = reader.GetClassDefinition();
-                    MgPropertyDefinitionCollection props = clsDef.GetProperties();
+                    MgClassDefinition clsDef = reader.getClassDefinition();
+                    MgPropertyDefinitionCollection props = clsDef.getProperties();
 
-                    while (reader.ReadNext())
+                    while (reader.readNext())
                     {
                         Feature feat = new Feature(layerName);
                         ZoomBox zoom = null;
 
-                        for (int k = 0; k < props.GetCount(); k++)
+                        for (int k = 0; k < props.getCount(); k++)
                         {
-                            MgPropertyDefinition propDef = props.GetItem(k);
-                            String propName = propDef.GetName();
-                            int propType = reader.GetPropertyType(propName);
+                            MgPropertyDefinition propDef = props.getItem(k);
+                            String propName = propDef.getName();
+                            int propType = reader.getPropertyType(propName);
 
                             if (mappings.get(propName) != null || propType == MgPropertyType.Geometry)
                             {
                                 String value = "";
-                                if (!reader.IsNull(propName))
+                                if (!reader.isNull(propName))
                                 {
                                     if (propName.equals(geomName))
                                     {
-                                        MgByteReader agf = reader.GetGeometry(propName);
-                                        MgGeometry geom = agfRW.Read(agf);
+                                        MgByteReader agf = reader.getGeometry(propName);
+                                        MgGeometry geom = agfRW.read(agf);
 
-                                        MgEnvelope env = geom.Envelope();
-                                        MgCoordinate ll = env.GetLowerLeftCoordinate();
-                                        MgCoordinate ur = env.GetUpperRightCoordinate();
+                                        MgEnvelope env = geom.envelope();
+                                        MgCoordinate ll = env.getLowerLeftCoordinate();
+                                        MgCoordinate ur = env.getUpperRightCoordinate();
 
                                         zoom = new ZoomBox();
-                                        zoom.MinX = ll.GetX();
-                                        zoom.MinY = ll.GetY();
-                                        zoom.MaxX = ur.GetX();
-                                        zoom.MaxY = ur.GetY();
+                                        zoom.MinX = ll.getX();
+                                        zoom.MinY = ll.getY();
+                                        zoom.MaxX = ur.getX();
+                                        zoom.MaxY = ur.getY();
 
                                         feat.Zoom = zoom;
                                     }
@@ -1788,7 +1796,7 @@ public abstract class MgAjaxViewerController extends MgAbstractController {
                         }
                         selectionSet.addFeature(feat);
                     }
-                    reader.Close();
+                    reader.close();
                 }
 
                 //Now output the selection set

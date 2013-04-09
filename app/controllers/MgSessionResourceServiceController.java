@@ -20,12 +20,12 @@ public class MgSessionResourceServiceController extends MgAbstractController {
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
-            siteConn.Open(userInfo);
+            siteConn.open(userInfo);
 
-            MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
-            MgByteReader resContent = resSvc.GetResourceContent(resId);
-            response().setContentType(resContent.GetMimeType());
-            return ok(resContent.ToString());
+            MgResourceService resSvc = (MgResourceService)siteConn.createService(MgServiceType.ResourceService);
+            MgByteReader resContent = resSvc.getResourceContent(resId);
+            response().setContentType(resContent.getMimeType());
+            return ok(resContent.toString());
         } catch (MgException ex) {
             return mgServerError(ex);
         }
@@ -37,12 +37,12 @@ public class MgSessionResourceServiceController extends MgAbstractController {
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
-            siteConn.Open(userInfo);
+            siteConn.open(userInfo);
 
-            MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
-            MgByteReader resHeader = resSvc.GetResourceHeader(resId);
-            response().setContentType(resHeader.GetMimeType());
-            return ok(resHeader.ToString());
+            MgResourceService resSvc = (MgResourceService)siteConn.createService(MgServiceType.ResourceService);
+            MgByteReader resHeader = resSvc.getResourceHeader(resId);
+            response().setContentType(resHeader.getMimeType());
+            return ok(resHeader.toString());
         } catch (MgException ex) {
             return mgServerError(ex);
         }
@@ -54,12 +54,12 @@ public class MgSessionResourceServiceController extends MgAbstractController {
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
-            siteConn.Open(userInfo);
+            siteConn.open(userInfo);
 
-            MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
-            MgByteReader resDataList = resSvc.EnumerateResourceData(resId);
-            response().setContentType(resDataList.GetMimeType());
-            return ok(resDataList.ToString());
+            MgResourceService resSvc = (MgResourceService)siteConn.createService(MgServiceType.ResourceService);
+            MgByteReader resDataList = resSvc.enumerateResourceData(resId);
+            response().setContentType(resDataList.getMimeType());
+            return ok(resDataList.toString());
         } catch (MgException ex) {
             return mgServerError(ex);
         }
@@ -71,10 +71,10 @@ public class MgSessionResourceServiceController extends MgAbstractController {
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
-            siteConn.Open(userInfo);
+            siteConn.open(userInfo);
 
-            MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
-            MgByteReader resData = resSvc.GetResourceData(resId, dataName);
+            MgResourceService resSvc = (MgResourceService)siteConn.createService(MgServiceType.ResourceService);
+            MgByteReader resData = resSvc.getResourceData(resId, dataName);
 
             response().setHeader("Content-Disposition", "attachment; filename=" + dataName);
             return ok(MgAjaxViewerUtil.ByteReaderToStream(resData));
@@ -93,13 +93,13 @@ public class MgSessionResourceServiceController extends MgAbstractController {
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
-            siteConn.Open(userInfo);
+            siteConn.open(userInfo);
 
-            MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
+            MgResourceService resSvc = (MgResourceService)siteConn.createService(MgServiceType.ResourceService);
 
             MgByteSource src = new MgByteSource(bytes, bytes.length);
-            MgByteReader content = src.GetReader();
-            resSvc.SetResource(resId, content, null);
+            MgByteReader content = src.getReader();
+            resSvc.setResource(resId, content, null);
             return created();
         } catch (MgException ex) {
             return mgServerError(ex);
@@ -118,13 +118,13 @@ public class MgSessionResourceServiceController extends MgAbstractController {
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
-            siteConn.Open(userInfo);
+            siteConn.open(userInfo);
 
-            MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
+            MgResourceService resSvc = (MgResourceService)siteConn.createService(MgServiceType.ResourceService);
 
             MgByteSource src = new MgByteSource(bytes, bytes.length);
-            MgByteReader header = src.GetReader();
-            resSvc.SetResource(resId, null, header);
+            MgByteReader header = src.getReader();
+            resSvc.setResource(resId, null, header);
             return created();
         } catch (MgException ex) {
             return mgServerError(ex);
@@ -140,12 +140,12 @@ public class MgSessionResourceServiceController extends MgAbstractController {
             MgResourceIdentifier resId = new MgResourceIdentifier("Session:" + sessionId + "//" + resourcePath);
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
-            siteConn.Open(userInfo);
+            siteConn.open(userInfo);
 
-            MgResourceService resSvc = (MgResourceService)siteConn.CreateService(MgServiceType.ResourceService);
+            MgResourceService resSvc = (MgResourceService)siteConn.createService(MgServiceType.ResourceService);
             MgByteSource src = new MgByteSource(raw.asFile().getAbsolutePath());
-            MgByteReader resData = src.GetReader();
-            resSvc.SetResourceData(resId, dataName, MgResourceDataType.File, resData);
+            MgByteReader resData = src.getReader();
+            resSvc.setResourceData(resId, dataName, MgResourceDataType.File, resData);
             return created();
         } catch (MgException ex) {
             return mgServerError(ex);

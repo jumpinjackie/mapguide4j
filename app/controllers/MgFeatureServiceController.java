@@ -30,21 +30,21 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
             String uri =  "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "GETSCHEMAS");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("RESOURCEID", fsId);
+            param.addParameter("OPERATION", "GETSCHEMAS");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("RESOURCEID", fsId);
 
             if (fmt.equals("xml")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             }
             else if (fmt.equals("json")) {
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
             }
             else if (fmt.equals("html")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
-                param.AddParameter("XSLSTYLESHEET", "FeatureSchemaNameList.xsl");
+                param.addParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("XSLSTYLESHEET", "FeatureSchemaNameList.xsl");
             }
 
             return executeRequestInternal(request);
@@ -69,17 +69,17 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
             String uri =  "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "GETSPATIALCONTEXTS");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("RESOURCEID", fsId);
-            param.AddParameter("ACTIVEONLY", "0");
+            param.addParameter("OPERATION", "GETSPATIALCONTEXTS");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("RESOURCEID", fsId);
+            param.addParameter("ACTIVEONLY", "0");
 
             if (fmt.equals("xml") || fmt.equals("html"))
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             else if (fmt.equals("json"))
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
 
             return executeRequestInternal(request);
         } catch (MgException ex) {
@@ -103,17 +103,17 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
             String uri =  "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "GETCLASSES");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("RESOURCEID", fsId);
-            param.AddParameter("SCHEMA", schemaName);
+            param.addParameter("OPERATION", "GETCLASSES");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("RESOURCEID", fsId);
+            param.addParameter("SCHEMA", schemaName);
 
             if (fmt.equals("xml") || fmt.equals("html"))
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             else if (fmt.equals("json"))
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
 
             return executeRequestInternal(request);
         } catch (MgException ex) {
@@ -137,22 +137,22 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
             String uri =  "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "DESCRIBEFEATURESCHEMA");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("RESOURCEID", fsId);
-            param.AddParameter("SCHEMA", schemaName);
+            param.addParameter("OPERATION", "DESCRIBEFEATURESCHEMA");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("RESOURCEID", fsId);
+            param.addParameter("SCHEMA", schemaName);
 
             if (fmt.equals("xml")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             }
             else if (fmt.equals("json")) {
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
             }
             else if (fmt.equals("html")) {
-                param.AddParameter("FORMAT", MgMimeType.Xml);
-                param.AddParameter("XSLSTYLESHEET", "FeatureSchema.xsl");
+                param.addParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("XSLSTYLESHEET", "FeatureSchema.xsl");
             }
 
             return executeRequestInternal(request);
@@ -177,18 +177,18 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
             String uri =  "";
             MgHttpRequest request = new MgHttpRequest(uri);
-            MgHttpRequestParam param = request.GetRequestParam();
+            MgHttpRequestParam param = request.getRequestParam();
 
-            param.AddParameter("OPERATION", "DESCRIBEFEATURESCHEMA");
-            param.AddParameter("VERSION", "1.0.0");
-            param.AddParameter("RESOURCEID", fsId);
-            param.AddParameter("SCHEMA", schemaName);
-            param.AddParameter("CLASSNAMES", className);
+            param.addParameter("OPERATION", "DESCRIBEFEATURESCHEMA");
+            param.addParameter("VERSION", "1.0.0");
+            param.addParameter("RESOURCEID", fsId);
+            param.addParameter("SCHEMA", schemaName);
+            param.addParameter("CLASSNAMES", className);
 
             if (fmt.equals("xml") || fmt.equals("html"))
-                param.AddParameter("FORMAT", MgMimeType.Xml);
+                param.addParameter("FORMAT", MgMimeType.Xml);
             else if (fmt.equals("json"))
-                param.AddParameter("FORMAT", MgMimeType.Json);
+                param.addParameter("FORMAT", MgMimeType.Json);
 
             return executeRequestInternal(request);
         } catch (MgException ex) {
@@ -206,36 +206,36 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             MgStringCollection deletedClasses = new MgStringCollection();
             MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
+            MgFeatureService featSvc = (MgFeatureService)siteConn.createService(MgServiceType.FeatureService);
 
-            MgFeatureSchemaCollection schemas = featSvc.DescribeSchema(fsId, schemaName);
-            int schemaCount = schemas.GetCount();
+            MgFeatureSchemaCollection schemas = featSvc.describeSchema(fsId, schemaName);
+            int schemaCount = schemas.getCount();
             for (int i = 0; i < schemaCount; i++) {
-                MgFeatureSchema theSchema = schemas.GetItem(i);
-                if (theSchema.GetName().equals(schemaName)) {
-                    MgFeatureSchema applyMe = new MgFeatureSchema(theSchema.GetName(), theSchema.GetDescription());
-                    MgClassDefinitionCollection deleteMe = applyMe.GetClasses();
+                MgFeatureSchema theSchema = schemas.getItem(i);
+                if (theSchema.getName().equals(schemaName)) {
+                    MgFeatureSchema applyMe = new MgFeatureSchema(theSchema.getName(), theSchema.getDescription());
+                    MgClassDefinitionCollection deleteMe = applyMe.getClasses();
 
                     //Find matching classes and mark them for deletion
-                    MgClassDefinitionCollection classDefs = theSchema.GetClasses();
-                    int clsCount = classDefs.GetCount();
+                    MgClassDefinitionCollection classDefs = theSchema.getClasses();
+                    int clsCount = classDefs.getCount();
                     for (int j = 0; j < clsCount; j++) {
-                        MgClassDefinition clsDef = classDefs.GetItem(j);
-                        String clsName = clsDef.GetName();
+                        MgClassDefinition clsDef = classDefs.getItem(j);
+                        String clsName = clsDef.getName();
                         for (String name : classes) {
                             if (name.equals(clsName)) {
-                                deleteMe.Add(clsDef);
+                                deleteMe.add(clsDef);
                                 Logger.debug("Class marked for deletion: " + clsName);
-                                clsDef.Delete(); //Mark for deletion
-                                deletedClasses.Add(name);
+                                clsDef.markAsDeleted(); //Mark for deletion
+                                deletedClasses.add(name);
                                 break;
                             }
                         }
                     }
 
-                    if (deletedClasses.GetCount() > 0) {
+                    if (deletedClasses.getCount() > 0) {
                         Logger.debug("Apply Schema");
-                        featSvc.ApplySchema(fsId, applyMe);
+                        featSvc.applySchema(fsId, applyMe);
                     }
                     return mgStringCollectionXml(deletedClasses);
                 }
@@ -255,17 +255,17 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             MgStringCollection deletedClasses = new MgStringCollection();
             MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
+            MgFeatureService featSvc = (MgFeatureService)siteConn.createService(MgServiceType.FeatureService);
 
-            MgFeatureSchemaCollection schemas = featSvc.DescribeSchema(fsId, schemaName);
-            int schemaCount = schemas.GetCount();
+            MgFeatureSchemaCollection schemas = featSvc.describeSchema(fsId, schemaName);
+            int schemaCount = schemas.getCount();
             for (int i = 0; i < schemaCount; i++) {
-                MgFeatureSchema theSchema = schemas.GetItem(i);
-                if (theSchema.GetName().equals(schemaName)) {
+                MgFeatureSchema theSchema = schemas.getItem(i);
+                if (theSchema.getName().equals(schemaName)) {
                     Logger.debug("Schema marked for deletion: " + schemaName);
-                    theSchema.Delete(); //Mark as deleted
+                    theSchema.markAsDeleted(); //Mark as deleted
                     Logger.debug("Apply Schema");
-                    featSvc.ApplySchema(fsId, theSchema);
+                    featSvc.applySchema(fsId, theSchema);
                     return ok(schemaName);
                 }
             }
@@ -289,7 +289,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
 
             MgResourceIdentifier fsId = constructResourceId(repoType, resourcePath);
             MgSiteConnection siteConn = createMapGuideConnection();
-            MgFeatureService featSvc = (MgFeatureService)siteConn.CreateService(MgServiceType.FeatureService);
+            MgFeatureService featSvc = (MgFeatureService)siteConn.createService(MgServiceType.FeatureService);
 
             MgFeatureQueryOptions query = new MgFeatureQueryOptions();
             Map<String, String[]> queryParams = request().queryString();
@@ -302,7 +302,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             if (queryParams.get("properties") != null) {
                 String[] names = queryParams.get("properties")[0].split(",");
                 for (String propName : names) {
-                    query.AddFeatureProperty(propName);
+                    query.addFeatureProperty(propName);
                 }
             }
             String finalFilter = "";
@@ -317,7 +317,7 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
                 }
             }
             if (finalFilter.length() > 0) {
-                query.SetFilter(finalFilter);
+                query.setFilter(finalFilter);
             }
             int limit = -1;
             if (queryParams.get("maxfeatures") != null) {
@@ -332,34 +332,34 @@ public abstract class MgFeatureServiceController extends MgAbstractAuthenticated
             if (queryParams.get("transformto") != null) {
                 String csCode = queryParams.get("transformto")[0];
                 MgCoordinateSystemFactory csFactory = new MgCoordinateSystemFactory();
-                MgCoordinateSystem targetCs = csFactory.CreateFromCode(csCode);
-                MgClassDefinition clsDef = featSvc.GetClassDefinition(fsId, schemaName, className);
+                MgCoordinateSystem targetCs = csFactory.createFromCode(csCode);
+                MgClassDefinition clsDef = featSvc.getClassDefinition(fsId, schemaName, className);
                 //Has a designated Geometry property, we'll use its spatial context
-                if (!clsDef.GetDefaultGeometryPropertyName().equals("")) {
-                    MgPropertyDefinitionCollection props = clsDef.GetProperties();
-                    int idx = props.IndexOf(clsDef.GetDefaultGeometryPropertyName());
+                if (!clsDef.getDefaultGeometryPropertyName().equals("")) {
+                    MgPropertyDefinitionCollection props = clsDef.getProperties();
+                    int idx = props.indexOf(clsDef.getDefaultGeometryPropertyName());
                     if (idx >= 0) {
-                        MgGeometricPropertyDefinition geomProp = (MgGeometricPropertyDefinition)props.GetItem(idx);
-                        String scName = geomProp.GetSpatialContextAssociation();
-                        MgSpatialContextReader scReader = featSvc.GetSpatialContexts(fsId, false);
+                        MgGeometricPropertyDefinition geomProp = (MgGeometricPropertyDefinition)props.getItem(idx);
+                        String scName = geomProp.getSpatialContextAssociation();
+                        MgSpatialContextReader scReader = featSvc.getSpatialContexts(fsId, false);
                         try {
-                            while(scReader.ReadNext()) {
+                            while(scReader.readNext()) {
                                 //Found the matching spatial context, create a MgCoordinateSystem from its wkt
-                                if (scReader.GetName().equals(scName)) {
-                                    MgCoordinateSystem sourceCs = csFactory.Create(scReader.GetCoordinateSystemWkt());
-                                    transform = csFactory.GetTransform(sourceCs, targetCs);
+                                if (scReader.getName().equals(scName)) {
+                                    MgCoordinateSystem sourceCs = csFactory.create(scReader.getCoordinateSystemWkt());
+                                    transform = csFactory.getTransform(sourceCs, targetCs);
                                     break;
                                 }
                             }
                         }
                         finally {
-                            scReader.Close();
+                            scReader.close();
                         }
                     }
                 }
             }
 
-            MgFeatureReader reader = featSvc.SelectFeatures(fsId, schemaName + ":" + className, query);
+            MgFeatureReader reader = featSvc.selectFeatures(fsId, schemaName + ":" + className, query);
             MgFeatureSetChunkedResult result = new MgFeatureSetChunkedResult(featSvc, reader, limit);
             if (transform != null)
                 result.setTransform(transform);

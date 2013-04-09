@@ -59,14 +59,14 @@ public class MgTmsController extends MgAbstractController
         try {
             TmsTiledMapInfo map = createTestMap();
             MgSiteConnection siteConn = createAnonymousMapGuideConnection();
-            MgTileService tileSvc = (MgTileService)siteConn.CreateService(MgServiceType.TileService);
+            MgTileService tileSvc = (MgTileService)siteConn.createService(MgServiceType.TileService);
             TmsTiledMapDefinition mapDef = new TmsTiledMapDefinition(map, siteConn);
             response().setContentType(MgMimeType.Xml);
             return ok(tmsTileMap.render(
                 tmsVersion,
                 mapDef,
-                tileSvc.GetDefaultTileSizeX(),
-                tileSvc.GetDefaultTileSizeY(),
+                tileSvc.getDefaultTileSizeX(),
+                tileSvc.getDefaultTileSizeY(),
                 tileFormat,
                 tileMimeType
             ));
@@ -89,20 +89,20 @@ public class MgTmsController extends MgAbstractController
             String baseLayerGroupName = "Base Layer Group";
             int scaleIndex = mapDef.getScaleIndex(tileSet.intValue());
 
-            MgTileService tileSvc = (MgTileService)siteConn.CreateService(MgServiceType.TileService);
-            MgByteReader image  = tileSvc.GetTile(mdfId, baseLayerGroupName, col.intValue(), row.intValue(), scaleIndex);
-            response().setContentType(image.GetMimeType());
+            MgTileService tileSvc = (MgTileService)siteConn.createService(MgServiceType.TileService);
+            MgByteReader image  = tileSvc.getTile(mdfId, baseLayerGroupName, col.intValue(), row.intValue(), scaleIndex);
+            response().setContentType(image.getMimeType());
             //We *really* want to use MgReadOnlyStream, but that's not ready for prime-time
             //
             //MgReadOnlyStream inStream = new MgReadOnlyStream(image);
             //return ok(inStream);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             byte[] byteBuffer = new byte[1024];
-            int numBytes = image.Read(byteBuffer, 1024);
+            int numBytes = image.read(byteBuffer, 1024);
             while(numBytes > 0)
             {
                 bos.write(byteBuffer, 0, numBytes);
-                numBytes = image.Read(byteBuffer, 1024);
+                numBytes = image.read(byteBuffer, 1024);
             }
             ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
             return ok(bis);

@@ -10,12 +10,12 @@ public class Global extends GlobalSettings {
         //Logger.info("java.library.path is currently: " + System.getProperty("java.library.path"));
         String webConfigPath = Play.application().configuration().getString("mapguide4j.webconfigpath");
         Logger.info("Initializing MapGuide Web Tier with: " + webConfigPath);
-        MapGuideJavaApi.MgInitializeWebTier(webConfigPath);
+        MapGuideJavaApiEx.MgInitializeWebTier(webConfigPath);
         Logger.info("Application has started");
-    }  
+    }
 
     @Override
     public void onStop(Application app) {
         Logger.info("Application shutdown...");
-    }  
+    }
 }

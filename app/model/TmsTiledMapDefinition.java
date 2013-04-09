@@ -50,30 +50,30 @@ public class TmsTiledMapDefinition
 
             MgMap map = new MgMap(siteConn);
             MgResourceIdentifier mdfId = new MgResourceIdentifier(info.getMapDefinition());
-            map.Create(mdfId, mdfId.GetName());
+            map.create(mdfId, mdfId.getName());
 
             MgCoordinateSystemFactory fact = new MgCoordinateSystemFactory();
-            int epsg = fact.ConvertWktToEpsgCode(map.GetMapSRS());
+            int epsg = fact.convertWktToEpsgCode(map.getMapSRS());
             if (epsg == 0) {
                 throw new RuntimeException("Invalid map definition. Map's coordinate system does not resolved to a valid EPSG code");
             }
-            MgCoordinateSystem mapCs = fact.Create(map.GetMapSRS());
-            double metersPerUnit = mapCs.ConvertCoordinateSystemUnitsToMeters(1.0);
-            double metersPerPixel = 0.0254 / map.GetDisplayDpi();
+            MgCoordinateSystem mapCs = fact.create(map.getMapSRS());
+            double metersPerUnit = mapCs.convertCoordinateSystemUnitsToMeters(1.0);
+            double metersPerPixel = 0.0254 / map.getDisplayDpi();
 
-            int scaleCount = map.GetFiniteDisplayScaleCount();
+            int scaleCount = map.getFiniteDisplayScaleCount();
             if (scaleCount == 0) {
                 throw new RuntimeException("Invalid map definition. Map has no finite scale lists");
             }
 
-            MgEnvelope mapBounds = map.GetMapExtent();
-            MgCoordinate boundsLL = mapBounds.GetLowerLeftCoordinate();
-            MgCoordinate boundsUR = mapBounds.GetUpperRightCoordinate();
+            MgEnvelope mapBounds = map.getMapExtent();
+            MgCoordinate boundsLL = mapBounds.getLowerLeftCoordinate();
+            MgCoordinate boundsUR = mapBounds.getUpperRightCoordinate();
 
-            this.bounds = new Bounds(boundsLL.GetX(), boundsLL.GetY(), boundsUR.GetX(), boundsUR.GetY());
+            this.bounds = new Bounds(boundsLL.getX(), boundsLL.getY(), boundsUR.getX(), boundsUR.getY());
 
             for (int i = 0; i < scaleCount; i++) {
-                double scale = map.GetFiniteDisplayScaleAt(i);
+                double scale = map.getFiniteDisplayScaleAt(i);
                 double unitsPerPixel = 0.0;
                 if (info.getProfile().equals("local"))
                     unitsPerPixel = Math.pow(2, i);//metersPerPixel / scale * metersPerUnit;

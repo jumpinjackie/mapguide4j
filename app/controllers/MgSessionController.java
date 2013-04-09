@@ -12,8 +12,8 @@ public class MgSessionController extends MgAbstractController {
     public static Result createSession() {
         try {
             MgSiteConnection siteConn = createMapGuideConnection();
-            MgSite site = siteConn.GetSite();
-            return created(site.CreateSession());
+            MgSite site = siteConn.getSite();
+            return created(site.createSession());
         } catch (MgException ex) {
             return mgServerError(ex);
         } catch (Exception ex) {
@@ -25,9 +25,9 @@ public class MgSessionController extends MgAbstractController {
         try {
             MgUserInformation userInfo = new MgUserInformation(sessionId);
             MgSiteConnection siteConn = new MgSiteConnection();
-            siteConn.Open(userInfo);
-            MgSite site = siteConn.GetSite();
-            site.DestroySession(sessionId);
+            siteConn.open(userInfo);
+            MgSite site = siteConn.getSite();
+            site.destroySession(sessionId);
             return ok();
         } catch (MgException ex) {
             return mgServerError(ex);

@@ -1,7 +1,7 @@
 mapguide4j
 ==========
 
-mapguide4j is a Java-based suite of web services and applications for MapGuide using the Java version of the MapGuide Web Extensions API
+mapguide4j is a Java-based suite of web services and applications for MapGuide using the enhanced version of the MapGuide Java Web Extensions API introduced with [MapGuide Open Source 2.5](http://mapguide.osgeo.org)
 
 mapguide4j is built on top of the [Play! Framework](http://www.playframework.org) and has no dependencies to IIS or Apache.
 
@@ -24,7 +24,7 @@ Requirements
  - Microsoft Windows (for now)
  - Java 6 SDK (bitness must match your MapGuide Server bitness)
  - [Play! Framework 2.0.4](http://www.playframework.org/)
- - [MapGuide Open Source 2.4](http://mapguide.osgeo.org) (with Tomcat option, you don't need to actually have the Apache/Tomcat installed and running, we just need the MapGuideApi.jar and its dlls)
+ - [MapGuide Open Source 2.5](http://mapguide.osgeo.org) (with Tomcat option, you don't need to actually have the Apache/Tomcat installed and running, we just need the MapGuideApi.jar and its dlls)
 
 Setup
 =====
@@ -38,7 +38,7 @@ Setup
  - ACE.dll
  - GEOS.dll
  - lib_json.dll
- - MapGuideJavaApi.dll
+ - MapGuideJavaApiEx.dll
  - MgFoundation.dll
  - MgGeometry.dll
  - MgHttpHandler.dll
@@ -50,7 +50,7 @@ Setup
  - MgWebSupport.dll
  - xerces-c_3_1mg.dll
 
-4. Copy MapGuideApi.jar into the lib directory of your clone
+4. Copy MapGuideApiEx.jar into the lib directory of your clone
 
 5. Start the play framework (play run) on the clone directory. You may need to set the PATH and JAVA_HOME environment variables to ensure you are using the correct Java SDK
 

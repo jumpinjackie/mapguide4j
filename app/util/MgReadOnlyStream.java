@@ -25,7 +25,7 @@ public class MgReadOnlyStream extends InputStream {
     }
 
     private int advanceInternalBuffer() throws MgException {
-        _internalBufferSize = _reader.Read(_buffer, _buffer.length);
+        _internalBufferSize = _reader.read(_buffer, _buffer.length);
         _internalBufferPosition = -1;
         return _internalBufferSize;
     }
@@ -57,7 +57,7 @@ public class MgReadOnlyStream extends InputStream {
         } catch (MgException ex) {
             String msg = "";
             try {
-                msg = ex.GetExceptionMessage();
+                msg = ex.getExceptionMessage();
             } catch (Exception e) {
                 msg = "";
             }
