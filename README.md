@@ -60,6 +60,11 @@ Setup
  - REST endpoint: http://localhost:9000/mapguide/rest
  - AJAX Viewer: http://localhost:9000/mapguide/mapviewerajax
 
+License
+=======
+
+mapguide4j is licensed under the MIT license (see LICENSE.txt)
+
 Other Useful Links
 ==================
 
